@@ -1,29 +1,70 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import { useAuthStore } from '@/stores'
+import { requireAuth, requireGuest } from '@/middleware/auth'
+
+// Lazy load views
+const LoginView = () => import('@/views/LoginView.vue')
+const DashboardView = () => import('@/views/dashboard/DashboardView.vue')
+const AccountListView = () => import('@/views/accounts/AccountListView.vue')
+const AccountFormView = () => import('@/views/accounts/AccountFormView.vue')
+const NotFoundView = () => import('@/views/NotFoundView.vue')
+
+// Layout
+const AdminLayout = () => import('@/components/layout/AdminLayout.vue')
 
 const routes: RouteRecordRaw[] = [
-  {
-    path: '/',
-    name: 'home',
-    component: () => import('@/pages/HomePage.vue'),
-    meta: { requiresAuth: false },
-  },
+  // Auth routes (no layout)
   {
     path: '/login',
     name: 'login',
-    component: () => import('@/pages/LoginPage.vue'),
-    meta: { requiresAuth: false, guestOnly: true },
+    component: LoginView,
+    beforeEnter: requireGuest,
+    meta: { title: 'Đăng nhập' },
   },
+
+  // Admin routes (with layout)
   {
-    path: '/dashboard',
-    name: 'dashboard',
-    component: () => import('@/pages/DashboardPage.vue'),
-    meta: { requiresAuth: true },
+    path: '/',
+    component: AdminLayout,
+    beforeEnter: requireAuth,
+    children: [
+      {
+        path: '',
+        redirect: '/dashboard',
+      },
+      {
+        path: 'dashboard',
+        name: 'dashboard',
+        component: DashboardView,
+        meta: { title: 'Dashboard' },
+      },
+      // Account CRUD
+      {
+        path: 'accounts',
+        name: 'accounts',
+        component: AccountListView,
+        meta: { title: 'Quản lý tài khoản' },
+      },
+      {
+        path: 'accounts/create',
+        name: 'account-create',
+        component: AccountFormView,
+        meta: { title: 'Thêm tài khoản' },
+      },
+      {
+        path: 'accounts/:id/edit',
+        name: 'account-edit',
+        component: AccountFormView,
+        meta: { title: 'Sửa tài khoản' },
+      },
+    ],
   },
+
+  // 404
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
-    component: () => import('@/pages/NotFoundPage.vue'),
+    component: NotFoundView,
+    meta: { title: 'Không tìm thấy trang' },
   },
 ]
 
@@ -32,26 +73,10 @@ const router = createRouter({
   routes,
 })
 
-// Navigation guards
-router.beforeEach((to, _from, next) => {
-  const authStore = useAuthStore()
-
-  // Check if route requires auth
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next({
-      name: 'login',
-      query: { redirect: to.fullPath },
-    })
-    return
-  }
-
-  // Check if route is guest only
-  if (to.meta.guestOnly && authStore.isAuthenticated) {
-    next({ name: 'home' })
-    return
-  }
-
-  next()
+// Update page title
+router.afterEach(to => {
+  const title = to.meta.title as string
+  document.title = title ? `${title} | Payroll Management` : 'Payroll Management'
 })
 
 export default router
