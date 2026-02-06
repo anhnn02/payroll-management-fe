@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI System Design - HRM Payroll Management (Tailwind CSS)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Professional Blue Theme (Default - Recommended)
+                        primary: {
+                            50: '#E3F2FD',
+                            100: '#BBDEFB',
+                            200: '#90CAF9',
+                            300: '#64B5F6',
+                            400: '#42A5F5',
+                            500: '#2196F3',
+                            600: '#1E88E5',
+                            700: '#1976D2', // Main primary
+                            800: '#1565C0',
+                            900: '#0D47A1',
+                        },
+                        secondary: {
+                            50: '#FAFAFA',
+                            100: '#F5F5F5',
+                            200: '#EEEEEE',
+                            300: '#E0E0E0',
+                            400: '#BDBDBD',
+                            500: '#9E9E9E',
+                            600: '#757575',
+                            700: '#616161',
+                            800: '#424242', // Main secondary
+                            900: '#212121',
+                        },
+                        accent: {
+                            50: '#FFF3E0',
+                            100: '#FFE0B2',
+                            200: '#FFCC80',
+                            300: '#FFB74D',
+                            400: '#FFA726', // Main accent
+                            500: '#FF9800',
+                            600: '#FB8C00',
+                            700: '#F57C00',
+                            800: '#EF6C00',
+                            900: '#E65100',
+                        },
+                        // Alternative Themes (uncomment to use)
+                        // Corporate Green Theme
+                        green: {
+                            700: '#2E7D32',
+                            800: '#1B5E20',
+                        },
+                        // Modern Teal Theme
+                        teal: {
+                            600: '#00897B',
+                            700: '#00695C',
+                        },
+                        // Classic Navy Theme
+                        navy: {
+                            700: '#283593',
+                            800: '#1A237E',
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    },
+                    spacing: {
+                        '128': '32rem',
+                        '144': '36rem',
+                    },
+                    borderRadius: {
+                        '4xl': '2rem',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom styles for code blocks */
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.7;
+        }
+        .code-block code {
+            color: #e2e8f0;
+        }
+        .theme-card {
+            transition: all 0.3s ease;
+        }
+        .theme-card:hover {
+            transform: translateY(-4px);
+        }
+        .icon-box {
+            transition: all 0.2s;
+        }
+        .icon-box:hover {
+            background: #f3f4f6;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-primary-700 to-primary-800 text-white py-12 shadow-lg">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-3">🎨 UI System Design</h1>
+            <p class="text-xl opacity-95">HRM - Payroll Management System</p>
+            <p class="text-sm mt-3 opacity-90">Built with Tailwind CSS | Version 1.0 | 01/02/2026</p>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-10 max-w-7xl">
+
+        <!-- Table of Contents -->
+        <div class="bg-gray-100 rounded-lg p-6 mb-10">
+            <h3 class="text-xl font-semibold text-primary-700 mb-4">📋 Mục Lục</h3>
+            <ul class="space-y-2">
+                <li><a href="#tailwind-config" class="text-gray-700 hover:text-primary-700 transition-colors">1. Tailwind Configuration</a></li>
+                <li><a href="#color-system" class="text-gray-700 hover:text-primary-700 transition-colors">2. Hệ Thống Màu Sắc</a></li>
+                <li><a href="#typography" class="text-gray-700 hover:text-primary-700 transition-colors">3. Typography System</a></li>
+                <li><a href="#spacing" class="text-gray-700 hover:text-primary-700 transition-colors">4. Spacing & Layout</a></li>
+                <li><a href="#components" class="text-gray-700 hover:text-primary-700 transition-colors">5. Components Library</a></li>
+                <li><a href="#forms" class="text-gray-700 hover:text-primary-700 transition-colors">6. Form Components</a></li>
+                <li><a href="#icons" class="text-gray-700 hover:text-primary-700 transition-colors">7. Icons System (SVG)</a></li>
+                <li><a href="#layout" class="text-gray-700 hover:text-primary-700 transition-colors">8. Layout Examples</a></li>
+                <li><a href="#responsive" class="text-gray-700 hover:text-primary-700 transition-colors">9. Responsive Design</a></li>
+            </ul>
+        </div>
+
+        <!-- 1. Tailwind Configuration -->
+        <section id="tailwind-config" class="bg-white rounded-lg shadow-md p-8 mb-10">
+            <h2 class="text-3xl font-bold text-primary-700 border-b-4 border-primary-700 pb-3 mb-6">
+                1. Tailwind Configuration
+            </h2>
+
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">📦 Installation</h3>
+                <div class="code-block">
+<code># Install Tailwind CSS
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p</code>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">⚙️ tailwind.config.js</h3>
+                <p class="text-gray-600 mb-4">Copy configuration này vào file <code class="bg-gray-200 px-2 py-1 rounded text-sm text-red-600">tailwind.config.js</code> của bạn:</p>
+                <div class="code-block">
+<code>/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        // Professional Blue Theme (Default - Recommended)
+        primary: {
+          50: '#E3F2FD',
+          100: '#BBDEFB',
+          200: '#90CAF9',
+          300: '#64B5F6',
+          400: '#42A5F5',
+          500: '#2196F3',
+          600: '#1E88E5',
+          700: '#1976D2', // Main primary
+          800: '#1565C0',
+          900: '#0D47A1',
+        },
+        secondary: {
+          50: '#FAFAFA',
+          100: '#F5F5F5',
+          200: '#EEEEEE',
+          300: '#E0E0E0',
+          400: '#BDBDBD',
+          500: '#9E9E9E',
+          600: '#757575',
+          700: '#616161',
+          800: '#424242', // Main secondary
+          900: '#212121',
+        },
+        accent: {
+          50: '#FFF3E0',
+          100: '#FFE0B2',
+          200: '#FFCC80',
+          300: '#FFB74D',
+          400: '#FFA726', // Main accent
+          500: '#FF9800',
+          600: '#FB8C00',
+          700: '#F57C00',
+          800: '#EF6C00',
+          900: '#E65100',
+        },
+      },
+      fontFamily: {
+        sans: [
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Roboto',
+          'Helvetica Neue',
+          'Arial',
+          'sans-serif'
+        ],
+      },
+    },
+  },
+  plugins: [],
+}</code>
+                </div>
+            </div>
+
+            <div class="bg-amber-50 border-l-4 border-accent-400 p-4 rounded">
+                <p class="text-amber-800">
+                    <strong>💡 Lưu ý:</strong> Bạn có thể thay đổi màu primary/secondary/accent trong config để sử dụng theme khác (Green, Teal, Navy).
+                </p>
+            </div>
+        </section>
+
+        <!-- 2. Color System -->
+        <section id="color-system" class="bg-white rounded-lg shadow-md p-8 mb-10">
+            <h2 class="text-3xl font-bold text-primary-700 border-b-4 border-primary-700 pb-3 mb-6">
+                2. Hệ Thống Màu Sắc
+            </h2>
+
+            <p class="text-gray-600 mb-8 text-lg">
+                4 theme màu được thiết kế sẵn. Chọn theme phù hợp với bản sắc công ty và cập nhật trong <code class="bg-gray-200 px-2 py-1 rounded text-sm">tailwind.config.js</code>
+            </p>
+
+            <!-- Theme Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                <!-- Professional Blue -->
+                <div class="theme-card border-2 border-accent-400 rounded-xl overflow-hidden shadow-lg relative">
+                    <span class="absolute top-4 right-4 bg-accent-400 text-white px-4 py-2 rounded-full text-sm font-semibold z-10">
+                        ⭐ Khuyến nghị
+                    </span>
+                    <div class="bg-gradient-to-r from-primary-700 to-primary-800 text-white p-6">
+                        <h3 class="text-2xl font-bold">Professional Blue</h3>
+                    </div>
+                    <div class="p-6 bg-gray-50">
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-lg shadow-md" style="background: #1976D2;"></div>
+                                <div>
+                                    <div class="font-semibold text-gray-800">Primary</div>
+                                    <div class="text-sm text-gray-600 font-mono">#1976D2</div>
+                                    <div class="text-xs text-gray-500">text-primary-700 / bg-primary-700</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-lg shadow-md" style="background: #424242;"></div>
+                                <div>
+                                    <div class="font-semibold text-gray-800">Secondary</div>
+                                    <div class="text-sm text-gray-600 font-mono">#424242</div>
+                                    <div class="text-xs text-gray-500">text-secondary-800 / bg-secondary-800</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-lg shadow-md" style="background: #FFA726;"></div>
+                                <div>
+                                    <div class="font-semibold text-gray-800">Accent</div>
+                                    <div class="text-sm text-gray-600 font-mono">#FFA726</div>
+                                    <div class="text-xs text-gray-500">text-accent-400 / bg-accent-400</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 flex gap-3 border-t border-gray-200">
+                        <button class="px-4 py-2 bg-primary-700 text-white rounded-lg font-semibold hover:bg-primary-800 transition-colors">Primary</button>
+                        <button class="px-4 py-2 bg-secondary-800 text-white rounded-lg font-semibold hover:bg-secondary-900 transition-colors">Secondary</button>
+                        <button class="px-4 py-2 bg-accent-400 text-white rounded-lg font-semibold hover:bg-accent-500 transition-colors">Accent</button>
+                    </div>
+                </div>
+
+                <!-- Corporate Green -->
+                <div class="theme-card border-2 border-gray-300 rounded-xl overflow-hidden shadow-lg">
+                    <div class="bg-gradient-to-r from-green-700 to-green-800 text-white p-6">
+                        <h3 class="text-2xl font-bold">Corporate Green</h3>
+                    </div>
+                    <div class="p-6 bg-gray-50">
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-lg shadow-md bg-green-700"></div>
+                                <div>
+                                    <div class="font-semibold text-gray-800">Primary</div>
+                                    <div class="text-sm text-gray-600 font-mono">#2E7D32</div>
+                                    <div class="text-xs text-gray-500">text-green-700 / bg-green-700</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-lg shadow-md" style="background: #455A64;"></div>
+                                <div>
+                                    <div class="font-semibold text-gray-800">Secondary</div>
+                                    <div class="text-sm text-gray-600 font-mono">#455A64</div>
+                                    <div class="text-xs text-gray-500">text-blue-gray-700</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-lg shadow-md" style="background: #FFA000;"></div>
+                                <div>
+                                    <div class="font-semibold text-gray-800">Accent</div>
+                                    <div class="text-sm text-gray-600 font-mono">#FFA000</div>
+                                    <div class="text-xs text-gray-500">text-amber-600</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 flex gap-3 border-t border-gray-200">
+                        <button class="px-4 py-2 bg-green-700 text-white rounded-lg font-semibold hover:bg-green-800 transition-colors">Primary</button>
+                        <button class="px-4 py-2 text-white rounded-lg font-semibold transition-colors" style="background: #455A64;">Secondary</button>
+                        <button class="px-4 py-2 text-white rounded-lg font-semibold transition-colors" style="background: #FFA000;">Accent</button>
+                    </div>
+                </div>
+
+                <!-- Modern Teal -->
+                <div class="theme-card border-2 border-gray-300 rounded-xl overflow-hidden shadow-lg">
+                    <div class="bg-gradient-to-r from-teal-600 to-teal-700 text-white p-6">
+                        <h3 class="text-2xl font-bold">Modern Teal</h3>
+                    </div>
+                    <div class="p-6 bg-gray-50">
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-lg shadow-md bg-teal-600"></div>
+                                <div>
+                                    <div class="font-semibold text-gray-800">Primary</div>
+                                    <div class="text-sm text-gray-600 font-mono">#00897B</div>
+                                    <div class="text-xs text-gray-500">text-teal-600 / bg-teal-600</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-lg shadow-md" style="background: #546E7A;"></div>
+                                <div>
+                                    <div class="font-semibold text-gray-800">Secondary</div>
+                                    <div class="text-sm text-gray-600 font-mono">#546E7A</div>
+                                    <div class="text-xs text-gray-500">text-blue-gray-600</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-lg shadow-md" style="background: #FF6F00;"></div>
+                                <div>
+                                    <div class="font-semibold text-gray-800">Accent</div>
+                                    <div class="text-sm text-gray-600 font-mono">#FF6F00</div>
+                                    <div class="text-xs text-gray-500">text-orange-700</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 flex gap-3 border-t border-gray-200">
+                        <button class="px-4 py-2 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 transition-colors">Primary</button>
+                        <button class="px-4 py-2 text-white rounded-lg font-semibold transition-colors" style="background: #546E7A;">Secondary</button>
+                        <button class="px-4 py-2 text-white rounded-lg font-semibold transition-colors" style="background: #FF6F00;">Accent</button>
+                    </div>
+                </div>
+
+                <!-- Classic Navy -->
+                <div class="theme-card border-2 border-gray-300 rounded-xl overflow-hidden shadow-lg">
+                    <div class="bg-gradient-to-r from-navy-700 to-navy-800 text-white p-6">
+                        <h3 class="text-2xl font-bold">Classic Navy</h3>
+                    </div>
+                    <div class="p-6 bg-gray-50">
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-lg shadow-md bg-navy-700"></div>
+                                <div>
+                                    <div class="font-semibold text-gray-800">Primary</div>
+                                    <div class="text-sm text-gray-600 font-mono">#283593</div>
+                                    <div class="text-xs text-gray-500">text-indigo-800</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-lg shadow-md" style="background: #37474F;"></div>
+                                <div>
+                                    <div class="font-semibold text-gray-800">Secondary</div>
+                                    <div class="text-sm text-gray-600 font-mono">#37474F</div>
+                                    <div class="text-xs text-gray-500">text-blue-gray-800</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-lg shadow-md" style="background: #F57C00;"></div>
+                                <div>
+                                    <div class="font-semibold text-gray-800">Accent</div>
+                                    <div class="text-sm text-gray-600 font-mono">#F57C00</div>
+                                    <div class="text-xs text-gray-500">text-orange-600</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 flex gap-3 border-t border-gray-200">
+                        <button class="px-4 py-2 text-white rounded-lg font-semibold transition-colors" style="background: #283593;">Primary</button>
+                        <button class="px-4 py-2 text-white rounded-lg font-semibold transition-colors" style="background: #37474F;">Secondary</button>
+                        <button class="px-4 py-2 text-white rounded-lg font-semibold transition-colors" style="background: #F57C00;">Accent</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Semantic Colors -->
+            <h3 class="text-2xl font-semibold text-gray-800 mt-10 mb-6">Semantic Colors (Màu Ngữ Nghĩa)</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="flex items-center gap-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                    <div class="w-12 h-12 rounded-lg shadow-md bg-green-600"></div>
+                    <div>
+                        <div class="font-semibold text-gray-800">Success</div>
+                        <div class="text-sm text-gray-600 font-mono">text-green-600</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 p-4 bg-red-50 rounded-lg border border-red-200">
+                    <div class="w-12 h-12 rounded-lg shadow-md bg-red-600"></div>
+                    <div>
+                        <div class="font-semibold text-gray-800">Error</div>
+                        <div class="text-sm text-gray-600 font-mono">text-red-600</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                    <div class="w-12 h-12 rounded-lg shadow-md bg-amber-500"></div>
+                    <div>
+                        <div class="font-semibold text-gray-800">Warning</div>
+                        <div class="text-sm text-gray-600 font-mono">text-amber-500</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div class="w-12 h-12 rounded-lg shadow-md bg-blue-600"></div>
+                    <div>
+                        <div class="font-semibold text-gray-800">Info</div>
+                        <div class="text-sm text-gray-600 font-mono">text-blue-600</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Typography -->
+        <section id="typography" class="bg-white rounded-lg shadow-md p-8 mb-10">
+            <h2 class="text-3xl font-bold text-primary-700 border-b-4 border-primary-700 pb-3 mb-6">
+                3. Typography System
+            </h2>
+
+            <div class="space-y-6 mb-8">
+                <div class="border-l-4 border-primary-700 pl-6 py-2 bg-gray-50 rounded">
+                    <h1 class="text-4xl font-bold text-gray-900 mb-2">Heading 1 - Tiêu đề chính</h1>
+                    <code class="text-sm text-gray-600">text-4xl font-bold</code>
+                </div>
+                <div class="border-l-4 border-primary-700 pl-6 py-2 bg-gray-50 rounded">
+                    <h2 class="text-3xl font-semibold text-gray-900 mb-2">Heading 2 - Tiêu đề phụ</h2>
+                    <code class="text-sm text-gray-600">text-3xl font-semibold</code>
+                </div>
+                <div class="border-l-4 border-primary-700 pl-6 py-2 bg-gray-50 rounded">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-2">Heading 3 - Tiêu đề section</h3>
+                    <code class="text-sm text-gray-600">text-2xl font-semibold</code>
+                </div>
+                <div class="border-l-4 border-primary-700 pl-6 py-2 bg-gray-50 rounded">
+                    <h4 class="text-xl font-semibold text-gray-900 mb-2">Heading 4 - Tiêu đề nhỏ</h4>
+                    <code class="text-sm text-gray-600">text-xl font-semibold</code>
+                </div>
+                <div class="border-l-4 border-primary-700 pl-6 py-2 bg-gray-50 rounded">
+                    <p class="text-base text-gray-700 mb-2">Body Text - Văn bản thông thường cho nội dung chính. Phù hợp cho mô tả, hướng dẫn, và thông tin chi tiết.</p>
+                    <code class="text-sm text-gray-600">text-base text-gray-700</code>
+                </div>
+                <div class="border-l-4 border-primary-700 pl-6 py-2 bg-gray-50 rounded">
+                    <small class="text-sm text-gray-600">Small Text - Văn bản nhỏ cho ghi chú, metadata, timestamp</small><br>
+                    <code class="text-sm text-gray-600">text-sm text-gray-600</code>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Font Weights</h3>
+            <div class="space-y-2 bg-gray-50 p-6 rounded-lg">
+                <p class="font-normal">font-normal (400) - Văn bản thông thường</p>
+                <p class="font-medium">font-medium (500) - Nhấn mạnh nhẹ</p>
+                <p class="font-semibold">font-semibold (600) - Tiêu đề, labels</p>
+                <p class="font-bold">font-bold (700) - Tiêu đề chính, CTA</p>
+            </div>
+        </section>
+
+        <!-- 4. Spacing -->
+        <section id="spacing" class="bg-white rounded-lg shadow-md p-8 mb-10">
+            <h2 class="text-3xl font-bold text-primary-700 border-b-4 border-primary-700 pb-3 mb-6">
+                4. Spacing & Layout
+            </h2>
+
+            <p class="text-gray-600 mb-6">Tailwind sử dụng hệ thống spacing mặc định (base 4px = 1 unit):</p>
+
+            <div class="space-y-4 mb-8">
+                <div class="flex items-center gap-6">
+                    <div class="w-1 h-10 bg-primary-700 rounded"></div>
+                    <code class="font-mono text-sm">p-1 = 4px (0.25rem)</code>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="w-2 h-10 bg-primary-700 rounded"></div>
+                    <code class="font-mono text-sm">p-2 = 8px (0.5rem)</code>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="w-4 h-10 bg-primary-700 rounded"></div>
+                    <code class="font-mono text-sm">p-4 = 16px (1rem)</code>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="w-6 h-10 bg-primary-700 rounded"></div>
+                    <code class="font-mono text-sm">p-6 = 24px (1.5rem)</code>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="w-8 h-10 bg-primary-700 rounded"></div>
+                    <code class="font-mono text-sm">p-8 = 32px (2rem)</code>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="w-12 h-10 bg-primary-700 rounded"></div>
+                    <code class="font-mono text-sm">p-12 = 48px (3rem)</code>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="w-16 h-10 bg-primary-700 rounded"></div>
+                    <code class="font-mono text-sm">p-16 = 64px (4rem)</code>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Container & Max Width</h3>
+            <div class="code-block">
+<code>container mx-auto    - Centered container
+max-w-7xl           - Max width 1280px
+max-w-6xl           - Max width 1152px
+max-w-5xl           - Max width 1024px
+max-w-4xl           - Max width 896px</code>
+            </div>
+        </section>
+
+        <!-- 5. Components -->
+        <section id="components" class="bg-white rounded-lg shadow-md p-8 mb-10">
+            <h2 class="text-3xl font-bold text-primary-700 border-b-4 border-primary-700 pb-3 mb-6">
+                5. Components Library
+            </h2>
+
+            <!-- Buttons -->
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Buttons</h3>
+            <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                <div class="flex flex-wrap gap-4 mb-6">
+                    <button class="px-6 py-2.5 bg-primary-700 text-white font-semibold rounded-lg hover:bg-primary-800 transition-colors shadow-md">
+                        Primary Button
+                    </button>
+                    <button class="px-6 py-2.5 bg-secondary-800 text-white font-semibold rounded-lg hover:bg-secondary-900 transition-colors shadow-md">
+                        Secondary Button
+                    </button>
+                    <button class="px-6 py-2.5 border-2 border-primary-700 text-primary-700 font-semibold rounded-lg hover:bg-primary-700 hover:text-white transition-colors">
+                        Outline Button
+                    </button>
+                    <button class="px-6 py-2.5 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors shadow-md">
+                        Success Button
+                    </button>
+                    <button class="px-6 py-2.5 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-md">
+                        Danger Button
+                    </button>
+                </div>
+                <div class="code-block">
+<code>&lt;!-- Primary Button --&gt;
+&lt;button class="px-6 py-2.5 bg-primary-700 text-white font-semibold rounded-lg
+               hover:bg-primary-800 transition-colors shadow-md"&gt;
+  Primary Button
+&lt;/button&gt;
+
+&lt;!-- Outline Button --&gt;
+&lt;button class="px-6 py-2.5 border-2 border-primary-700 text-primary-700
+               font-semibold rounded-lg hover:bg-primary-700 hover:text-white
+               transition-colors"&gt;
+  Outline Button
+&lt;/button&gt;</code>
+                </div>
+            </div>
+
+            <!-- Badges -->
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4 mt-8">Badges</h3>
+            <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                <div class="flex flex-wrap gap-3 mb-6">
+                    <span class="px-4 py-1.5 bg-blue-100 text-blue-700 text-sm font-semibold rounded-full">Primary</span>
+                    <span class="px-4 py-1.5 bg-green-100 text-green-700 text-sm font-semibold rounded-full">Đã thanh toán</span>
+                    <span class="px-4 py-1.5 bg-amber-100 text-amber-700 text-sm font-semibold rounded-full">Chờ duyệt</span>
+                    <span class="px-4 py-1.5 bg-red-100 text-red-700 text-sm font-semibold rounded-full">Từ chối</span>
+                    <span class="px-4 py-1.5 bg-gray-100 text-gray-700 text-sm font-semibold rounded-full">Inactive</span>
+                </div>
+                <div class="code-block">
+<code>&lt;span class="px-4 py-1.5 bg-green-100 text-green-700
+             text-sm font-semibold rounded-full"&gt;
+  Đã thanh toán
+&lt;/span&gt;</code>
+                </div>
+            </div>
+
+            <!-- Alerts -->
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4 mt-8">Alerts</h3>
+            <div class="space-y-4">
+                <div class="bg-blue-50 border-l-4 border-blue-600 p-4 rounded">
+                    <p class="text-blue-800"><strong>Thông tin:</strong> Đây là thông báo thông tin cho người dùng.</p>
+                </div>
+                <div class="bg-green-50 border-l-4 border-green-600 p-4 rounded">
+                    <p class="text-green-800"><strong>Thành công:</strong> Thao tác đã được thực hiện thành công.</p>
+                </div>
+                <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
+                    <p class="text-amber-800"><strong>Cảnh báo:</strong> Vui lòng kiểm tra lại thông tin trước khi tiếp tục.</p>
+                </div>
+                <div class="bg-red-50 border-l-4 border-red-600 p-4 rounded">
+                    <p class="text-red-800"><strong>Lỗi:</strong> Đã xảy ra lỗi. Vui lòng thử lại.</p>
+                </div>
+            </div>
+            <div class="code-block mt-4">
+<code>&lt;div class="bg-green-50 border-l-4 border-green-600 p-4 rounded"&gt;
+  &lt;p class="text-green-800"&gt;
+    &lt;strong&gt;Thành công:&lt;/strong&gt; Thao tác đã được thực hiện thành công.
+  &lt;/p&gt;
+&lt;/div&gt;</code>
+            </div>
+
+            <!-- Cards -->
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4 mt-8">Cards</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden">
+                    <div class="bg-gray-100 px-6 py-4 border-b border-gray-200">
+                        <h4 class="font-semibold text-gray-800">Card Header</h4>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 mb-4">Card body với nội dung chính. Có thể chứa text, images, hoặc bất kỳ content nào.</p>
+                    </div>
+                    <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                        <button class="px-4 py-2 bg-primary-700 text-white rounded-lg font-semibold hover:bg-primary-800 transition-colors">Action</button>
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg shadow-md p-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-3">Simple Card</h4>
+                    <p class="text-gray-600 mb-4">Card không có header và footer.</p>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-semibold rounded-full">Badge</span>
+                </div>
+            </div>
+            <div class="code-block">
+<code>&lt;div class="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden"&gt;
+  &lt;div class="bg-gray-100 px-6 py-4 border-b border-gray-200"&gt;
+    &lt;h4 class="font-semibold text-gray-800"&gt;Card Header&lt;/h4&gt;
+  &lt;/div&gt;
+  &lt;div class="p-6"&gt;
+    &lt;p class="text-gray-600"&gt;Card content...&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class="bg-gray-50 px-6 py-4 border-t border-gray-200"&gt;
+    &lt;button class="px-4 py-2 bg-primary-700 text-white rounded-lg"&gt;
+      Action
+    &lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code>
+            </div>
+        </section>
+
+        <!-- 6. Forms -->
+        <section id="forms" class="bg-white rounded-lg shadow-md p-8 mb-10">
+            <h2 class="text-3xl font-bold text-primary-700 border-b-4 border-primary-700 pb-3 mb-6">
+                6. Form Components
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Text Input -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Họ và tên</label>
+                    <input type="text" placeholder="Nhập họ và tên..."
+                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-700 focus:border-primary-700 outline-none transition-all">
+                </div>
+
+                <!-- Email Input -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                    <input type="email" placeholder="example@company.com"
+                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-700 focus:border-primary-700 outline-none transition-all">
+                </div>
+
+                <!-- Select -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Phòng ban</label>
+                    <select class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-700 focus:border-primary-700 outline-none transition-all">
+                        <option>Chọn phòng ban...</option>
+                        <option>Kế toán</option>
+                        <option>Nhân sự</option>
+                        <option>Công nghệ</option>
+                    </select>
+                </div>
+
+                <!-- Date -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Ngày sinh</label>
+                    <input type="date"
+                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-700 focus:border-primary-700 outline-none transition-all">
+                </div>
+
+                <!-- Textarea -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Ghi chú</label>
+                    <textarea rows="4" placeholder="Nhập ghi chú..."
+                              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-700 focus:border-primary-700 outline-none transition-all resize-none"></textarea>
+                </div>
+            </div>
+
+            <div class="code-block">
+<code>&lt;!-- Text Input --&gt;
+&lt;div&gt;
+  &lt;label class="block text-sm font-semibold text-gray-700 mb-2"&gt;
+    Họ và tên
+  &lt;/label&gt;
+  &lt;input type="text"
+         placeholder="Nhập họ và tên..."
+         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg
+                focus:ring-2 focus:ring-primary-700 focus:border-primary-700
+                outline-none transition-all"&gt;
+&lt;/div&gt;
+
+&lt;!-- Select Dropdown --&gt;
+&lt;div&gt;
+  &lt;label class="block text-sm font-semibold text-gray-700 mb-2"&gt;
+    Phòng ban
+  &lt;/label&gt;
+  &lt;select class="w-full px-4 py-2.5 border border-gray-300 rounded-lg
+                 focus:ring-2 focus:ring-primary-700 focus:border-primary-700
+                 outline-none transition-all"&gt;
+    &lt;option&gt;Chọn phòng ban...&lt;/option&gt;
+    &lt;option&gt;Kế toán&lt;/option&gt;
+  &lt;/select&gt;
+&lt;/div&gt;</code>
+            </div>
+        </section>
+
+        <!-- 7. Icons System -->
+        <section id="icons" class="bg-white rounded-lg shadow-md p-8 mb-10">
+            <h2 class="text-3xl font-bold text-primary-700 border-b-4 border-primary-700 pb-3 mb-6">
+                7. Icons System (SVG)
+            </h2>
+
+            <div class="bg-blue-50 border-l-4 border-primary-700 p-4 rounded mb-6">
+                <p class="text-gray-700">
+                    <strong>✨ Khuyến nghị:</strong> Sử dụng SVG icons với outline style (đường nét đơn giản) cho giao diện chuyên nghiệp và hiện đại.
+                </p>
+            </div>
+
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Icon Libraries Recommended</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="border border-gray-200 rounded-lg p-6 hover:border-primary-700 transition-colors">
+                    <h4 class="font-semibold text-lg text-gray-800 mb-2">Heroicons</h4>
+                    <p class="text-sm text-gray-600 mb-3">Open source, created by Tailwind CSS team</p>
+                    <a href="https://heroicons.com" target="_blank" class="text-primary-700 hover:underline text-sm">heroicons.com →</a>
+                    <div class="code-block mt-4">
+<code>npm install @heroicons/react</code>
+                    </div>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-6 hover:border-primary-700 transition-colors">
+                    <h4 class="font-semibold text-lg text-gray-800 mb-2">Lucide Icons</h4>
+                    <p class="text-sm text-gray-600 mb-3">Beautiful & consistent icon toolkit</p>
+                    <a href="https://lucide.dev" target="_blank" class="text-primary-700 hover:underline text-sm">lucide.dev →</a>
+                    <div class="code-block mt-4">
+<code>npm install lucide-react</code>
+                    </div>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-6 hover:border-primary-700 transition-colors">
+                    <h4 class="font-semibold text-lg text-gray-800 mb-2">Feather Icons</h4>
+                    <p class="text-sm text-gray-600 mb-3">Simply beautiful open source icons</p>
+                    <a href="https://feathericons.com" target="_blank" class="text-primary-700 hover:underline text-sm">feathericons.com →</a>
+                    <div class="code-block mt-4">
+<code>npm install react-feather</code>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Common Icons cho HRM-Payroll</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+                <!-- Home -->
+                <div class="icon-box border border-gray-200 rounded-lg p-4 text-center">
+                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    <div class="text-xs text-gray-600">Dashboard</div>
+                </div>
+
+                <!-- Users -->
+                <div class="icon-box border border-gray-200 rounded-lg p-4 text-center">
+                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    <div class="text-xs text-gray-600">Nhân viên</div>
+                </div>
+
+                <!-- Currency -->
+                <div class="icon-box border border-gray-200 rounded-lg p-4 text-center">
+                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div class="text-xs text-gray-600">Lương</div>
+                </div>
+
+                <!-- Clock -->
+                <div class="icon-box border border-gray-200 rounded-lg p-4 text-center">
+                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div class="text-xs text-gray-600">Chấm công</div>
+                </div>
+
+                <!-- Chart -->
+                <div class="icon-box border border-gray-200 rounded-lg p-4 text-center">
+                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    <div class="text-xs text-gray-600">Báo cáo</div>
+                </div>
+
+                <!-- Building -->
+                <div class="icon-box border border-gray-200 rounded-lg p-4 text-center">
+                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                    <div class="text-xs text-gray-600">Phòng ban</div>
+                </div>
+
+                <!-- Document -->
+                <div class="icon-box border border-gray-200 rounded-lg p-4 text-center">
+                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <div class="text-xs text-gray-600">Hợp đồng</div>
+                </div>
+
+                <!-- Settings -->
+                <div class="icon-box border border-gray-200 rounded-lg p-4 text-center">
+                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <div class="text-xs text-gray-600">Cài đặt</div>
+                </div>
+
+                <!-- Bell -->
+                <div class="icon-box border border-gray-200 rounded-lg p-4 text-center">
+                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                    <div class="text-xs text-gray-600">Thông báo</div>
+                </div>
+
+                <!-- Download -->
+                <div class="icon-box border border-gray-200 rounded-lg p-4 text-center">
+                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    <div class="text-xs text-gray-600">Import</div>
+                </div>
+
+                <!-- Upload -->
+                <div class="icon-box border border-gray-200 rounded-lg p-4 text-center">
+                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                    </svg>
+                    <div class="text-xs text-gray-600">Export</div>
+                </div>
+
+                <!-- Check Circle -->
+                <div class="icon-box border border-gray-200 rounded-lg p-4 text-center">
+                    <svg class="w-8 h-8 mx-auto mb-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div class="text-xs text-gray-600">Phê duyệt</div>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Usage Examples</h3>
+
+            <h4 class="text-lg font-semibold text-gray-700 mb-3">1. Inline SVG (Recommended)</h4>
+            <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                <button class="inline-flex items-center gap-2 px-4 py-2 bg-primary-700 text-white rounded-lg hover:bg-primary-800 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Thêm nhân viên
+                </button>
+                <div class="code-block mt-4">
+<code>&lt;button class="inline-flex items-center gap-2 px-4 py-2 bg-primary-700
+               text-white rounded-lg hover:bg-primary-800 transition-colors"&gt;
+  &lt;svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;
+    &lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 4v16m8-8H4"&gt;&lt;/path&gt;
+  &lt;/svg&gt;
+  Thêm nhân viên
+&lt;/button&gt;</code>
+                </div>
+            </div>
+
+            <h4 class="text-lg font-semibold text-gray-700 mb-3">2. Using Heroicons (React)</h4>
+            <div class="code-block mb-6">
+<code>import { UserIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline'
+
+function MyComponent() {
+  return (
+    &lt;div className="flex items-center gap-3"&gt;
+      &lt;UserIcon className="w-6 h-6 text-gray-700" /&gt;
+      &lt;span&gt;Nhân viên&lt;/span&gt;
+    &lt;/div&gt;
+  )
+}</code>
+            </div>
+
+            <h4 class="text-lg font-semibold text-gray-700 mb-3">3. Icon Sizes</h4>
+            <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                <div class="flex items-center gap-6">
+                    <div class="text-center">
+                        <svg class="w-4 h-4 mx-auto mb-1 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <code class="text-xs">w-4 h-4</code>
+                    </div>
+                    <div class="text-center">
+                        <svg class="w-5 h-5 mx-auto mb-1 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <code class="text-xs">w-5 h-5</code>
+                    </div>
+                    <div class="text-center">
+                        <svg class="w-6 h-6 mx-auto mb-1 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <code class="text-xs">w-6 h-6</code>
+                    </div>
+                    <div class="text-center">
+                        <svg class="w-8 h-8 mx-auto mb-1 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <code class="text-xs">w-8 h-8</code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
+                <p class="text-amber-800">
+                    <strong>💡 Best Practices:</strong>
+                </p>
+                <ul class="list-disc list-inside mt-2 text-amber-800 space-y-1">
+                    <li>Sử dụng <code class="bg-amber-100 px-1 rounded">stroke-width="2"</code> cho icons outline</li>
+                    <li>Icon size: <code class="bg-amber-100 px-1 rounded">w-4 h-4</code> cho small, <code class="bg-amber-100 px-1 rounded">w-5 h-5</code> cho buttons, <code class="bg-amber-100 px-1 rounded">w-6 h-6</code> cho navigation</li>
+                    <li>Luôn thêm <code class="bg-amber-100 px-1 rounded">fill="none"</code> và <code class="bg-amber-100 px-1 rounded">stroke="currentColor"</code> để icon inherit màu text</li>
+                    <li>Sử dụng <code class="bg-amber-100 px-1 rounded">stroke-linecap="round"</code> và <code class="bg-amber-100 px-1 rounded">stroke-linejoin="round"</code> để bo góc</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 8. Layout Examples -->
+        <section id="layout" class="bg-white rounded-lg shadow-md p-8 mb-10">
+            <h2 class="text-3xl font-bold text-primary-700 border-b-4 border-primary-700 pb-3 mb-6">
+                8. Layout Examples
+            </h2>
+
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Main Application Layout</h3>
+            <div class="border-2 border-gray-300 rounded-lg overflow-hidden mb-6">
+                <!-- Header -->
+                <div class="bg-primary-700 text-white px-6 py-4 flex items-center justify-between">
+                    <div class="font-bold text-lg">HRM - Payroll System</div>
+                    <div class="flex items-center gap-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                        <span class="text-sm">Nguyễn Văn A</span>
+                    </div>
+                </div>
+                <!-- Body with Sidebar -->
+                <div class="flex">
+                    <!-- Sidebar -->
+                    <div class="w-64 bg-gray-100 border-r border-gray-300 p-4">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-3 px-4 py-2.5 bg-primary-700 text-white rounded-lg font-semibold cursor-pointer">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                </svg>
+                                Dashboard
+                            </div>
+                            <div class="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-200 rounded-lg cursor-pointer transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                </svg>
+                                Tổ chức
+                            </div>
+                            <div class="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-200 rounded-lg cursor-pointer transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                </svg>
+                                Nhân sự
+                            </div>
+                            <div class="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-200 rounded-lg cursor-pointer transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Lương
+                            </div>
+                            <div class="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-200 rounded-lg cursor-pointer transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Chấm công
+                            </div>
+                            <div class="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-200 rounded-lg cursor-pointer transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                                Báo cáo
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Main Content -->
+                    <div class="flex-1 p-6 bg-white">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Main Content Area</h3>
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                            <p class="text-gray-600">Khu vực nội dung chính hiển thị các trang, form, bảng biểu...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-block">
+<code>&lt;!-- Sidebar Menu Item with Icon --&gt;
+&lt;div class="flex items-center gap-3 px-4 py-2.5 bg-primary-700
+            text-white rounded-lg"&gt;
+  &lt;svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;
+    &lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3..."&gt;&lt;/path&gt;
+  &lt;/svg&gt;
+  Dashboard
+&lt;/div&gt;</code>
+            </div>
+
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4 mt-8">Table Example với Icons</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse bg-white rounded-lg overflow-hidden shadow-md">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-300">Mã NV</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-300">Họ tên</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-300">Phòng ban</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-300">Lương</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-300">Trạng thái</th>
+                            <th class="px-6 py-3 text-right text-sm font-semibold text-gray-700 border-b border-gray-300">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 text-sm text-gray-700 border-b border-gray-200">NV001</td>
+                            <td class="px-6 py-4 text-sm text-gray-700 border-b border-gray-200">Nguyễn Văn A</td>
+                            <td class="px-6 py-4 text-sm text-gray-700 border-b border-gray-200">Kế toán</td>
+                            <td class="px-6 py-4 text-sm text-gray-700 border-b border-gray-200">15,000,000 VNĐ</td>
+                            <td class="px-6 py-4 text-sm border-b border-gray-200">
+                                <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Đang làm</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm border-b border-gray-200 text-right">
+                                <div class="flex justify-end gap-2">
+                                    <button class="p-1.5 text-primary-700 hover:bg-primary-50 rounded transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                        </svg>
+                                    </button>
+                                    <button class="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 9. Responsive Design -->
+        <section id="responsive" class="bg-white rounded-lg shadow-md p-8 mb-10">
+            <h2 class="text-3xl font-bold text-primary-700 border-b-4 border-primary-700 pb-3 mb-6">
+                9. Responsive Design
+            </h2>
+
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Tailwind Breakpoints</h3>
+            <div class="overflow-x-auto mb-6">
+                <table class="w-full border-collapse bg-white rounded-lg overflow-hidden shadow-md">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">Prefix</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">Min Width</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700 border-b">Device</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm"><code class="bg-gray-200 px-2 py-1 rounded">sm:</code></td>
+                            <td class="px-6 py-4 text-sm">640px</td>
+                            <td class="px-6 py-4 text-sm">Mobile Landscape (Not supported)</td>
+                        </tr>
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm"><code class="bg-gray-200 px-2 py-1 rounded">md:</code></td>
+                            <td class="px-6 py-4 text-sm">768px</td>
+                            <td class="px-6 py-4 text-sm">Tablet (Basic support)</td>
+                        </tr>
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm"><code class="bg-gray-200 px-2 py-1 rounded">lg:</code></td>
+                            <td class="px-6 py-4 text-sm">1024px</td>
+                            <td class="px-6 py-4 text-sm">Tablet Landscape (Supported)</td>
+                        </tr>
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm"><code class="bg-gray-200 px-2 py-1 rounded">xl:</code></td>
+                            <td class="px-6 py-4 text-sm">1280px</td>
+                            <td class="px-6 py-4 text-sm">Desktop (Primary) ⭐</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm"><code class="bg-gray-200 px-2 py-1 rounded">2xl:</code></td>
+                            <td class="px-6 py-4 text-sm">1536px</td>
+                            <td class="px-6 py-4 text-sm">Large Desktop</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Responsive Examples</h3>
+            <div class="code-block">
+<code>&lt;!-- Responsive Grid --&gt;
+&lt;div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"&gt;
+  &lt;!-- Mobile: 1 column, Tablet: 2 columns, Desktop: 4 columns --&gt;
+&lt;/div&gt;
+
+&lt;!-- Responsive Text --&gt;
+&lt;h1 class="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold"&gt;
+  Responsive Heading
+&lt;/h1&gt;
+
+&lt;!-- Responsive Padding --&gt;
+&lt;div class="p-4 md:p-6 lg:p-8 xl:p-10"&gt;
+  Content with responsive padding
+&lt;/div&gt;
+
+&lt;!-- Hide on Mobile --&gt;
+&lt;div class="hidden lg:block"&gt;
+  Only visible on desktop
+&lt;/div&gt;
+
+&lt;!-- Show on Mobile --&gt;
+&lt;div class="block lg:hidden"&gt;
+  Only visible on mobile/tablet
+&lt;/div&gt;</code>
+            </div>
+
+            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded mt-6">
+                <p class="text-amber-800">
+                    <strong>⚠️ Lưu ý:</strong> Hệ thống được thiết kế chủ yếu cho Desktop (≥1280px) và hỗ trợ Tablet (≥1024px).
+                    Không hỗ trợ mobile phone theo yêu cầu SRS.
+                </p>
+            </div>
+        </section>
+
+        <!-- Design Principles -->
+        <section class="bg-white rounded-lg shadow-md p-8 mb-10">
+            <h2 class="text-3xl font-bold text-primary-700 border-b-4 border-primary-700 pb-3 mb-6">
+                Design Principles
+            </h2>
+
+            <div class="space-y-4">
+                <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-6 rounded-lg border-l-4 border-primary-700">
+                    <h4 class="text-lg font-semibold text-primary-700 mb-2">1. Consistency (Nhất quán)</h4>
+                    <p class="text-gray-700">Sử dụng components, colors, spacing nhất quán trong toàn bộ hệ thống.</p>
+                </div>
+                <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-6 rounded-lg border-l-4 border-primary-700">
+                    <h4 class="text-lg font-semibold text-primary-700 mb-2">2. Clarity (Rõ ràng)</h4>
+                    <p class="text-gray-700">Labels tiếng Việt chuẩn, error messages cụ thể, UI dễ hiểu.</p>
+                </div>
+                <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-6 rounded-lg border-l-4 border-primary-700">
+                    <h4 class="text-lg font-semibold text-primary-700 mb-2">3. Efficiency (Hiệu quả)</h4>
+                    <p class="text-gray-700">Giảm thiểu số bước thực hiện task. Shortcuts, bulk actions.</p>
+                </div>
+                <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-6 rounded-lg border-l-4 border-primary-700">
+                    <h4 class="text-lg font-semibold text-primary-700 mb-2">4. Feedback (Phản hồi)</h4>
+                    <p class="text-gray-700">Loading states, success messages, error alerts cho mọi action.</p>
+                </div>
+                <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-6 rounded-lg border-l-4 border-primary-700">
+                    <h4 class="text-lg font-semibold text-primary-700 mb-2">5. Accessibility (Dễ tiếp cận)</h4>
+                    <p class="text-gray-700">WCAG AA contrast, keyboard navigation, semantic HTML.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-secondary-800 text-white rounded-lg p-8 text-center">
+            <h3 class="text-2xl font-bold mb-3">UI System Design - HRM Payroll</h3>
+            <p class="text-gray-300 mb-2">Built with Tailwind CSS | SVG Icons Outline Style</p>
+            <p class="text-sm text-gray-400">Version 1.0 | Created: 01/02/2026</p>
+            <p class="text-sm text-gray-400 mt-4">
+                Tài liệu này cung cấp hướng dẫn thiết kế giao diện cho Frontend Developers
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
