@@ -10,13 +10,13 @@ import Sidebar from './Sidebar.vue'
     <Sidebar />
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col">
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
       <!-- Header -->
       <AppHeader />
 
       <!-- Page Content -->
       <main class="flex-1 p-6 overflow-auto">
-        <slot />
+        <router-view />
       </main>
 
       <!-- Footer -->

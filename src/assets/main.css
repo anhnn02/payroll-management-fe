@@ -1,2 +1,77 @@
 @config "../../tailwind.config.js";
 @import 'tailwindcss';
+
+/* ========================================
+   Custom Scrollbar Styles
+   ======================================== */
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+/* ========================================
+   Element Plus Overrides
+   ======================================== */
+
+/* Card - more rounded corners */
+.el-card {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+/* Fix table container overflow */
+.el-table {
+  max-width: 100%;
+}
+
+.el-table__body-wrapper {
+  overflow-x: auto;
+}
+
+/* Primary color sync */
+:root {
+  --el-color-primary: #1976d2;
+  --el-color-primary-light-3: #42a5f5;
+  --el-color-primary-light-5: #64b5f6;
+  --el-color-primary-light-7: #90caf9;
+  --el-color-primary-light-8: #bbdefb;
+  --el-color-primary-light-9: #e3f2fd;
+  --el-color-primary-dark-2: #1565c0;
+}
+
+/* ========================================
+   Layout Fixes
+   ======================================== */
+
+/* Prevent content overflow */
+.flex-1 {
+  min-width: 0;
+}
+
+/* Main content area */
+main {
+  overflow-x: hidden;
+}

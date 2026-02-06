@@ -6,7 +6,7 @@ const authStore = useAuthStore()
 
 <template>
   <header
-    class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 shadow-sm"
+    class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 shadow-xs"
   >
     <!-- Left: Logo / Title -->
     <div class="flex items-center gap-4">
@@ -17,7 +17,7 @@ const authStore = useAuthStore()
     <div class="flex items-center gap-4">
       <span class="text-gray-600">{{ authStore.user?.fullName || 'Guest' }}</span>
       <el-dropdown>
-        <el-avatar :size="36" class="cursor-pointer">
+        <el-avatar :size="36" class="cursor-pointer bg-primary">
           {{ authStore.user?.fullName?.charAt(0) || 'U' }}
         </el-avatar>
         <template #dropdown>

@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
+import { markRaw, type Component } from 'vue'
+import { MENU_ICONS } from '@/constants/icons'
+import { ROUTE_NAMES, ROUTE_PATHS } from '@/constants/routes'
 
 const route = useRoute()
 const router = useRouter()
 
 interface MenuItem {
   title: string
-  icon: string
+  icon: Component
   path: string
   name: string
 }
@@ -14,27 +17,27 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   {
     title: 'Dashboard',
-    icon: 'House',
-    path: '/dashboard',
-    name: 'dashboard',
+    icon: markRaw(MENU_ICONS.dashboard),
+    path: ROUTE_PATHS.DASHBOARD,
+    name: ROUTE_NAMES.DASHBOARD,
   },
   {
     title: 'Quản lý tài khoản',
-    icon: 'User',
-    path: '/accounts',
-    name: 'accounts',
+    icon: markRaw(MENU_ICONS.accounts),
+    path: ROUTE_PATHS.ACCOUNTS,
+    name: ROUTE_NAMES.ACCOUNTS,
   },
   {
     title: 'Quản lý nhân viên',
-    icon: 'UserFilled',
-    path: '/employees',
-    name: 'employees',
+    icon: markRaw(MENU_ICONS.employees),
+    path: ROUTE_PATHS.EMPLOYEES,
+    name: ROUTE_NAMES.EMPLOYEES,
   },
   {
     title: 'Bảng lương',
-    icon: 'Money',
-    path: '/payroll',
-    name: 'payroll',
+    icon: markRaw(MENU_ICONS.payroll),
+    path: ROUTE_PATHS.PAYROLL,
+    name: ROUTE_NAMES.PAYROLL,
   },
 ]
 
@@ -48,10 +51,10 @@ const handleMenuClick = (item: MenuItem) => {
 </script>
 
 <template>
-  <aside class="w-64 bg-secondary text-white flex flex-col h-full">
+  <aside class="w-64 bg-white border-r border-gray-200 flex flex-col min-h-screen">
     <!-- Logo -->
-    <div class="h-16 flex items-center justify-center border-b border-gray-700">
-      <span class="text-xl font-bold">💼 Payroll</span>
+    <div class="h-16 flex items-center justify-center border-b border-gray-200">
+      <span class="text-xl font-bold text-primary">💼 Payroll</span>
     </div>
 
     <!-- Menu -->
@@ -62,8 +65,8 @@ const handleMenuClick = (item: MenuItem) => {
             class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors"
             :class="[
               isActive(item)
-                ? 'bg-primary text-white'
-                : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                ? 'bg-primary/10 text-primary font-medium'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-primary',
             ]"
             @click="handleMenuClick(item)"
           >
@@ -77,6 +80,6 @@ const handleMenuClick = (item: MenuItem) => {
     </nav>
 
     <!-- Footer -->
-    <div class="p-4 border-t border-gray-700 text-center text-gray-400 text-sm">v1.0.0</div>
+    <div class="p-4 border-t border-gray-200 text-center text-gray-400 text-sm">v1.0.0</div>
   </aside>
 </template>

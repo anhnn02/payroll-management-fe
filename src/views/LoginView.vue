@@ -2,39 +2,41 @@
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores'
-import { useAuthService } from '@/services'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
-const authService = useAuthService()
 
 const isLoading = ref(false)
 const form = ref({
-  email: '',
-  password: '',
+  email: 'admin@company.com',
+  password: '123456',
 })
+
+// Mock user data for development
+const MOCK_USER = {
+  id: 1,
+  username: 'admin',
+  email: 'admin@company.com',
+  fullName: 'Admin User',
+  role: 'HR',
+}
 
 async function handleLogin() {
   isLoading.value = true
 
   try {
-    const response = await authService.login({
-      email: form.value.email,
-      password: form.value.password,
-    })
-
-    authStore.setToken(response.data.token)
-    authStore.setUser(response.data.user)
+    // Mock login - no API call
+    // In production, replace with actual API call
+    authStore.setToken('mock_token_' + Date.now())
+    authStore.setUser(MOCK_USER)
 
     ElMessage.success('Đăng nhập thành công!')
 
-    // Redirect to intended page or home
+    // Redirect to intended page or dashboard
     const redirect = route.query.redirect as string
-    router.push(redirect || '/')
-  } catch {
-    // Error is handled by useApi
+    router.push(redirect || '/dashboard')
   } finally {
     isLoading.value = false
   }

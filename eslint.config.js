@@ -1,16 +1,20 @@
-import eslint from "@eslint/js";
-import tseslint from "typescript-eslint";
-import pluginVue from "eslint-plugin-vue";
-import eslintConfigPrettier from "eslint-config-prettier";
+import eslint from '@eslint/js'
+import tseslint from 'typescript-eslint'
+import pluginVue from 'eslint-plugin-vue'
+import eslintConfigPrettier from 'eslint-config-prettier'
+import globals from 'globals'
 
 export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
-  ...pluginVue.configs["flat/recommended"],
+  ...pluginVue.configs['flat/recommended'],
   eslintConfigPrettier,
   {
-    files: ["*.vue", "**/*.vue"],
+    files: ['*.vue', '**/*.vue', '*.ts', '**/*.ts'],
     languageOptions: {
+      globals: {
+        ...globals.browser,
+      },
       parserOptions: {
         parser: tseslint.parser,
       },
@@ -18,20 +22,12 @@ export default tseslint.config(
   },
   {
     rules: {
-      "vue/multi-word-component-names": "off",
-      "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        { argsIgnorePattern: "^_" },
-      ],
+      'vue/multi-word-component-names': 'off',
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     },
   },
   {
-    ignores: [
-      "node_modules",
-      "dist",
-      "src/auto-imports.d.ts",
-      "src/components.d.ts",
-    ],
-  },
-);
+    ignores: ['node_modules', 'dist', 'src/auto-imports.d.ts', 'src/components.d.ts'],
+  }
+)

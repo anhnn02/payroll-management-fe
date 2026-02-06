@@ -2,8 +2,8 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { accountService } from '@/services/account.service'
-import type { Account, AccountQueryParams } from './types'
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '@/constants/pagination'
+import type { Account } from './types'
 import {
   ACCOUNT_ROLE_OPTIONS,
   ACCOUNT_STATUS_OPTIONS,
@@ -22,25 +22,104 @@ const filterRole = ref<string>('')
 const filterStatus = ref<string>('')
 
 // Pagination
-const currentPage = ref(1)
-const pageSize = ref(10)
+const currentPage = ref(DEFAULT_PAGE)
+const pageSize = ref(DEFAULT_PAGE_SIZE)
 const total = ref(0)
 
-// Fetch accounts
+// Mock data for development
+const MOCK_ACCOUNTS: Account[] = [
+  {
+    id: 1,
+    username: 'admin',
+    email: 'admin@company.com',
+    fullName: 'Admin User',
+    role: 'HR',
+    status: 'ACTIVE',
+    createdAt: '2024-01-01',
+    updatedAt: '2024-01-01',
+  },
+  {
+    id: 2,
+    username: 'ketoan01',
+    email: 'ketoan01@company.com',
+    fullName: 'Nguyễn Văn A',
+    role: 'ACCOUNTANT',
+    status: 'ACTIVE',
+    createdAt: '2024-01-02',
+    updatedAt: '2024-01-02',
+  },
+  {
+    id: 3,
+    username: 'hr01',
+    email: 'hr01@company.com',
+    fullName: 'Trần Thị B',
+    role: 'HR',
+    status: 'ACTIVE',
+    createdAt: '2024-01-03',
+    updatedAt: '2024-01-03',
+  },
+  {
+    id: 4,
+    username: 'ketoan02',
+    email: 'ketoan02@company.com',
+    fullName: 'Lê Văn C',
+    role: 'ACCOUNTANT',
+    status: 'INACTIVE',
+    createdAt: '2024-01-04',
+    updatedAt: '2024-01-04',
+  },
+  {
+    id: 5,
+    username: 'hr02',
+    email: 'hr02@company.com',
+    fullName: 'Phạm Thị D',
+    role: 'HR',
+    status: 'ACTIVE',
+    createdAt: '2024-01-05',
+    updatedAt: '2024-01-05',
+  },
+]
+
+// Fetch accounts (using mock data for development)
 const fetchAccounts = async () => {
   isLoading.value = true
-  try {
-    const params: AccountQueryParams = {
-      page: currentPage.value,
-      limit: pageSize.value,
-    }
-    if (searchQuery.value) params.search = searchQuery.value
-    if (filterRole.value) params.role = filterRole.value as AccountQueryParams['role']
-    if (filterStatus.value) params.status = filterStatus.value as AccountQueryParams['status']
+  //  isLoading.value = true
+  // try {
+  //   const params: AccountQueryParams = {
+  //     page: currentPage.value,
+  //     limit: pageSize.value,
+  //   }
+  //   if (searchQuery.value) params.search = searchQuery.value
+  //   if (filterRole.value) params.role = filterRole.value as AccountQueryParams['role']
+  //   if (filterStatus.value) params.status = filterStatus.value as AccountQueryParams['status']
 
-    const response = await accountService.getList(params)
-    accounts.value = response.data
-    total.value = response.meta.total
+  //   const response = await accountService.getList(params)
+  //   accounts.value = response.data
+  //   total.value = response.meta.total
+  // } catch (error) {
+  try {
+    // Filter mock data
+    let filtered = [...MOCK_ACCOUNTS]
+    if (searchQuery.value) {
+      const query = searchQuery.value.toLowerCase()
+      filtered = filtered.filter(
+        a =>
+          a.username.toLowerCase().includes(query) ||
+          a.fullName.toLowerCase().includes(query) ||
+          a.email.toLowerCase().includes(query)
+      )
+    }
+    if (filterRole.value) {
+      filtered = filtered.filter(a => a.role === filterRole.value)
+    }
+    if (filterStatus.value) {
+      filtered = filtered.filter(a => a.status === filterStatus.value)
+    }
+
+    // Paginate
+    total.value = filtered.length
+    const start = (currentPage.value - 1) * pageSize.value
+    accounts.value = filtered.slice(start, start + pageSize.value)
   } catch (error) {
     ElMessage.error('Không thể tải danh sách tài khoản')
   } finally {
@@ -73,7 +152,9 @@ const handleDelete = async (row: Account) => {
         type: 'warning',
       }
     )
-    await accountService.delete(row.id)
+    // Mock delete - remove from local array
+    const index = MOCK_ACCOUNTS.findIndex(a => a.id === row.id)
+    if (index > -1) MOCK_ACCOUNTS.splice(index, 1)
     ElMessage.success('Xóa tài khoản thành công')
     fetchAccounts()
   } catch (error) {
@@ -98,7 +179,7 @@ const handleReset = () => {
   searchQuery.value = ''
   filterRole.value = ''
   filterStatus.value = ''
-  currentPage.value = 1
+  currentPage.value = DEFAULT_PAGE
   fetchAccounts()
 }
 
@@ -196,7 +277,7 @@ onMounted(fetchAccounts)
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
           :total="total"
-          :page-sizes="[10, 25, 50, 100]"
+          :page-sizes="PAGE_SIZE_OPTIONS"
           layout="total, sizes, prev, pager, next, jumper"
           @current-change="handlePageChange"
           @size-change="handleSizeChange"
