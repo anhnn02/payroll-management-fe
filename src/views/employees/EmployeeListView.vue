@@ -6,14 +6,11 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '@/constants/pagination'
 import { ROUTE_NAMES } from '@/constants/routes'
-import { Plus } from '@/constants/icons'
+import { Plus, Edit, Delete } from '@/constants/icons'
 import type { Employee } from './types'
-import {
-  EMPLOYEE_STATUS_OPTIONS,
-  EMPLOYEE_STATUS_LABELS,
-  EMPLOYEE_STATUS_COLORS,
-  DEPARTMENT_OPTIONS,
-} from './constants'
+import { EMPLOYEE_STATUS_OPTIONS, EMPLOYEE_STATUS_LABELS, DEPARTMENT_OPTIONS } from './constants'
+import { COLORS } from '@/constants/colors'
+import { getStatusColor } from './utils'
 
 console.log('=== EmployeeListView imports done ===')
 
@@ -188,18 +185,22 @@ onMounted(fetchEmployees)
 
 <template>
   <div class="space-y-6">
-    <!-- Page Header -->
-    <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-gray-800">Quản lý nhân viên</h1>
+    <!-- Header: Breadcrumb & Actions -->
+    <div class="flex items-center justify-between mb-4">
+      <el-breadcrumb separator="/">
+        <el-breadcrumb-item :to="{ name: ROUTE_NAMES.DASHBOARD }">Trang chủ</el-breadcrumb-item>
+        <el-breadcrumb-item>Quản lý nhân viên</el-breadcrumb-item>
+      </el-breadcrumb>
+
       <el-button type="primary" @click="handleCreate">
         <el-icon class="mr-1"><Plus /></el-icon>
         Thêm mới
       </el-button>
     </div>
 
-    <!-- Filters -->
     <el-card shadow="never">
-      <div class="flex flex-wrap gap-4 items-end">
+      <!-- Filters -->
+      <div class="flex flex-wrap gap-4 items-end mb-4">
         <div class="flex-1 min-w-[200px]">
           <label class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
           <el-input
@@ -240,11 +241,14 @@ onMounted(fetchEmployees)
           <el-button @click="handleReset">Đặt lại</el-button>
         </div>
       </div>
-    </el-card>
-
-    <!-- Table -->
-    <el-card shadow="never">
-      <el-table :data="employees" v-loading="isLoading" stripe>
+      <el-table
+        :data="employees"
+        v-loading="isLoading"
+        stripe
+        :header-cell-style="{
+          backgroundColor: COLORS.TABLE_HEADER_BG,
+        }"
+      >
         <el-table-column prop="employeeCode" label="Mã NV" width="100" />
         <el-table-column prop="fullName" label="Họ và tên" min-width="150" />
         <el-table-column prop="email" label="Email" min-width="180" />
@@ -253,24 +257,27 @@ onMounted(fetchEmployees)
         <el-table-column prop="position" label="Chức vụ" min-width="130" />
         <el-table-column prop="status" label="Trạng thái" width="130">
           <template #default="{ row }">
-            <el-tag
-              round
-              effect="dark"
-              :type="EMPLOYEE_STATUS_COLORS[row.status as keyof typeof EMPLOYEE_STATUS_COLORS]"
-            >
+            <el-tag round effect="dark" :color="getStatusColor(row.status)" class="!border-none">
               {{ EMPLOYEE_STATUS_LABELS[row.status as keyof typeof EMPLOYEE_STATUS_LABELS] }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="Thao tác" width="150" fixed="right">
+        <el-table-column label="Thao tác" width="120" fixed="right" align="center">
           <template #default="{ row }">
-            <el-button type="primary" link @click="handleEdit(row)">Sửa</el-button>
-            <el-button type="danger" link @click="handleDelete(row)">Xóa</el-button>
+            <el-tooltip content="Sửa nhân viên" placement="top">
+              <el-button type="primary" link @click="handleEdit(row)">
+                <el-icon :size="20"><Edit /></el-icon>
+              </el-button>
+            </el-tooltip>
+            <el-tooltip content="Xóa nhân viên" placement="top">
+              <el-button type="danger" link @click="handleDelete(row)">
+                <el-icon :size="20"><Delete /></el-icon>
+              </el-button>
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
 
-      <!-- Pagination -->
       <div class="flex justify-end mt-4">
         <el-pagination
           v-model:current-page="currentPage"

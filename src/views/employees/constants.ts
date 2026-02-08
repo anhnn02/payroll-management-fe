@@ -14,10 +14,12 @@ export const EMPLOYEE_STATUS_LABELS: Record<EmployeeStatus, string> = {
   ON_LEAVE: 'Nghỉ phép',
 }
 
-export const EMPLOYEE_STATUS_COLORS: Record<EmployeeStatus, 'success' | 'danger' | 'warning'> = {
-  ACTIVE: 'success',
-  INACTIVE: 'danger',
-  ON_LEAVE: 'warning',
+import { COLORS } from '@/constants/colors'
+
+export const EMPLOYEE_STATUS_COLORS: Record<EmployeeStatus, string> = {
+  ACTIVE: COLORS.SUCCESS,
+  INACTIVE: COLORS.DANGER,
+  ON_LEAVE: COLORS.WARNING,
 }
 
 export const DEPARTMENT_OPTIONS = [

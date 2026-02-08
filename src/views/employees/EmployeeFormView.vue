@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { ROUTE_NAMES } from '@/constants/routes'
-import { ArrowLeft, Plus, Delete } from '@/constants/icons'
+import { Plus, Delete } from '@/constants/icons'
 
 const route = useRoute()
 const router = useRouter()
@@ -233,18 +233,14 @@ onMounted(loadEmployee)
 
 <template>
   <div v-loading="isLoading" class="space-y-6">
-    <!-- Page Header -->
-    <div class="flex items-center gap-4">
-      <el-button @click="handleCancel">
-        <el-icon><ArrowLeft /></el-icon>
-      </el-button>
-      <div>
-        <h1 class="text-2xl font-bold text-gray-800">{{ pageTitle }}</h1>
-        <p class="text-gray-500 text-sm mt-1">
-          {{ isEditMode ? 'Cập nhật thông tin nhân viên' : 'Điền thông tin để thêm nhân viên mới' }}
-        </p>
-      </div>
-    </div>
+    <!-- Breadcrumb -->
+    <el-breadcrumb separator="/" class="mb-4">
+      <el-breadcrumb-item :to="{ name: ROUTE_NAMES.DASHBOARD }">Trang chủ</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ name: ROUTE_NAMES.EMPLOYEES }"
+        >Quản lý nhân viên</el-breadcrumb-item
+      >
+      <el-breadcrumb-item>{{ pageTitle }}</el-breadcrumb-item>
+    </el-breadcrumb>
 
     <!-- Form with Tabs -->
     <el-card shadow="never">
