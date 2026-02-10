@@ -1,7 +1,7 @@
-// Account types for the account management module
+// Account/User types - aligned with BE API (FE-API-CONFIG.md)
 
 export interface Account {
-  id: number
+  id: number | string
   username: string
   email: string
   fullName: string
@@ -11,17 +11,21 @@ export interface Account {
   updatedAt: string
 }
 
-export type AccountRole = 'ACCOUNTANT' | 'HR'
-export type AccountStatus = 'ACTIVE' | 'INACTIVE'
+export type AccountRole = 'HR_MANAGER' | 'ACCOUNTANT'
+export type AccountStatus = 'ACTIVE' | 'INACTIVE' | 'LOCKED'
 
 // Form data type (omit auto-generated fields)
-export type AccountFormData = Omit<Account, 'id' | 'createdAt' | 'updatedAt'>
+export type AccountFormData = Omit<Account, 'id' | 'createdAt' | 'updatedAt'> & {
+  password?: string // Chỉ khi tạo mới
+}
 
-// Query params for list
-export interface AccountQueryParams {
-  page?: number
-  limit?: number
-  search?: string
-  role?: AccountRole | ''
-  status?: AccountStatus | ''
+// Search request (POST /users/search)
+export interface AccountSearchRequest {
+  keyword?: string
+  role?: string
+  status?: string
+  page: number
+  size: number
+  sortBy?: string
+  sortDirection?: 'ASC' | 'DESC'
 }

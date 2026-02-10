@@ -1,59 +1,48 @@
 import { useApi } from '@/composables/useApi'
-import type { Account, AccountFormData, AccountQueryParams } from '@/views/accounts/types'
+import { API_ENDPOINTS } from '@/constants'
+import type { Account, AccountFormData, AccountSearchRequest } from '@/views/accounts/types'
 import type { ApiResponse, PaginatedResponse } from '@/types/api'
-
-const ENDPOINT = '/accounts'
 
 export const accountService = {
   /**
-   * Get paginated list of accounts
+   * Tìm kiếm tài khoản (POST /users/search)
+   * ⚠️ Hệ thống dùng POST /search, KHÔNG phải GET với query params
    */
-  async getList(params?: AccountQueryParams): Promise<PaginatedResponse<Account>> {
+  async search(data: AccountSearchRequest): Promise<PaginatedResponse<Account>> {
     const api = useApi()
-    const queryParams = new URLSearchParams()
-
-    if (params?.page) queryParams.set('page', String(params.page))
-    if (params?.limit) queryParams.set('limit', String(params.limit))
-    if (params?.search) queryParams.set('search', params.search)
-    if (params?.role) queryParams.set('role', params.role)
-    if (params?.status) queryParams.set('status', params.status)
-
-    const queryString = queryParams.toString()
-    const url = queryString ? `${ENDPOINT}?${queryString}` : ENDPOINT
-
-    const response = await api.get<PaginatedResponse<Account>>(url)
+    const response = await api.post<PaginatedResponse<Account>>(API_ENDPOINTS.USERS.SEARCH, data)
     return response.data as PaginatedResponse<Account>
   },
 
   /**
-   * Get single account by ID
+   * Chi tiết tài khoản (GET /users/:id)
    */
-  async getById(id: number): Promise<ApiResponse<Account>> {
+  async getById(id: number | string): Promise<ApiResponse<Account>> {
     const api = useApi()
-    return api.get<Account>(`${ENDPOINT}/${id}`)
+    return api.get<Account>(API_ENDPOINTS.USERS.DETAIL(id))
   },
 
   /**
-   * Create new account
+   * Tạo tài khoản (POST /users)
    */
   async create(data: AccountFormData): Promise<ApiResponse<Account>> {
     const api = useApi()
-    return api.post<Account>(ENDPOINT, data)
+    return api.post<Account>(API_ENDPOINTS.USERS.CREATE, data)
   },
 
   /**
-   * Update existing account
+   * Cập nhật tài khoản (PUT /users/:id)
    */
-  async update(id: number, data: Partial<AccountFormData>): Promise<ApiResponse<Account>> {
+  async update(id: number | string, data: Partial<AccountFormData>): Promise<ApiResponse<Account>> {
     const api = useApi()
-    return api.put<Account>(`${ENDPOINT}/${id}`, data)
+    return api.put<Account>(API_ENDPOINTS.USERS.UPDATE(id), data)
   },
 
   /**
-   * Delete account by ID
+   * Xóa tài khoản (DELETE /users/:id)
    */
-  async delete(id: number): Promise<ApiResponse<null>> {
+  async delete(id: number | string): Promise<ApiResponse<null>> {
     const api = useApi()
-    return api.delete<null>(`${ENDPOINT}/${id}`)
+    return api.del<null>(API_ENDPOINTS.USERS.DELETE(id))
   },
 }

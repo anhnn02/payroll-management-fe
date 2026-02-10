@@ -1,35 +1,27 @@
-// Constants for account module
+// Account constants - using common enums from @/constants/enums
 
-import type { AccountRole, AccountStatus } from './types'
+import { UserStatus, UserRoleLabel, UserStatusLabel, enumToOptions } from '@/constants/enums'
 
-// Role options for select dropdown
-export const ACCOUNT_ROLE_OPTIONS: { label: string; value: AccountRole }[] = [
-  { label: 'Kế toán', value: 'ACCOUNTANT' },
-  { label: 'Nhân sự', value: 'HR' },
-]
+// Re-export for backward compatibility
+export type { UserRole as AccountRole, UserStatus as AccountStatus } from '@/constants/enums'
 
-// Status options for select dropdown
-export const ACCOUNT_STATUS_OPTIONS: { label: string; value: AccountStatus }[] = [
-  { label: 'Hoạt động', value: 'ACTIVE' },
-  { label: 'Ngừng hoạt động', value: 'INACTIVE' },
-]
+// Role options (from common enum)
+export const ACCOUNT_ROLE_OPTIONS = enumToOptions(UserRoleLabel)
 
-// Role labels for display
-export const ACCOUNT_ROLE_LABELS: Record<AccountRole, string> = {
-  ACCOUNTANT: 'Kế toán',
-  HR: 'Nhân sự',
-}
+// Status options (from common enum)
+export const ACCOUNT_STATUS_OPTIONS = enumToOptions(UserStatusLabel)
 
-// Status labels for display
-export const ACCOUNT_STATUS_LABELS: Record<AccountStatus, string> = {
-  ACTIVE: 'Hoạt động',
-  INACTIVE: 'Ngừng hoạt động',
-}
+// Role labels (from common enum)
+export const ACCOUNT_ROLE_LABELS = UserRoleLabel
+
+// Status labels (from common enum)
+export const ACCOUNT_STATUS_LABELS = UserStatusLabel
 
 // Status colors for badge
-export const ACCOUNT_STATUS_COLORS: Record<AccountStatus, 'success' | 'danger'> = {
-  ACTIVE: 'success',
-  INACTIVE: 'danger',
+export const ACCOUNT_STATUS_COLORS: Record<UserStatus, 'success' | 'danger' | 'warning'> = {
+  [UserStatus.ACTIVE]: 'success',
+  [UserStatus.INACTIVE]: 'danger',
+  [UserStatus.LOCKED]: 'warning',
 }
 
 // Table columns configuration

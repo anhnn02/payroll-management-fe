@@ -1,6 +1,6 @@
 import { useApi } from '@/composables'
 import { API_ENDPOINTS } from '@/constants'
-import type { LoginCredentials, AuthResponse, User } from '@/types'
+import type { LoginCredentials, AuthResponse } from '@/types'
 
 export function useAuthService() {
   const api = useApi()
@@ -13,10 +13,6 @@ export function useAuthService() {
     return api.post<void>(API_ENDPOINTS.AUTH.LOGOUT)
   }
 
-  async function getCurrentUser() {
-    return api.get<User>(API_ENDPOINTS.AUTH.ME)
-  }
-
   async function refreshToken() {
     return api.post<AuthResponse>(API_ENDPOINTS.AUTH.REFRESH)
   }
@@ -24,7 +20,6 @@ export function useAuthService() {
   return {
     login,
     logout,
-    getCurrentUser,
     refreshToken,
   }
 }

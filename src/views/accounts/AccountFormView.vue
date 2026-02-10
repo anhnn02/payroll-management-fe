@@ -22,7 +22,7 @@ const form = ref<AccountFormData>({
   username: '',
   email: '',
   fullName: '',
-  role: 'HR' as AccountRole,
+  role: 'HR_MANAGER' as AccountRole,
   status: 'ACTIVE' as AccountStatus,
 })
 
@@ -34,7 +34,7 @@ const rules = {
   ],
   email: [
     { required: true, message: 'Vui lòng nhập email', trigger: 'blur' },
-    { type: 'email', message: 'Email không hợp lệ', trigger: 'blur' },
+    { type: 'email' as const, message: 'Email không hợp lệ', trigger: 'blur' },
   ],
   fullName: [{ required: true, message: 'Vui lòng nhập họ và tên', trigger: 'blur' }],
   role: [{ required: true, message: 'Vui lòng chọn vai trò', trigger: 'change' }],
@@ -94,7 +94,7 @@ onMounted(loadAccount)
 </script>
 
 <template>
-  <div class="space-y-6" v-loading="isLoading">
+  <div v-loading="isLoading" class="space-y-6">
     <!-- Page Header -->
     <div class="flex items-center gap-4">
       <el-button @click="handleCancel">

@@ -4,6 +4,20 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { ROUTE_NAMES } from '@/constants/routes'
 import { Plus, Delete } from '@/constants/icons'
+import {
+  Gender,
+  EmployeeStatus,
+  MaritalStatusLabel,
+  EmployeeTypeLabel,
+  EmployeeStatusLabel,
+  AllowanceTypeLabel,
+  BankLabel,
+  GenderLabel,
+  enumToOptions,
+} from '@/constants/enums'
+import { employeeService } from '@/services/employee.service'
+import { departmentService, type Department } from '@/services/department.service'
+import { positionService, type Position } from '@/services/position.service'
 
 const route = useRoute()
 const router = useRouter()
@@ -18,31 +32,30 @@ const activeTab = ref('personal')
 
 // Form data
 const form = ref({
-  // Personal info
-  employeeCode: '',
-  fullName: '',
-  gender: '',
-  dateOfBirth: '',
-  idNumber: '',
-  idIssueDate: '',
-  idIssuePlace: '',
+  // Personal info (aligned with BE Employee entity)
+  name: '',
+  gender: '' as Gender | '',
+  dob: '',
+  idCard: '',
   phone: '',
   email: '',
   address: '',
-  permanentAddress: '',
+
+  // Work info
+  deptId: '',
+  positionId: '',
+  hireDate: '',
+  status: EmployeeStatus.ACTIVE as string,
+
+  // Extended info (may not be in core API, but UI supports it)
   nationality: 'Việt Nam',
   ethnicity: 'Kinh',
   maritalStatus: '',
-
-  // Work info
-  departmentId: '',
-  positionId: '',
   employeeType: '',
-  startDate: '',
   probationEndDate: '',
-  status: 'working',
   workLocation: '',
   directManager: '',
+  permanentAddress: '',
 
   // Salary info
   basicSalary: null as number | null,
@@ -60,119 +73,50 @@ const form = ref({
   healthInsuranceNumber: '',
 })
 
-// Options
-const genderOptions = [
-  { value: 'male', label: 'Nam' },
-  { value: 'female', label: 'Nữ' },
-]
+// Enum-based options (from common constants)
+const genderOptions = enumToOptions(GenderLabel)
+const maritalStatusOptions = enumToOptions(MaritalStatusLabel)
+const employeeTypeOptions = enumToOptions(EmployeeTypeLabel)
+const statusOptions = enumToOptions(EmployeeStatusLabel)
 
-const maritalStatusOptions = [
-  { value: 'single', label: 'Độc thân' },
-  { value: 'married', label: 'Đã kết hôn' },
-  { value: 'divorced', label: 'Đã ly hôn' },
-  { value: 'widowed', label: 'Góa' },
-]
+// Dynamic options (fetched from API)
+const departmentOptions = ref<{ value: string; label: string }[]>([])
+const positionOptions = ref<{ value: string; label: string }[]>([])
 
-const employeeTypeOptions = [
-  { value: 'fulltime', label: 'Toàn thời gian' },
-  { value: 'parttime', label: 'Bán thời gian' },
-  { value: 'contract', label: 'Hợp đồng' },
-  { value: 'intern', label: 'Thực tập' },
-]
+// Load dropdown options from API
+const loadOptions = async () => {
+  try {
+    const [deptResponse, posResponse] = await Promise.all([
+      departmentService.search({ page: 0, size: 100, status: 'ACTIVE' }),
+      positionService.search({ page: 0, size: 100, status: 'ACTIVE' }),
+    ])
+    departmentOptions.value = deptResponse.content.map((d: Department) => ({
+      value: d.id,
+      label: d.name,
+    }))
+    positionOptions.value = posResponse.content.map((p: Position) => ({
+      value: p.id,
+      label: p.name,
+    }))
+  } catch {
+    console.warn('Không thể tải danh sách phòng ban/chức vụ từ API')
+  }
+}
 
-const statusOptions = [
-  { value: 'working', label: 'Đang làm việc' },
-  { value: 'probation', label: 'Thử việc' },
-  { value: 'resigned', label: 'Đã nghỉ việc' },
-  { value: 'suspended', label: 'Tạm nghỉ' },
-]
-
-const departmentOptions = [
-  { value: '1', label: 'Phòng Kỹ thuật' },
-  { value: '2', label: 'Phòng Nhân sự' },
-  { value: '3', label: 'Phòng Kinh doanh' },
-  { value: '4', label: 'Phòng Marketing' },
-  { value: '5', label: 'Phòng Kế toán' },
-]
-
-const positionOptions = [
-  { value: '1', label: 'Nhân viên' },
-  { value: '2', label: 'Trưởng nhóm' },
-  { value: '3', label: 'Phó phòng' },
-  { value: '4', label: 'Trưởng phòng' },
-  { value: '5', label: 'Giám đốc' },
-]
-
-const allowanceTypeOptions = [
-  { value: 'lunch', label: 'Phụ cấp ăn trưa' },
-  { value: 'transport', label: 'Phụ cấp đi lại' },
-  { value: 'phone', label: 'Phụ cấp điện thoại' },
-  { value: 'housing', label: 'Phụ cấp nhà ở' },
-  { value: 'responsibility', label: 'Phụ cấp trách nhiệm' },
-]
-
-const bankOptions = [
-  { value: 'VCB', label: 'Vietcombank' },
-  { value: 'TCB', label: 'Techcombank' },
-  { value: 'BIDV', label: 'BIDV' },
-  { value: 'VTB', label: 'Vietinbank' },
-  { value: 'ACB', label: 'ACB' },
-  { value: 'MB', label: 'MB Bank' },
-  { value: 'VPB', label: 'VPBank' },
-  { value: 'TPB', label: 'TPBank' },
-]
+const allowanceTypeOptions = enumToOptions(AllowanceTypeLabel)
+const bankOptions = enumToOptions(BankLabel)
 
 // Validation rules
 const rules = {
-  fullName: [{ required: true, message: 'Vui lòng nhập họ và tên', trigger: 'blur' }],
+  name: [{ required: true, message: 'Vui lòng nhập họ và tên', trigger: 'blur' }],
   email: [
     { required: true, message: 'Vui lòng nhập email', trigger: 'blur' },
     { type: 'email' as const, message: 'Email không hợp lệ', trigger: 'blur' },
   ],
-  phone: [{ required: true, message: 'Vui lòng nhập số điện thoại', trigger: 'blur' }],
-  departmentId: [{ required: true, message: 'Vui lòng chọn phòng ban', trigger: 'change' }],
+  idCard: [{ required: true, message: 'Vui lòng nhập số CMND/CCCD', trigger: 'blur' }],
+  deptId: [{ required: true, message: 'Vui lòng chọn phòng ban', trigger: 'change' }],
   positionId: [{ required: true, message: 'Vui lòng chọn chức vụ', trigger: 'change' }],
-  startDate: [{ required: true, message: 'Vui lòng chọn ngày bắt đầu', trigger: 'change' }],
-}
-
-// Mock data for edit mode
-const MOCK_EMPLOYEE = {
-  employeeCode: 'NV001',
-  fullName: 'Nguyễn Văn An',
-  gender: 'male',
-  dateOfBirth: '1990-05-15',
-  idNumber: '001090012345',
-  idIssueDate: '2015-06-20',
-  idIssuePlace: 'CA TP Hà Nội',
-  phone: '0901234567',
-  email: 'an.nguyen@company.com',
-  address: '123 Đường ABC, Quận 1, TP.HCM',
-  permanentAddress: '456 Đường XYZ, Hà Nội',
-  nationality: 'Việt Nam',
-  ethnicity: 'Kinh',
-  maritalStatus: 'married',
-  departmentId: '1',
-  positionId: '2',
-  employeeType: 'fulltime',
-  startDate: '2020-01-15',
-  probationEndDate: '2020-03-15',
-  status: 'working',
-  workLocation: 'Trụ sở chính',
-  directManager: 'NV005',
-  basicSalary: 15000000,
-  salaryCoefficient: 1.2,
-  insuranceSalary: 10000000,
-  allowances: [
-    { type: 'lunch', amount: 1000000 },
-    { type: 'transport', amount: 500000 },
-  ],
-  bankName: 'VCB',
-  bankBranch: 'Chi nhánh Hoàn Kiếm',
-  bankAccountNumber: '0123456789',
-  bankAccountName: 'NGUYEN VAN AN',
-  taxCode: '1234567890',
-  socialInsuranceNumber: 'SI123456789',
-  healthInsuranceNumber: 'HI123456789',
+  hireDate: [{ required: true, message: 'Vui lòng chọn ngày nhận việc', trigger: 'change' }],
 }
 
 // Load employee data
@@ -181,9 +125,8 @@ const loadEmployee = async () => {
 
   isLoading.value = true
   try {
-    // Mock loading
-    await new Promise(resolve => setTimeout(resolve, 300))
-    Object.assign(form.value, MOCK_EMPLOYEE)
+    const response = await employeeService.getById(String(route.params.id))
+    Object.assign(form.value, response.data)
   } catch {
     ElMessage.error('Không thể tải thông tin nhân viên')
     router.push({ name: ROUTE_NAMES.EMPLOYEES })
@@ -205,14 +148,17 @@ const removeAllowance = (index: number) => {
 const handleSubmit = async () => {
   const valid = await formRef.value?.validate().catch(() => false)
   if (!valid) {
-    // Switch to tab with first error
     ElMessage.warning('Vui lòng điền đầy đủ thông tin bắt buộc')
     return
   }
 
   isSubmitting.value = true
   try {
-    await new Promise(resolve => setTimeout(resolve, 500))
+    if (isEditMode.value) {
+      await employeeService.update(String(route.params.id), form.value)
+    } else {
+      await employeeService.create(form.value as any)
+    }
     ElMessage.success(
       isEditMode.value ? 'Cập nhật nhân viên thành công' : 'Thêm nhân viên thành công'
     )
@@ -228,7 +174,10 @@ const handleCancel = () => {
   router.push({ name: ROUTE_NAMES.EMPLOYEES })
 }
 
-onMounted(loadEmployee)
+onMounted(() => {
+  loadOptions()
+  loadEmployee()
+})
 </script>
 
 <template>
@@ -249,12 +198,8 @@ onMounted(loadEmployee)
         <el-tab-pane label="Thông tin cá nhân" name="personal">
           <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="mt-4">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <el-form-item label="Mã nhân viên">
-                <el-input v-model="form.employeeCode" placeholder="Tự sinh khi tạo" disabled />
-              </el-form-item>
-
-              <el-form-item label="Họ và tên" prop="fullName">
-                <el-input v-model="form.fullName" placeholder="Nhập họ và tên" />
+              <el-form-item label="Họ và tên" prop="name">
+                <el-input v-model="form.name" placeholder="Nhập họ và tên" />
               </el-form-item>
 
               <el-form-item label="Giới tính">
@@ -270,7 +215,7 @@ onMounted(loadEmployee)
 
               <el-form-item label="Ngày sinh">
                 <el-date-picker
-                  v-model="form.dateOfBirth"
+                  v-model="form.dob"
                   type="date"
                   placeholder="Chọn ngày"
                   value-format="YYYY-MM-DD"
@@ -278,22 +223,8 @@ onMounted(loadEmployee)
                 />
               </el-form-item>
 
-              <el-form-item label="Số CMND/CCCD">
-                <el-input v-model="form.idNumber" placeholder="Nhập số CMND/CCCD" />
-              </el-form-item>
-
-              <el-form-item label="Ngày cấp">
-                <el-date-picker
-                  v-model="form.idIssueDate"
-                  type="date"
-                  placeholder="Chọn ngày"
-                  value-format="YYYY-MM-DD"
-                  class="w-full"
-                />
-              </el-form-item>
-
-              <el-form-item label="Nơi cấp">
-                <el-input v-model="form.idIssuePlace" placeholder="Nhập nơi cấp" />
+              <el-form-item label="Số CMND/CCCD" prop="idCard">
+                <el-input v-model="form.idCard" placeholder="Nhập số CMND/CCCD" />
               </el-form-item>
 
               <el-form-item label="Số điện thoại" prop="phone">
@@ -350,8 +281,8 @@ onMounted(loadEmployee)
         <el-tab-pane label="Thông tin công việc" name="work">
           <el-form :model="form" :rules="rules" label-position="top" class="mt-4">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <el-form-item label="Phòng ban" prop="departmentId">
-                <el-select v-model="form.departmentId" placeholder="Chọn phòng ban" class="w-full">
+              <el-form-item label="Phòng ban" prop="deptId">
+                <el-select v-model="form.deptId" placeholder="Chọn phòng ban" class="w-full">
                   <el-option
                     v-for="opt in departmentOptions"
                     :key="opt.value"
@@ -383,9 +314,9 @@ onMounted(loadEmployee)
                 </el-select>
               </el-form-item>
 
-              <el-form-item label="Ngày bắt đầu" prop="startDate">
+              <el-form-item label="Ngày nhận việc" prop="hireDate">
                 <el-date-picker
-                  v-model="form.startDate"
+                  v-model="form.hireDate"
                   type="date"
                   placeholder="Chọn ngày"
                   value-format="YYYY-MM-DD"

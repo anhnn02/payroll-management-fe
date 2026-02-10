@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import { requireAuth, requireGuest } from '@/middleware/auth'
+// import { requireAuth, requireGuest } from '@/middleware/auth'
 import { ROUTE_NAMES, ROUTE_PATHS } from '@/constants/routes'
 
 // Lazy load views
@@ -20,7 +20,7 @@ const routes: RouteRecordRaw[] = [
     path: ROUTE_PATHS.LOGIN,
     name: ROUTE_NAMES.LOGIN,
     component: LoginView,
-    beforeEnter: requireGuest,
+    // beforeEnter: requireGuest,
     meta: { title: 'Đăng nhập' },
   },
 
@@ -28,7 +28,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: AdminLayout,
-    beforeEnter: requireAuth,
+    // beforeEnter: requireAuth,
     children: [
       {
         path: '',
