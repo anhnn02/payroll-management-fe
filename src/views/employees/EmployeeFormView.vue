@@ -16,7 +16,7 @@ import {
   enumToOptions,
 } from '@/constants/enums'
 import { employeeService } from '@/services/employee.service'
-import { departmentService, type Department } from '@/services/department.service'
+import { departmentService, type Department } from '@/services/department.services'
 import { positionService, type Position } from '@/services/position.service'
 
 const route = useRoute()
