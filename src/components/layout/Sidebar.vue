@@ -80,6 +80,6 @@ const handleMenuClick = (item: MenuItem) => {
     </nav>
 
     <!-- Footer -->
-    <div class="p-4 border-t border-gray-200 text-center text-gray-400 text-sm">v1.0.0</div>
+    <!-- <div class="p-4 border-t border-gray-200 text-center text-gray-400 text-sm">v1.0.0</div> -->
   </aside>
 </template>
