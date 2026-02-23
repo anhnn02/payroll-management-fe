@@ -1,12 +1,15 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 // import { requireAuth, requireGuest } from '@/middleware/auth'
 import { ROUTE_NAMES, ROUTE_PATHS } from '@/constants/routes'
+import { useLoadingStore } from '@/composables/useLoading'
 
 // Lazy load views
 const LoginView = () => import('@/views/LoginView.vue')
 const DashboardView = () => import('@/views/dashboard/DashboardView.vue')
 const AccountListView = () => import('@/views/accounts/AccountListView.vue')
 const AccountFormView = () => import('@/views/accounts/AccountFormView.vue')
+const DepartmentListView = () => import('@/views/departments/DepartmentListView.vue')
+const DepartmentFormView = () => import('@/views/departments/DepartmentFormView.vue')
 const EmployeeListView = () => import('@/views/employees/EmployeeListView.vue')
 const EmployeeFormView = () => import('@/views/employees/EmployeeFormView.vue')
 const NotFoundView = () => import('@/views/NotFoundView.vue')
@@ -59,6 +62,31 @@ const routes: RouteRecordRaw[] = [
         component: AccountFormView,
         meta: { title: 'Sửa tài khoản' },
       },
+      // Department CRUD
+      {
+        path: 'departments',
+        name: ROUTE_NAMES.DEPARTMENTS,
+        component: DepartmentListView,
+        meta: { title: 'Quản lý phòng ban' },
+      },
+      {
+        path: 'departments/create',
+        name: ROUTE_NAMES.DEPARTMENT_CREATE,
+        component: DepartmentFormView,
+        meta: { title: 'Thêm phòng ban' },
+      },
+      {
+        path: 'departments/:id',
+        name: ROUTE_NAMES.DEPARTMENT_DETAIL,
+        component: DepartmentFormView,
+        meta: { title: 'Chi tiết phòng ban' },
+      },
+      {
+        path: 'departments/:id/edit',
+        name: ROUTE_NAMES.DEPARTMENT_EDIT,
+        component: DepartmentFormView,
+        meta: { title: 'Chỉnh sửa phòng ban' },
+      },
       // Employee CRUD
       {
         path: 'employees',
@@ -93,6 +121,12 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
+})
+
+// Reset loading on navigation (safety net)
+router.beforeEach(() => {
+  const loading = useLoadingStore()
+  loading.reset()
 })
 
 // Update page title

@@ -28,6 +28,12 @@ const menuItems: MenuItem[] = [
     name: ROUTE_NAMES.ACCOUNTS,
   },
   {
+    title: 'Quản lý phòng ban',
+    icon: markRaw(MENU_ICONS.departments),
+    path: ROUTE_PATHS.DEPARTMENTS,
+    name: ROUTE_NAMES.DEPARTMENTS,
+  },
+  {
     title: 'Quản lý nhân viên',
     icon: markRaw(MENU_ICONS.employees),
     path: ROUTE_PATHS.EMPLOYEES,

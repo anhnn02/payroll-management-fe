@@ -12,6 +12,12 @@ export const ROUTE_NAMES = {
   ACCOUNT_CREATE: 'account-create',
   ACCOUNT_EDIT: 'account-edit',
 
+  // Departments
+  DEPARTMENTS: 'departments',
+  DEPARTMENT_CREATE: 'department-create',
+  DEPARTMENT_DETAIL: 'department-detail',
+  DEPARTMENT_EDIT: 'department-edit',
+
   // Employees
   EMPLOYEES: 'employees',
   EMPLOYEE_CREATE: 'employee-create',
@@ -35,6 +41,12 @@ export const ROUTE_PATHS = {
   ACCOUNTS: '/accounts',
   ACCOUNT_CREATE: '/accounts/create',
   ACCOUNT_EDIT: '/accounts/:id/edit',
+
+  // Departments
+  DEPARTMENTS: '/departments',
+  DEPARTMENT_CREATE: '/departments/create',
+  DEPARTMENT_DETAIL: '/departments/:id',
+  DEPARTMENT_EDIT: '/departments/:id/edit',
 
   // Employees
   EMPLOYEES: '/employees',

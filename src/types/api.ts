@@ -40,6 +40,7 @@ export interface ApiRequestOptions {
   timeout?: number
   headers?: Record<string, string>
   showErrorToast?: boolean
+  showLoading?: boolean
   signal?: AbortSignal
 }
 
