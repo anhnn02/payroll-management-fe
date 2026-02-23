@@ -150,7 +150,7 @@ onMounted(fetchEmployees)
           </el-select>
         </div>
 
-        <div class="flex gap-2">
+        <div class="flex gap-1">
           <el-button type="primary" @click="handleSearch">Tìm kiếm</el-button>
           <el-button @click="handleReset">Đặt lại</el-button>
         </div>
@@ -198,7 +198,7 @@ onMounted(fetchEmployees)
           v-model:page-size="pageSize"
           :total="total"
           :page-sizes="PAGE_SIZE_OPTIONS"
-          layout="total, sizes, prev, pager, next, jumper"
+          layout="total, sizes, prev, pager, next"
           @current-change="handlePageChange"
           @size-change="handleSizeChange"
         />

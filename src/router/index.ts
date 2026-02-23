@@ -18,7 +18,7 @@ const NotFoundView = () => import('@/views/NotFoundView.vue')
 const AdminLayout = () => import('@/components/layout/AdminLayout.vue')
 
 const routes: RouteRecordRaw[] = [
-  // Auth routes (no layout)
+  // #region Auth routes (no layout)
   {
     path: ROUTE_PATHS.LOGIN,
     name: ROUTE_NAMES.LOGIN,
@@ -27,7 +27,7 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'Đăng nhập' },
   },
 
-  // Admin routes (with layout)
+  // #region Admin routes (with layout)
   {
     path: '/',
     component: AdminLayout,
@@ -43,7 +43,7 @@ const routes: RouteRecordRaw[] = [
         component: DashboardView,
         meta: { title: 'Dashboard' },
       },
-      // Account CRUD
+      // #region Account
       {
         path: 'accounts',
         name: ROUTE_NAMES.ACCOUNTS,
@@ -62,7 +62,7 @@ const routes: RouteRecordRaw[] = [
         component: AccountFormView,
         meta: { title: 'Sửa tài khoản' },
       },
-      // Department CRUD
+      // #region Department
       {
         path: 'departments',
         name: ROUTE_NAMES.DEPARTMENTS,
@@ -87,7 +87,7 @@ const routes: RouteRecordRaw[] = [
         component: DepartmentFormView,
         meta: { title: 'Chỉnh sửa phòng ban' },
       },
-      // Employee CRUD
+      // #region Employee
       {
         path: 'employees',
         name: ROUTE_NAMES.EMPLOYEES,
@@ -109,7 +109,7 @@ const routes: RouteRecordRaw[] = [
     ],
   },
 
-  // 404
+  // #region 404
   {
     path: '/:pathMatch(.*)*',
     name: ROUTE_NAMES.NOT_FOUND,

@@ -1,36 +1,38 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/constants/routes'
 import { Status, StatusLabel, enumToOptions } from '@/constants/enums'
+import { COLORS } from '@/constants/colors'
+import { Delete } from '@/constants/icons'
 import { departmentService } from '@/services/department.services'
+import { employeeService } from '@/services/employee.service'
 import { useToast } from '@/composables/useToast'
+import { usePageMode } from '@/composables/usePageMode'
 import { formatDateTime } from '@/utils/table'
 import type { Department, DepartmentFormData } from './types'
+import type { Employee } from '@/views/employees/types'
 
-const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 
-// Mode detection
-const isCreateMode = computed(() => route.name === ROUTE_NAMES.DEPARTMENT_CREATE)
-const isEditMode = computed(() => route.name === ROUTE_NAMES.DEPARTMENT_EDIT)
-const isDetailMode = computed(() => route.name === ROUTE_NAMES.DEPARTMENT_DETAIL)
-const isReadonly = computed(() => isDetailMode.value)
-
-const departmentId = computed(() => route.params.id as string)
-
-const pageTitle = computed(() => {
-  if (isCreateMode.value) return 'Thêm mới'
-  if (isEditMode.value) return 'Chỉnh sửa'
-  return 'Chi tiết'
+const {
+  isCreateMode,
+  isEditMode,
+  isDetailMode,
+  isReadonly,
+  entityId: departmentId,
+  pageTitle,
+} = usePageMode({
+  createRoute: ROUTE_NAMES.DEPARTMENT_CREATE,
+  editRoute: ROUTE_NAMES.DEPARTMENT_EDIT,
+  detailRoute: ROUTE_NAMES.DEPARTMENT_DETAIL,
 })
 
 const formRef = ref()
 const isLoading = ref(false)
 const isSubmitting = ref(false)
 
-// Form data
 const form = ref<DepartmentFormData>({
   code: '',
   name: '',
@@ -39,20 +41,15 @@ const form = ref<DepartmentFormData>({
   status: Status.ACTIVE,
 })
 
-// Detail data (for system info display)
 const detailData = ref<Department | null>(null)
-
-// Options
+const employees = ref<Employee[]>([])
 const statusOptions = enumToOptions(StatusLabel)
-
-// Parent department options (loaded from API)
 const parentDepartmentOptions = ref<{ value: string; label: string }[]>([])
 
-// Validation rules
 const rules = {
   code: [
     { required: true, message: 'Vui lòng nhập mã phòng ban', trigger: 'blur' },
-    { max: 20, message: 'Mã phòng ban tối đa 20 ký tự', trigger: 'blur' },
+    { max: 10, message: 'Mã phòng ban tối đa 10 ký tự', trigger: 'blur' },
     {
       pattern: /^[A-Z0-9_]+$/,
       message: 'Mã phòng ban chỉ gồm chữ IN HOA, số và gạch dưới',
@@ -67,17 +64,14 @@ const rules = {
   status: [{ required: true, message: 'Vui lòng chọn trạng thái', trigger: 'change' }],
 }
 
-// Load parent departments for dropdown
 const loadParentOptions = async () => {
   try {
-    const response = await departmentService.search({
-      status: 'ACTIVE',
-      page: 0,
-      size: 100,
-    })
+    const response = await departmentService.search(
+      { status: Status.ACTIVE, page: 0, size: 100 },
+      { showLoading: false }
+    )
     let departments = response.content || []
 
-    // Khi edit: loại bỏ chính nó ra khỏi danh sách (tránh self-reference)
     if (isEditMode.value && departmentId.value) {
       departments = departments.filter((d: Department) => d.id !== departmentId.value)
     }
@@ -91,7 +85,20 @@ const loadParentOptions = async () => {
   }
 }
 
-// Load department data for edit/detail mode
+const loadEmployees = async () => {
+  if (isCreateMode.value || !departmentId.value) return
+  try {
+    const response = await employeeService.search({
+      deptId: departmentId.value,
+      page: 0,
+      size: 100,
+    })
+    employees.value = response.content || []
+  } catch {
+    console.warn('Không thể tải danh sách nhân viên')
+  }
+}
+
 const loadDepartment = async () => {
   if (isCreateMode.value) return
 
@@ -101,7 +108,6 @@ const loadDepartment = async () => {
     const data = response.data as Department
     detailData.value = data
 
-    // Fill form
     form.value = {
       code: data.code,
       name: data.name,
@@ -117,7 +123,6 @@ const loadDepartment = async () => {
   }
 }
 
-// Submit form
 const handleSubmit = async () => {
   const valid = await formRef.value?.validate().catch(() => false)
   if (!valid) {
@@ -155,30 +160,38 @@ const handleEdit = () => {
   router.push({ name: ROUTE_NAMES.DEPARTMENT_EDIT, params: { id: departmentId.value } })
 }
 
-// formatDateTime imported from @/utils/table
+const handleRemoveEmployee = async (emp: Employee) => {
+  try {
+    await toast.confirmDelete(`${emp.code} - ${emp.name}`)
+    // TODO: API xóa NV khỏi phòng ban (cần endpoint riêng từ BE)
+    toast.deleteSuccess()
+    await loadEmployees()
+  } catch (error) {
+    console.error(error)
+    toast.deleteError()
+  }
+}
 
 onMounted(() => {
   loadParentOptions()
   loadDepartment()
+  loadEmployees()
 })
 </script>
 
 <template>
   <div v-loading="isLoading" class="space-y-6">
-    <!-- Breadcrumb -->
     <el-breadcrumb separator="/" class="mb-4">
       <el-breadcrumb-item :to="{ name: ROUTE_NAMES.DASHBOARD }">Trang chủ</el-breadcrumb-item>
       <el-breadcrumb-item :to="{ name: ROUTE_NAMES.DEPARTMENTS }">Phòng ban</el-breadcrumb-item>
       <el-breadcrumb-item>{{ pageTitle }}</el-breadcrumb-item>
     </el-breadcrumb>
 
-    <!-- Form -->
     <el-card shadow="never">
       <template #header>
         <div class="flex items-center justify-between">
           <span class="text-lg font-semibold">{{ pageTitle }}</span>
-          <!-- Nút Sửa khi đang xem chi tiết -->
-          <el-button v-if="isDetailMode" type="primary" @click="handleEdit"> Chỉnh sửa </el-button>
+          <el-button v-if="isDetailMode" type="primary" @click="handleEdit">Chỉnh sửa</el-button>
         </div>
       </template>
 
@@ -190,23 +203,20 @@ onMounted(() => {
         :disabled="isReadonly"
       >
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Mã phòng ban -->
           <el-form-item label="Mã phòng ban" prop="code">
             <el-input
               v-model="form.code"
               placeholder="Nhập mã phòng ban (VD: IT, HR)"
-              maxlength="20"
+              maxlength="10"
               :disabled="isEditMode || isReadonly"
               @input="form.code = form.code.toUpperCase()"
             />
           </el-form-item>
 
-          <!-- Tên phòng ban -->
           <el-form-item label="Tên phòng ban" prop="name">
             <el-input v-model="form.name" placeholder="Nhập tên phòng ban" maxlength="100" />
           </el-form-item>
 
-          <!-- Phòng ban cha -->
           <el-form-item label="Phòng ban cha" prop="parentId">
             <el-select
               v-model="form.parentId"
@@ -224,17 +234,20 @@ onMounted(() => {
             </el-select>
           </el-form-item>
 
-          <!-- Trạng thái -->
           <el-form-item label="Trạng thái" prop="status">
             <el-radio-group v-model="form.status">
-              <el-radio v-for="opt in statusOptions" :key="opt.value" :value="opt.value">
+              <el-radio
+                v-for="opt in statusOptions"
+                :key="opt.value"
+                :value="opt.value"
+                :disabled="isCreateMode && opt.value === Status.INACTIVE"
+              >
                 {{ opt.label }}
               </el-radio>
             </el-radio-group>
           </el-form-item>
         </div>
 
-        <!-- Mô tả (full width) -->
         <el-form-item label="Mô tả" prop="description">
           <el-input
             v-model="form.description"
@@ -247,7 +260,38 @@ onMounted(() => {
         </el-form-item>
       </el-form>
 
-      <!-- System info (chỉ hiển thị khi xem/edit) -->
+      <div v-if="(isEditMode || isDetailMode) && departmentId" class="border-t pt-4 mt-4">
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="text-sm font-medium text-gray-700">Danh sách nhân viên thuộc phòng ban</h4>
+          <el-button v-if="isEditMode" type="primary" size="small">Thêm nhân viên</el-button>
+        </div>
+        <el-table
+          :data="employees"
+          stripe
+          :header-cell-style="{ backgroundColor: COLORS.TABLE_HEADER_BG }"
+          empty-text="Không có nhân viên nào trong phòng ban này"
+        >
+          <el-table-column label="STT" width="60" align="center">
+            <template #default="{ $index }">
+              {{ $index + 1 }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="code" label="Mã nhân viên" width="140" />
+          <el-table-column prop="name" label="Tên nhân viên" min-width="180" />
+          <el-table-column prop="positionName" label="Vị trí làm việc" width="180" />
+          <el-table-column prop="status" label="Trạng thái" width="130" align="center" />
+          <el-table-column v-if="isEditMode" label="Thao tác" width="80" align="center">
+            <template #default="{ row }">
+              <el-tooltip content="Xóa khỏi phòng ban" placement="top">
+                <el-button type="danger" link @click="handleRemoveEmployee(row)">
+                  <el-icon :size="16"><Delete /></el-icon>
+                </el-button>
+              </el-tooltip>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+
       <div v-if="(isEditMode || isDetailMode) && detailData" class="border-t pt-4 mt-4">
         <h4 class="text-sm font-medium text-gray-500 mb-3">Thông tin hệ thống</h4>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
@@ -270,8 +314,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- Form Actions -->
-      <div v-if="!isDetailMode" class="flex justify-end gap-3 mt-6 pt-6 border-t">
+      <div v-if="!isDetailMode" class="flex justify-end gap-3 mt-6 pt-6">
         <el-button @click="handleCancel">Hủy</el-button>
         <el-button type="primary" :loading="isSubmitting" @click="handleSubmit">
           {{ isEditMode ? 'Cập nhật' : 'Lưu' }}
