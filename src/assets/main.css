@@ -88,3 +88,28 @@
 main {
   overflow-x: hidden;
 }
+
+/* ========================================
+   Confirm Delete Dialog
+   ======================================== */
+
+.confirm-delete-dialog {
+  width: 420px !important;
+}
+
+.confirm-delete-dialog .el-message-box__message {
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.6;
+  font-size: 14px;
+  color: #374151;
+}
+
+.confirm-delete-dialog .el-message-box__btns {
+  padding: 16px 24px 8px;
+  gap: 8px;
+}
+
+.confirm-delete-dialog .el-message-box__btns .el-button {
+  min-width: 88px;
+}

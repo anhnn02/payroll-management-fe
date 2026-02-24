@@ -137,6 +137,8 @@ export function useToast() {
       confirmButtonText: 'Xác nhận',
       cancelButtonText: 'Hủy',
       type: 'warning',
+      center: true,
+      customClass: 'confirm-delete-dialog',
     }).then(() => {}) // resolve with void
   }
 

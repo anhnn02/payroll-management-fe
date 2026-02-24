@@ -6,9 +6,13 @@ import type {
   DepartmentSearchRequest,
   DepartmentFormData,
 } from '@/views/departments/types'
+import { mockDepartmentService } from '@/mocks/department.mock'
 
 // Re-export types for convenience
 export type { Department, DepartmentSearchRequest, DepartmentFormData }
+
+// ✅ Bật mock: true | ❌ Tắt mock (dùng API thật): false
+const USE_MOCK = true
 
 export const departmentService = {
   /**
@@ -19,6 +23,7 @@ export const departmentService = {
     data: DepartmentSearchRequest,
     options?: ApiRequestOptions
   ): Promise<PaginatedResponse<Department>> {
+    if (USE_MOCK) return mockDepartmentService.search(data)
     const api = useApi()
     const response = await api.post<PaginatedResponse<Department>>(
       API_ENDPOINTS.DEPARTMENTS.SEARCH,
@@ -32,6 +37,7 @@ export const departmentService = {
    * Chi tiết phòng ban (GET /departments/:id)
    */
   async getById(id: string, options?: ApiRequestOptions): Promise<ApiResponse<Department>> {
+    if (USE_MOCK) return mockDepartmentService.getById(id)
     const api = useApi()
     return api.get<Department>(API_ENDPOINTS.DEPARTMENTS.DETAIL(id), options)
   },
@@ -43,6 +49,7 @@ export const departmentService = {
     data: DepartmentFormData,
     options?: ApiRequestOptions
   ): Promise<ApiResponse<Department>> {
+    if (USE_MOCK) return mockDepartmentService.create(data)
     const api = useApi()
     return api.post<Department>(API_ENDPOINTS.DEPARTMENTS.CREATE, data, options)
   },
@@ -55,6 +62,7 @@ export const departmentService = {
     data: DepartmentFormData,
     options?: ApiRequestOptions
   ): Promise<ApiResponse<Department>> {
+    if (USE_MOCK) return mockDepartmentService.update(id, data)
     const api = useApi()
     return api.put<Department>(API_ENDPOINTS.DEPARTMENTS.UPDATE(id), data, options)
   },
@@ -63,6 +71,7 @@ export const departmentService = {
    * Xóa phòng ban (DELETE /departments/:id)
    */
   async delete(id: string, options?: ApiRequestOptions): Promise<ApiResponse<null>> {
+    if (USE_MOCK) return mockDepartmentService.delete(id)
     const api = useApi()
     return api.del<null>(API_ENDPOINTS.DEPARTMENTS.DELETE(id), options)
   },

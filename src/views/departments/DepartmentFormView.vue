@@ -2,15 +2,15 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/constants/routes'
-import { Status, StatusLabel, enumToOptions } from '@/constants/enums'
+import { Status, StatusLabel, EmployeeStatusLabel, enumToOptions } from '@/constants/enums'
 import { COLORS } from '@/constants/colors'
 import { Delete, Guide } from '@/constants/icons'
 import { departmentService } from '@/services/department.services'
 import { employeeService } from '@/services/employee.service'
 import { useToast } from '@/composables/useToast'
 import { usePageMode } from '@/composables/usePageMode'
-import { formatDateTime } from '@/utils/table'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+import AddEmployeeDialog from './components/AddEmployeeDialog.vue'
 import type { Department, DepartmentFormData } from './types'
 import type { Employee } from '@/views/employees/types'
 
@@ -33,6 +33,7 @@ const {
 const formRef = ref()
 const isLoading = ref(false)
 const isSubmitting = ref(false)
+const showAddEmployeeDialog = ref(false)
 
 const form = ref<DepartmentFormData>({
   code: '',
@@ -60,6 +61,14 @@ const rules = {
   status: [{ required: true, message: 'Vui lòng chọn trạng thái', trigger: 'change' }],
 }
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+const getEmployeeStatusLabel = (status: string) =>
+  EmployeeStatusLabel[status as keyof typeof EmployeeStatusLabel] ?? status
+
+const getEmployeeStatusType = (status: string): 'success' | 'danger' | 'info' =>
+  status === 'ACTIVE' ? 'success' : 'danger'
+
+// ─── Data loading ─────────────────────────────────────────────────────────────
 const loadParentOptions = async () => {
   try {
     const response = await departmentService.search(
@@ -119,6 +128,7 @@ const loadDepartment = async () => {
   }
 }
 
+// ─── Actions ─────────────────────────────────────────────────────────────────
 const handleSubmit = async () => {
   const valid = await formRef.value?.validate().catch(() => false)
   if (!valid) {
@@ -168,6 +178,14 @@ const handleRemoveEmployee = async (emp: Employee) => {
   }
 }
 
+const handleEmployeesAdded = async (addedEmployees: Employee[]) => {
+  // TODO: API gán phòng ban cho nhân viên (cần endpoint từ BE)
+  // Tạm thời chỉ reload list
+  console.log('Thêm nhân viên vào phòng ban:', addedEmployees)
+  toast.updateSuccess()
+  await loadEmployees()
+}
+
 onMounted(() => {
   loadParentOptions()
   loadDepartment()
@@ -187,10 +205,12 @@ onMounted(() => {
       <template #header>
         <div class="flex items-center justify-between">
           <span class="text-lg font-semibold">{{ pageTitle }}</span>
+          <!-- [D] Detail mode: nút điều hướng sang Edit -->
           <el-button v-if="isDetailMode" type="primary" @click="handleEdit">Chỉnh sửa</el-button>
         </div>
       </template>
 
+      <!-- Form thông tin phòng ban -->
       <el-form
         ref="formRef"
         :model="form"
@@ -224,8 +244,9 @@ onMounted(() => {
             </el-select>
           </el-form-item>
 
+          <!-- [C] Trạng thái: KHÔNG bị disabled ở Detail mode (theo BA) -->
           <el-form-item label="Trạng thái" prop="status">
-            <el-radio-group v-model="form.status">
+            <el-radio-group v-model="form.status" :disabled="false">
               <el-radio
                 v-for="opt in statusOptions"
                 :key="opt.value"
@@ -249,11 +270,21 @@ onMounted(() => {
         </el-form-item>
       </el-form>
 
+      <!-- Danh sách nhân viên (Edit & Detail mode) -->
       <div v-if="(isEditMode || isDetailMode) && departmentId" class="border-t pt-4 mt-4">
         <div class="flex items-center justify-between mb-3">
           <h4 class="text-sm font-medium text-gray-700">Danh sách nhân viên thuộc phòng ban</h4>
-          <el-button v-if="isEditMode" type="primary" size="small">Thêm nhân viên</el-button>
+          <!-- [B] Button mở dialog thêm NV, chỉ ở Edit mode -->
+          <el-button
+            v-if="isEditMode"
+            type="primary"
+            size="small"
+            @click="showAddEmployeeDialog = true"
+          >
+            Thêm nhân viên
+          </el-button>
         </div>
+
         <el-table
           :data="employees"
           stripe
@@ -268,7 +299,13 @@ onMounted(() => {
           <el-table-column prop="code" label="Mã nhân viên" width="140" />
           <el-table-column prop="name" label="Tên nhân viên" min-width="180" />
           <el-table-column prop="positionName" label="Vị trí làm việc" width="180" />
-          <el-table-column prop="status" label="Trạng thái" width="130" align="center" />
+          <el-table-column label="Trạng thái" width="140" align="center">
+            <template #default="{ row }">
+              <el-tag :type="getEmployeeStatusType(row.status)" size="small">
+                {{ getEmployeeStatusLabel(row.status) }}
+              </el-tag>
+            </template>
+          </el-table-column>
           <el-table-column v-if="isEditMode" label="Thao tác" width="80" align="center">
             <template #default="{ row }">
               <el-tooltip content="Xóa khỏi phòng ban" placement="top">
@@ -281,28 +318,7 @@ onMounted(() => {
         </el-table>
       </div>
 
-      <div v-if="(isEditMode || isDetailMode) && detailData" class="border-t pt-4 mt-4">
-        <h4 class="text-sm font-medium text-gray-500 mb-3">Thông tin hệ thống</h4>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
-          <div>
-            <span class="text-gray-400">Ngày tạo:</span>
-            <span class="ml-1">{{ formatDateTime(detailData.createdAt) }}</span>
-          </div>
-          <div>
-            <span class="text-gray-400">Người tạo:</span>
-            <span class="ml-1">{{ detailData.createdBy }}</span>
-          </div>
-          <div>
-            <span class="text-gray-400">Ngày sửa:</span>
-            <span class="ml-1">{{ formatDateTime(detailData.updatedAt) }}</span>
-          </div>
-          <div>
-            <span class="text-gray-400">Người sửa:</span>
-            <span class="ml-1">{{ detailData.updatedBy }}</span>
-          </div>
-        </div>
-      </div>
-
+      <!-- Footer buttons -->
       <div v-if="!isDetailMode" class="flex justify-end gap-3 mt-6 pt-6">
         <el-button @click="handleCancel">Hủy</el-button>
         <el-button type="primary" :loading="isSubmitting" @click="handleSubmit">
@@ -311,4 +327,11 @@ onMounted(() => {
       </div>
     </el-card>
   </div>
+
+  <!-- [B] Dialog thêm nhân viên -->
+  <AddEmployeeDialog
+    v-model="showAddEmployeeDialog"
+    :department-id="departmentId"
+    @confirmed="handleEmployeesAdded"
+  />
 </template>
