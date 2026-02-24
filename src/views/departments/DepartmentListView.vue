@@ -2,7 +2,8 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/constants/routes'
-import { Plus, Edit, Delete, Refresh, View } from '@/constants/icons'
+import { Plus, Edit, Delete, Refresh, View, Guide } from '@/constants/icons'
+import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import type { Department } from './types'
 import {
   DEPARTMENT_STATUS_OPTIONS,
@@ -98,10 +99,7 @@ onMounted(fetchDepartments)
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between mb-4">
-      <el-breadcrumb separator="/">
-        <el-breadcrumb-item :to="{ name: ROUTE_NAMES.DASHBOARD }">Trang chủ</el-breadcrumb-item>
-        <el-breadcrumb-item>Phòng ban</el-breadcrumb-item>
-      </el-breadcrumb>
+      <PageBreadcrumb :icon="Guide" :items="[{ label: 'Phòng ban' }]" />
 
       <el-button type="primary" @click="handleCreate">
         <el-icon class="mr-1"><Plus /></el-icon>
@@ -117,6 +115,7 @@ onMounted(fetchDepartments)
             v-model="searchKeyword"
             placeholder="Nhập vào mã phòng ban, tên phòng ban để tìm kiếm"
             clearable
+            show-word-limit
             @keyup.enter="handleSearch"
           />
         </div>

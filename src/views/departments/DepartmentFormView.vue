@@ -4,12 +4,13 @@ import { useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/constants/routes'
 import { Status, StatusLabel, enumToOptions } from '@/constants/enums'
 import { COLORS } from '@/constants/colors'
-import { Delete } from '@/constants/icons'
+import { Delete, Guide } from '@/constants/icons'
 import { departmentService } from '@/services/department.services'
 import { employeeService } from '@/services/employee.service'
 import { useToast } from '@/composables/useToast'
 import { usePageMode } from '@/composables/usePageMode'
 import { formatDateTime } from '@/utils/table'
+import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import type { Department, DepartmentFormData } from './types'
 import type { Employee } from '@/views/employees/types'
 
@@ -49,18 +50,13 @@ const parentDepartmentOptions = ref<{ value: string; label: string }[]>([])
 const rules = {
   code: [
     { required: true, message: 'Vui lòng nhập mã phòng ban', trigger: 'blur' },
-    { max: 10, message: 'Mã phòng ban tối đa 10 ký tự', trigger: 'blur' },
     {
       pattern: /^[A-Z0-9_]+$/,
       message: 'Mã phòng ban chỉ gồm chữ IN HOA, số và gạch dưới',
       trigger: 'blur',
     },
   ],
-  name: [
-    { required: true, message: 'Vui lòng nhập tên phòng ban', trigger: 'blur' },
-    { max: 100, message: 'Tên phòng ban tối đa 100 ký tự', trigger: 'blur' },
-  ],
-  description: [{ max: 500, message: 'Mô tả tối đa 500 ký tự', trigger: 'blur' }],
+  name: [{ required: true, message: 'Vui lòng nhập tên phòng ban', trigger: 'blur' }],
   status: [{ required: true, message: 'Vui lòng chọn trạng thái', trigger: 'change' }],
 }
 
@@ -181,11 +177,11 @@ onMounted(() => {
 
 <template>
   <div v-loading="isLoading" class="space-y-6">
-    <el-breadcrumb separator="/" class="mb-4">
-      <el-breadcrumb-item :to="{ name: ROUTE_NAMES.DASHBOARD }">Trang chủ</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ name: ROUTE_NAMES.DEPARTMENTS }">Phòng ban</el-breadcrumb-item>
-      <el-breadcrumb-item>{{ pageTitle }}</el-breadcrumb-item>
-    </el-breadcrumb>
+    <PageBreadcrumb
+      class="mb-4"
+      :icon="Guide"
+      :items="[{ label: 'Phòng ban', to: { name: ROUTE_NAMES.DEPARTMENTS } }, { label: pageTitle }]"
+    />
 
     <el-card shadow="never">
       <template #header>
@@ -206,25 +202,19 @@ onMounted(() => {
           <el-form-item label="Mã phòng ban" prop="code">
             <el-input
               v-model="form.code"
-              placeholder="Nhập mã phòng ban (VD: IT, HR)"
               maxlength="10"
+              show-word-limit
               :disabled="isEditMode || isReadonly"
               @input="form.code = form.code.toUpperCase()"
             />
           </el-form-item>
 
           <el-form-item label="Tên phòng ban" prop="name">
-            <el-input v-model="form.name" placeholder="Nhập tên phòng ban" maxlength="100" />
+            <el-input v-model="form.name" maxlength="100" show-word-limit />
           </el-form-item>
 
           <el-form-item label="Phòng ban cha" prop="parentId">
-            <el-select
-              v-model="form.parentId"
-              placeholder="Chọn phòng ban cha (nếu có)"
-              clearable
-              filterable
-              class="w-full"
-            >
+            <el-select v-model="form.parentId" clearable filterable class="w-full">
               <el-option
                 v-for="opt in parentDepartmentOptions"
                 :key="opt.value"
@@ -253,7 +243,6 @@ onMounted(() => {
             v-model="form.description"
             type="textarea"
             :rows="3"
-            placeholder="Nhập mô tả phòng ban"
             maxlength="500"
             show-word-limit
           />

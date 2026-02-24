@@ -41,6 +41,7 @@ declare module 'vue' {
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     FullscreenLoading: typeof import('./components/common/FullscreenLoading.vue')['default']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
+    PageBreadcrumb: typeof import('./components/common/PageBreadcrumb.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Sidebar: typeof import('./components/layout/Sidebar.vue')['default']

@@ -5,6 +5,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '@/constants/pagination'
 import { ROUTE_NAMES } from '@/constants/routes'
 import { Plus, Edit, Delete } from '@/constants/icons'
+import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import type { Employee } from './types'
 import { EMPLOYEE_STATUS_OPTIONS, EMPLOYEE_STATUS_LABELS, DEPARTMENT_OPTIONS } from './constants'
 import { COLORS } from '@/constants/colors'
@@ -101,10 +102,7 @@ onMounted(fetchEmployees)
   <div class="space-y-6">
     <!-- Header: Breadcrumb & Actions -->
     <div class="flex items-center justify-between mb-4">
-      <el-breadcrumb separator="/">
-        <el-breadcrumb-item :to="{ name: ROUTE_NAMES.DASHBOARD }">Trang chủ</el-breadcrumb-item>
-        <el-breadcrumb-item>Quản lý nhân viên</el-breadcrumb-item>
-      </el-breadcrumb>
+      <PageBreadcrumb :items="[{ label: 'Quản lý nhân viên' }]" />
 
       <el-button type="primary" @click="handleCreate">
         <el-icon class="mr-1"><Plus /></el-icon>

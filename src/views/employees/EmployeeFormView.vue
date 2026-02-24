@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { ROUTE_NAMES } from '@/constants/routes'
 import { Plus, Delete } from '@/constants/icons'
+import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import {
   Gender,
   EmployeeStatus,
@@ -183,13 +184,13 @@ onMounted(() => {
 <template>
   <div v-loading="isLoading" class="space-y-6">
     <!-- Breadcrumb -->
-    <el-breadcrumb separator="/" class="mb-4">
-      <el-breadcrumb-item :to="{ name: ROUTE_NAMES.DASHBOARD }">Trang chủ</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ name: ROUTE_NAMES.EMPLOYEES }"
-        >Quản lý nhân viên</el-breadcrumb-item
-      >
-      <el-breadcrumb-item>{{ pageTitle }}</el-breadcrumb-item>
-    </el-breadcrumb>
+    <PageBreadcrumb
+      class="mb-4"
+      :items="[
+        { label: 'Quản lý nhân viên', to: { name: ROUTE_NAMES.EMPLOYEES } },
+        { label: pageTitle },
+      ]"
+    />
 
     <!-- Form with Tabs -->
     <el-card shadow="never">

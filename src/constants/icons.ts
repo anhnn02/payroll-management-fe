@@ -17,6 +17,7 @@ import {
   OfficeBuilding,
   Refresh,
   View,
+  Guide,
 } from '@element-plus/icons-vue'
 
 // Re-export all icons
@@ -36,13 +37,14 @@ export {
   OfficeBuilding,
   Refresh,
   View,
+  Guide,
 }
 
 // Menu icons mapping
 export const MENU_ICONS = {
   dashboard: House,
   accounts: User,
-  departments: OfficeBuilding,
+  departments: Guide,
   employees: Avatar,
   payroll: Money,
 } as const
