@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/constants/routes'
-import { Plus, Edit, Delete, Refresh, View, Guide, DeleteFilled } from '@/constants/icons'
+import { Plus, Edit, Delete, Refresh, View, Guide } from '@/constants/icons'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import type { Department } from './types'
@@ -138,7 +138,7 @@ onMounted(fetchDepartments)
         <div class="flex gap-1">
           <el-button type="primary" @click="handleSearch">Tìm kiếm</el-button>
           <el-tooltip content="Đặt lại">
-            <el-button @click="handleReset" :icon="Refresh"></el-button>
+            <el-button :icon="Refresh" @click="handleReset"></el-button>
           </el-tooltip>
         </div>
       </div>
@@ -220,8 +220,6 @@ onMounted(fetchDepartments)
     title="Xác nhận xóa"
     :message="`Bạn có chắc muốn xóa phòng ban '${deletingDepartment?.code} - ${deletingDepartment?.name}'?`"
     confirm-type="danger"
-    success-message="Xóa thành công"
-    error-message="Không thể xóa"
     :icon="Delete"
     :icon-color="COLORS.DANGER"
     :on-confirm="onConfirmDelete"

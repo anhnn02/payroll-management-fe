@@ -66,7 +66,7 @@ const rules = {
   status: [{ required: true, message: 'Vui lòng chọn trạng thái', trigger: 'change' }],
 }
 
-const getListParentOptions = async () => {
+const fetchParentOptions = async () => {
   try {
     const response = await departmentService.search(
       { status: Status.ACTIVE, page: 0, size: 100 },
@@ -83,11 +83,11 @@ const getListParentOptions = async () => {
       label: `${d.code} - ${d.name}`,
     }))
   } catch {
-    console.warn('Không thể tải danh sách phòng ban cha')
+    toast.loadError()
   }
 }
 
-const getListEmployees = async () => {
+const fetchEmployees = async () => {
   if (isCreateMode.value || !departmentId.value) return
   try {
     const response = await employeeService.search({
@@ -97,11 +97,11 @@ const getListEmployees = async () => {
     })
     employees.value = response.content || []
   } catch {
-    console.warn('Không thể tải danh sách nhân viên')
+    toast.loadError()
   }
 }
 
-const getListDepartment = async () => {
+const fetchDepartment = async () => {
   if (isCreateMode.value) return
 
   isLoading.value = true
@@ -170,7 +170,7 @@ const handleRemoveEmployee = (emp: Employee) => {
 const onConfirmRemoveEmployee = async () => {
   if (!removingEmployee.value) return
   await employeeService.update(removingEmployee.value.id, { deptId: '' })
-  await getListEmployees()
+  await fetchEmployees()
 }
 
 const handleEmployeesAdded = async (addedEmployees: Employee[]) => {
@@ -179,17 +179,16 @@ const handleEmployeesAdded = async (addedEmployees: Employee[]) => {
       addedEmployees.map(emp => employeeService.update(emp.id, { deptId: departmentId.value }))
     )
     toast.updateSuccess()
-    await getListEmployees()
-  } catch (error) {
-    console.error(error)
-    toast.error('Gán nhân viên vào phòng ban thất bại')
+    await fetchEmployees()
+  } catch {
+    toast.updateError()
   }
 }
 
 onMounted(() => {
-  getListParentOptions()
-  getListDepartment()
-  getListEmployees()
+  fetchParentOptions()
+  fetchDepartment()
+  fetchEmployees()
 })
 </script>
 
@@ -335,8 +334,6 @@ onMounted(() => {
     confirm-type="danger"
     :icon="Delete"
     :icon-color="COLORS.DANGER"
-    success-message="Xóa nhân viên khỏi phòng ban thành công"
-    error-message="Không thể xóa nhân viên"
     :on-confirm="onConfirmRemoveEmployee"
   />
 </template>

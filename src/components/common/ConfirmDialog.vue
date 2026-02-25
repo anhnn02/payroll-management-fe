@@ -4,6 +4,8 @@ import { WarningFilled } from '@element-plus/icons-vue'
 import { useToast } from '@/composables/useToast'
 import { COLORS } from '@/constants/colors'
 
+type ToastType = 'create' | 'update' | 'delete'
+
 const props = withDefaults(
   defineProps<{
     modelValue: boolean
@@ -18,6 +20,7 @@ const props = withDefaults(
     onConfirm?: () => Promise<void>
     successMessage?: string
     errorMessage?: string
+    toastType?: ToastType
   }>(),
   {
     title: 'Xác nhận',
@@ -31,6 +34,7 @@ const props = withDefaults(
     onConfirm: undefined,
     successMessage: '',
     errorMessage: '',
+    toastType: 'delete',
   }
 )
 
@@ -41,6 +45,24 @@ const emit = defineEmits<{
 
 const toast = useToast()
 const isLoading = ref(false)
+
+const toastSuccess = () => {
+  const map: Record<ToastType, () => void> = {
+    create: toast.createSuccess,
+    update: toast.updateSuccess,
+    delete: toast.deleteSuccess,
+  }
+  map[props.toastType]()
+}
+
+const toastError = () => {
+  const map: Record<ToastType, () => void> = {
+    create: toast.createError,
+    update: toast.updateError,
+    delete: toast.deleteError,
+  }
+  map[props.toastType]()
+}
 
 const close = () => {
   if (isLoading.value) return
@@ -61,11 +83,11 @@ const handleConfirm = async () => {
   isLoading.value = true
   try {
     await props.onConfirm()
-    if (props.successMessage) toast.success(props.successMessage)
+    props.successMessage ? toast.success(props.successMessage) : toastSuccess()
     emit('update:modelValue', false)
   } catch (error) {
     console.error(error)
-    if (props.errorMessage) toast.error(props.errorMessage)
+    props.errorMessage ? toast.error(props.errorMessage) : toastError()
   } finally {
     isLoading.value = false
   }
