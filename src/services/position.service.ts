@@ -1,67 +1,63 @@
 import { useApi } from '@/composables/useApi'
 import { API_ENDPOINTS } from '@/constants'
-import type { ApiResponse, PaginatedResponse } from '@/types/api'
+import type { ApiResponse, ApiRequestOptions, PaginatedResponse } from '@/types/api'
+import type { Position, PositionSearchRequest, PositionFormData } from '@/views/positions/types'
 
-// Position interface (aligned with BE)
-export interface Position {
-  id: string
-  code: string
-  name: string
-  description?: string
-  level: 'JUNIOR' | 'MIDDLE' | 'SENIOR'
-  status: 'ACTIVE' | 'INACTIVE'
-}
-
-export interface PositionSearchRequest {
-  keyword?: string
-  status?: string
-  level?: string
-  page: number
-  size: number
-}
+export type { Position, PositionSearchRequest, PositionFormData }
 
 export const positionService = {
   /**
-   * Tìm kiếm chức vụ (POST /positions/search)
+   * Tìm kiếm vị trí (POST /positions/search)
    */
-  async search(data: PositionSearchRequest): Promise<PaginatedResponse<Position>> {
+  async search(
+    data: PositionSearchRequest,
+    options?: ApiRequestOptions
+  ): Promise<PaginatedResponse<Position>> {
     const api = useApi()
     const response = await api.post<PaginatedResponse<Position>>(
       API_ENDPOINTS.POSITIONS.SEARCH,
-      data
+      data,
+      options
     )
     return response.data as PaginatedResponse<Position>
   },
 
   /**
-   * Chi tiết chức vụ (GET /positions/:id)
+   * Chi tiết vị trí (GET /positions/:id)
    */
-  async getById(id: string): Promise<ApiResponse<Position>> {
+  async getById(id: string, options?: ApiRequestOptions): Promise<ApiResponse<Position>> {
     const api = useApi()
-    return api.get<Position>(API_ENDPOINTS.POSITIONS.DETAIL(id))
+    return api.get<Position>(API_ENDPOINTS.POSITIONS.DETAIL(id), options)
   },
 
   /**
-   * Tạo chức vụ (POST /positions)
+   * Tạo vị trí (POST /positions)
    */
-  async create(data: Omit<Position, 'id'>): Promise<ApiResponse<Position>> {
+  async create(
+    data: PositionFormData,
+    options?: ApiRequestOptions
+  ): Promise<ApiResponse<Position>> {
     const api = useApi()
-    return api.post<Position>(API_ENDPOINTS.POSITIONS.CREATE, data)
+    return api.post<Position>(API_ENDPOINTS.POSITIONS.CREATE, data, options)
   },
 
   /**
-   * Cập nhật chức vụ (PUT /positions/:id)
+   * Cập nhật vị trí (PUT /positions/:id)
    */
-  async update(id: string, data: Partial<Position>): Promise<ApiResponse<Position>> {
+  async update(
+    id: string,
+    data: PositionFormData,
+    options?: ApiRequestOptions
+  ): Promise<ApiResponse<Position>> {
     const api = useApi()
-    return api.put<Position>(API_ENDPOINTS.POSITIONS.UPDATE(id), data)
+    return api.put<Position>(API_ENDPOINTS.POSITIONS.UPDATE(id), data, options)
   },
 
   /**
-   * Xóa chức vụ (DELETE /positions/:id)
+   * Xóa vị trí (DELETE /positions/:id)
    */
-  async delete(id: string): Promise<ApiResponse<null>> {
+  async delete(id: string, options?: ApiRequestOptions): Promise<ApiResponse<null>> {
     const api = useApi()
-    return api.del<null>(API_ENDPOINTS.POSITIONS.DELETE(id))
+    return api.del<null>(API_ENDPOINTS.POSITIONS.DELETE(id), options)
   },
 }

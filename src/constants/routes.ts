@@ -18,6 +18,12 @@ export const ROUTE_NAMES = {
   DEPARTMENT_DETAIL: 'department-detail',
   DEPARTMENT_EDIT: 'department-edit',
 
+  // Positions
+  POSITIONS: 'positions',
+  POSITION_CREATE: 'position-create',
+  POSITION_DETAIL: 'position-detail',
+  POSITION_EDIT: 'position-edit',
+
   // Employees
   EMPLOYEES: 'employees',
   EMPLOYEE_CREATE: 'employee-create',
@@ -47,6 +53,12 @@ export const ROUTE_PATHS = {
   DEPARTMENT_CREATE: '/departments/create',
   DEPARTMENT_DETAIL: '/departments/:id',
   DEPARTMENT_EDIT: '/departments/:id/edit',
+
+  // Positions
+  POSITIONS: '/positions',
+  POSITION_CREATE: '/positions/create',
+  POSITION_DETAIL: '/positions/:id',
+  POSITION_EDIT: '/positions/:id/edit',
 
   // Employees
   EMPLOYEES: '/employees',
