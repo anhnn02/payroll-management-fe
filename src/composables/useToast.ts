@@ -129,8 +129,6 @@ export function useToast() {
     }
   }
 
-  // ===== Confirm dialog =====
-
   /** Hiển thị confirm xóa: "Bạn có chắc muốn xóa {itemLabel}?" */
   const confirmDelete = (itemLabel: string): Promise<void> => {
     return ElMessageBox.confirm(`Bạn có chắc muốn xóa "${itemLabel}"?`, 'Xác nhận xóa', {
@@ -139,7 +137,7 @@ export function useToast() {
       type: 'warning',
       center: true,
       customClass: 'confirm-delete-dialog',
-    }).then(() => {}) // resolve with void
+    }).then(() => {})
   }
 
   return {

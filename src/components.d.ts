@@ -14,6 +14,7 @@ declare module 'vue' {
     AdminLayout: typeof import('./components/layout/AdminLayout.vue')['default']
     AppFooter: typeof import('./components/layout/AppFooter.vue')['default']
     AppHeader: typeof import('./components/layout/AppHeader.vue')['default']
+    ConfirmDialog: typeof import('./components/common/ConfirmDialog.vue')['default']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElBreadcrumb: typeof import('element-plus/es')['ElBreadcrumb']
     ElBreadcrumbItem: typeof import('element-plus/es')['ElBreadcrumbItem']

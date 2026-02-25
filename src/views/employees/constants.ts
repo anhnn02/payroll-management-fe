@@ -18,6 +18,14 @@ export const EMPLOYEE_STATUS_COLORS: Record<EmployeeStatus, string> = {
   [EmployeeStatus.INACTIVE]: COLORS.DANGER,
 }
 
+// Status tag type (Element Plus tag types)
+type TagType = 'success' | 'info' | 'warning' | 'danger' | 'primary'
+
+export const EMPLOYEE_STATUS_TAG_TYPE: Record<EmployeeStatus, TagType> = {
+  [EmployeeStatus.ACTIVE]: 'success',
+  [EmployeeStatus.INACTIVE]: 'danger',
+}
+
 // Gender options (from common enum)
 export const GENDER_OPTIONS = enumToOptions(GenderLabel)
 

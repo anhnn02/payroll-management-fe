@@ -19,7 +19,7 @@ export function usePageMode(config: PageModeConfig) {
 
   const pageTitle = computed(() => {
     if (isCreateMode.value) return 'Thêm mới'
-    if (isEditMode.value) return 'Chỉnh sửa'
+    if (isEditMode.value) return 'Cập nhật'
     return 'Chi tiết'
   })
 

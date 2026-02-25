@@ -2,7 +2,9 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/constants/routes'
-import { Status, StatusLabel, EmployeeStatusLabel, enumToOptions } from '@/constants/enums'
+import { Status, StatusLabel, EmployeeStatus, enumToOptions } from '@/constants/enums'
+import { EMPLOYEE_STATUS_LABELS, EMPLOYEE_STATUS_TAG_TYPE } from '@/views/employees/constants'
+import { TABLE_EMPTY_TEXT } from '@/constants'
 import { COLORS } from '@/constants/colors'
 import { Delete, Guide } from '@/constants/icons'
 import { departmentService } from '@/services/department.services'
@@ -10,6 +12,7 @@ import { employeeService } from '@/services/employee.service'
 import { useToast } from '@/composables/useToast'
 import { usePageMode } from '@/composables/usePageMode'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import AddEmployeeDialog from './components/AddEmployeeDialog.vue'
 import type { Department, DepartmentFormData } from './types'
 import type { Employee } from '@/views/employees/types'
@@ -34,6 +37,8 @@ const formRef = ref()
 const isLoading = ref(false)
 const isSubmitting = ref(false)
 const showAddEmployeeDialog = ref(false)
+const showRemoveEmployeeDialog = ref(false)
+const removingEmployee = ref<Employee | null>(null)
 
 const form = ref<DepartmentFormData>({
   code: '',
@@ -61,15 +66,7 @@ const rules = {
   status: [{ required: true, message: 'Vui lòng chọn trạng thái', trigger: 'change' }],
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-const getEmployeeStatusLabel = (status: string) =>
-  EmployeeStatusLabel[status as keyof typeof EmployeeStatusLabel] ?? status
-
-const getEmployeeStatusType = (status: string): 'success' | 'danger' | 'info' =>
-  status === 'ACTIVE' ? 'success' : 'danger'
-
-// ─── Data loading ─────────────────────────────────────────────────────────────
-const loadParentOptions = async () => {
+const getListParentOptions = async () => {
   try {
     const response = await departmentService.search(
       { status: Status.ACTIVE, page: 0, size: 100 },
@@ -90,7 +87,7 @@ const loadParentOptions = async () => {
   }
 }
 
-const loadEmployees = async () => {
+const getListEmployees = async () => {
   if (isCreateMode.value || !departmentId.value) return
   try {
     const response = await employeeService.search({
@@ -104,7 +101,7 @@ const loadEmployees = async () => {
   }
 }
 
-const loadDepartment = async () => {
+const getListDepartment = async () => {
   if (isCreateMode.value) return
 
   isLoading.value = true
@@ -128,7 +125,6 @@ const loadDepartment = async () => {
   }
 }
 
-// ─── Actions ─────────────────────────────────────────────────────────────────
 const handleSubmit = async () => {
   const valid = await formRef.value?.validate().catch(() => false)
   if (!valid) {
@@ -166,51 +162,53 @@ const handleEdit = () => {
   router.push({ name: ROUTE_NAMES.DEPARTMENT_EDIT, params: { id: departmentId.value } })
 }
 
-const handleRemoveEmployee = async (emp: Employee) => {
-  try {
-    await toast.confirmDelete(`${emp.code} - ${emp.name}`)
-    // TODO: API xóa NV khỏi phòng ban (cần endpoint riêng từ BE)
-    toast.deleteSuccess()
-    await loadEmployees()
-  } catch (error) {
-    console.error(error)
-    toast.deleteError()
-  }
+const handleRemoveEmployee = (emp: Employee) => {
+  removingEmployee.value = emp
+  showRemoveEmployeeDialog.value = true
+}
+
+const onConfirmRemoveEmployee = async () => {
+  if (!removingEmployee.value) return
+  await employeeService.update(removingEmployee.value.id, { deptId: '' })
+  await getListEmployees()
 }
 
 const handleEmployeesAdded = async (addedEmployees: Employee[]) => {
-  // TODO: API gán phòng ban cho nhân viên (cần endpoint từ BE)
-  // Tạm thời chỉ reload list
-  console.log('Thêm nhân viên vào phòng ban:', addedEmployees)
-  toast.updateSuccess()
-  await loadEmployees()
+  try {
+    await Promise.all(
+      addedEmployees.map(emp => employeeService.update(emp.id, { deptId: departmentId.value }))
+    )
+    toast.updateSuccess()
+    await getListEmployees()
+  } catch (error) {
+    console.error(error)
+    toast.error('Gán nhân viên vào phòng ban thất bại')
+  }
 }
 
 onMounted(() => {
-  loadParentOptions()
-  loadDepartment()
-  loadEmployees()
+  getListParentOptions()
+  getListDepartment()
+  getListEmployees()
 })
 </script>
 
 <template>
   <div v-loading="isLoading" class="space-y-6">
-    <PageBreadcrumb
-      class="mb-4"
-      :icon="Guide"
-      :items="[{ label: 'Phòng ban', to: { name: ROUTE_NAMES.DEPARTMENTS } }, { label: pageTitle }]"
-    />
+    <div class="flex items-center justify-between mb-2">
+      <PageBreadcrumb
+        class="mb-4"
+        :icon="Guide"
+        :items="[
+          { label: 'Phòng ban', to: { name: ROUTE_NAMES.DEPARTMENTS } },
+          { label: pageTitle },
+        ]"
+      />
+
+      <el-button v-if="isDetailMode" type="primary" @click="handleEdit">Cập nhật</el-button>
+    </div>
 
     <el-card shadow="never">
-      <template #header>
-        <div class="flex items-center justify-between">
-          <span class="text-lg font-semibold">{{ pageTitle }}</span>
-          <!-- [D] Detail mode: nút điều hướng sang Edit -->
-          <el-button v-if="isDetailMode" type="primary" @click="handleEdit">Chỉnh sửa</el-button>
-        </div>
-      </template>
-
-      <!-- Form thông tin phòng ban -->
       <el-form
         ref="formRef"
         :model="form"
@@ -218,7 +216,7 @@ onMounted(() => {
         label-position="top"
         :disabled="isReadonly"
       >
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-1">
           <el-form-item label="Mã phòng ban" prop="code">
             <el-input
               v-model="form.code"
@@ -244,7 +242,6 @@ onMounted(() => {
             </el-select>
           </el-form-item>
 
-          <!-- [C] Trạng thái: KHÔNG bị disabled ở Detail mode (theo BA) -->
           <el-form-item label="Trạng thái" prop="status">
             <el-radio-group v-model="form.status" :disabled="false">
               <el-radio
@@ -270,11 +267,9 @@ onMounted(() => {
         </el-form-item>
       </el-form>
 
-      <!-- Danh sách nhân viên (Edit & Detail mode) -->
       <div v-if="(isEditMode || isDetailMode) && departmentId" class="border-t pt-4 mt-4">
         <div class="flex items-center justify-between mb-3">
           <h4 class="text-sm font-medium text-gray-700">Danh sách nhân viên thuộc phòng ban</h4>
-          <!-- [B] Button mở dialog thêm NV, chỉ ở Edit mode -->
           <el-button
             v-if="isEditMode"
             type="primary"
@@ -289,7 +284,7 @@ onMounted(() => {
           :data="employees"
           stripe
           :header-cell-style="{ backgroundColor: COLORS.TABLE_HEADER_BG }"
-          empty-text="Không có nhân viên nào trong phòng ban này"
+          :empty-text="TABLE_EMPTY_TEXT"
         >
           <el-table-column label="STT" width="60" align="center">
             <template #default="{ $index }">
@@ -301,8 +296,8 @@ onMounted(() => {
           <el-table-column prop="positionName" label="Vị trí làm việc" width="180" />
           <el-table-column label="Trạng thái" width="140" align="center">
             <template #default="{ row }">
-              <el-tag :type="getEmployeeStatusType(row.status)" size="small">
-                {{ getEmployeeStatusLabel(row.status) }}
+              <el-tag :type="EMPLOYEE_STATUS_TAG_TYPE[row.status as EmployeeStatus]" size="small">
+                {{ EMPLOYEE_STATUS_LABELS[row.status as keyof typeof EMPLOYEE_STATUS_LABELS] }}
               </el-tag>
             </template>
           </el-table-column>
@@ -318,20 +313,30 @@ onMounted(() => {
         </el-table>
       </div>
 
-      <!-- Footer buttons -->
-      <div v-if="!isDetailMode" class="flex justify-end gap-3 mt-6 pt-6">
-        <el-button @click="handleCancel">Hủy</el-button>
-        <el-button type="primary" :loading="isSubmitting" @click="handleSubmit">
-          {{ isEditMode ? 'Cập nhật' : 'Lưu' }}
-        </el-button>
+      <div class="flex justify-end gap-3 mt-6 pt-6">
+        <div v-if="!isDetailMode" class="">
+          <el-button @click="handleCancel">Hủy</el-button>
+          <el-button type="primary" :loading="isSubmitting" @click="handleSubmit"> Lưu </el-button>
+        </div>
       </div>
     </el-card>
   </div>
 
-  <!-- [B] Dialog thêm nhân viên -->
   <AddEmployeeDialog
     v-model="showAddEmployeeDialog"
     :department-id="departmentId"
     @confirmed="handleEmployeesAdded"
+  />
+
+  <ConfirmDialog
+    v-model="showRemoveEmployeeDialog"
+    title="Xác nhận xóa"
+    :message="`Bạn có chắc muốn xóa nhân viên '${removingEmployee?.code} - ${removingEmployee?.name}' khỏi phòng ban?`"
+    confirm-type="danger"
+    :icon="Delete"
+    :icon-color="COLORS.DANGER"
+    success-message="Xóa nhân viên khỏi phòng ban thành công"
+    error-message="Không thể xóa nhân viên"
+    :on-confirm="onConfirmRemoveEmployee"
   />
 </template>

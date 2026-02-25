@@ -18,6 +18,7 @@ import {
   Refresh,
   View,
   Guide,
+  DeleteFilled,
 } from '@element-plus/icons-vue'
 
 // Re-export all icons
@@ -38,6 +39,7 @@ export {
   Refresh,
   View,
   Guide,
+  DeleteFilled,
 }
 
 // Menu icons mapping

@@ -2,8 +2,9 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/constants/routes'
-import { Plus, Edit, Delete, Refresh, View, Guide } from '@/constants/icons'
+import { Plus, Edit, Delete, Refresh, View, Guide, DeleteFilled } from '@/constants/icons'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import type { Department } from './types'
 import {
   DEPARTMENT_STATUS_OPTIONS,
@@ -15,6 +16,7 @@ import { departmentService } from '@/services/department.services'
 import { useToast } from '@/composables/useToast'
 import { usePagination } from '@/composables/usePagination'
 import { Status } from '@/constants/enums'
+import { TABLE_EMPTY_TEXT } from '@/constants'
 
 const router = useRouter()
 const toast = useToast()
@@ -24,6 +26,8 @@ const departments = ref<Department[]>([])
 const isLoading = ref(false)
 const searchKeyword = ref('')
 const filterStatus = ref(Status.ACTIVE)
+const showDeleteDialog = ref(false)
+const deletingDepartment = ref<Department | null>(null)
 
 // Pagination
 const {
@@ -74,16 +78,15 @@ const handleEdit = (row: Department) => {
   router.push({ name: ROUTE_NAMES.DEPARTMENT_EDIT, params: { id: row.id } })
 }
 
-const handleDelete = async (row: Department) => {
-  try {
-    await toast.confirmDelete(`${row.code} - ${row.name}`)
-    await departmentService.delete(row.id)
-    toast.deleteSuccess()
-    fetchDepartments()
-  } catch (error) {
-    console.error(error)
-    toast.deleteError()
-  }
+const handleDelete = (row: Department) => {
+  deletingDepartment.value = row
+  showDeleteDialog.value = true
+}
+
+const onConfirmDelete = async () => {
+  if (!deletingDepartment.value) return
+  await departmentService.delete(deletingDepartment.value.id)
+  fetchDepartments()
 }
 
 const handleReset = () => {
@@ -147,6 +150,7 @@ onMounted(fetchDepartments)
         :header-cell-style="{
           backgroundColor: COLORS.TABLE_HEADER_BG,
         }"
+        :empty-text="TABLE_EMPTY_TEXT"
       >
         <el-table-column label="STT" width="60" align="center">
           <template #default="{ $index }">
@@ -210,4 +214,16 @@ onMounted(fetchDepartments)
       </div>
     </el-card>
   </div>
+
+  <ConfirmDialog
+    v-model="showDeleteDialog"
+    title="Xác nhận xóa"
+    :message="`Bạn có chắc muốn xóa phòng ban '${deletingDepartment?.code} - ${deletingDepartment?.name}'?`"
+    confirm-type="danger"
+    success-message="Xóa thành công"
+    error-message="Không thể xóa"
+    :icon="Delete"
+    :icon-color="COLORS.DANGER"
+    :on-confirm="onConfirmDelete"
+  />
 </template>

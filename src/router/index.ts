@@ -60,7 +60,7 @@ const routes: RouteRecordRaw[] = [
         path: 'accounts/:id/edit',
         name: ROUTE_NAMES.ACCOUNT_EDIT,
         component: AccountFormView,
-        meta: { title: 'Sửa tài khoản' },
+        meta: { title: 'Cập nhật tài khoản' },
       },
       // #region Department
       {
@@ -85,7 +85,7 @@ const routes: RouteRecordRaw[] = [
         path: 'departments/:id/edit',
         name: ROUTE_NAMES.DEPARTMENT_EDIT,
         component: DepartmentFormView,
-        meta: { title: 'Chỉnh sửa phòng ban' },
+        meta: { title: 'Cập nhật phòng ban' },
       },
       // #region Employee
       {
@@ -104,7 +104,7 @@ const routes: RouteRecordRaw[] = [
         path: 'employees/:id/edit',
         name: ROUTE_NAMES.EMPLOYEE_EDIT,
         component: EmployeeFormView,
-        meta: { title: 'Sửa nhân viên' },
+        meta: { title: 'Cập nhật nhân viên' },
       },
     ],
   },
