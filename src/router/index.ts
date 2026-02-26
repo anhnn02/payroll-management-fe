@@ -11,6 +11,7 @@ const AccountFormView = () => import('@/views/accounts/AccountFormView.vue')
 const DepartmentListView = () => import('@/views/departments/DepartmentListView.vue')
 const DepartmentFormView = () => import('@/views/departments/DepartmentFormView.vue')
 const PositionListView = () => import('@/views/positions/PositionListView.vue')
+const PositionFormView = () => import('@/views/positions/PositionFormView.vue')
 const EmployeeListView = () => import('@/views/employees/EmployeeListView.vue')
 const EmployeeFormView = () => import('@/views/employees/EmployeeFormView.vue')
 const NotFoundView = () => import('@/views/NotFoundView.vue')
@@ -98,19 +99,19 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'positions/create',
         name: ROUTE_NAMES.POSITION_CREATE,
-        component: PositionListView,
+        component: PositionFormView,
         meta: { title: 'Thêm vị trí' },
       },
       {
         path: 'positions/:id',
         name: ROUTE_NAMES.POSITION_DETAIL,
-        component: PositionListView,
+        component: PositionFormView,
         meta: { title: 'Chi tiết vị trí' },
       },
       {
         path: 'positions/:id/edit',
         name: ROUTE_NAMES.POSITION_EDIT,
-        component: PositionListView,
+        component: PositionFormView,
         meta: { title: 'Cập nhật vị trí' },
       },
       // #region Employee

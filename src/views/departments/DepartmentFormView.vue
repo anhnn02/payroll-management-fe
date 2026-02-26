@@ -16,6 +16,7 @@ import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import AddEmployeeDialog from './components/AddEmployeeDialog.vue'
 import type { Department, DepartmentFormData } from './types'
 import type { Employee } from '@/views/employees/types'
+import { generateCode } from '@/utils'
 
 const router = useRouter()
 const toast = useToast()
@@ -136,6 +137,7 @@ const handleSubmit = async () => {
   try {
     const submitData: DepartmentFormData = {
       ...form.value,
+      code: isCreateMode.value ? generateCode('DEPARTMENT') : form.value.code,
       parentId: form.value.parentId || undefined,
     }
 
@@ -194,9 +196,8 @@ onMounted(() => {
 
 <template>
   <div v-loading="isLoading" class="space-y-6">
-    <div class="flex items-center justify-between mb-2">
+    <div class="flex justify-between mb-2">
       <PageBreadcrumb
-        class="mb-4"
         :icon="Guide"
         :items="[
           { label: 'Phòng ban', to: { name: ROUTE_NAMES.DEPARTMENTS } },
@@ -215,17 +216,12 @@ onMounted(() => {
         label-position="top"
         :disabled="isReadonly"
       >
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-1">
-          <el-form-item label="Mã phòng ban" prop="code">
-            <el-input
-              v-model="form.code"
-              maxlength="10"
-              show-word-limit
-              :disabled="isEditMode || isReadonly"
-              @input="form.code = form.code.toUpperCase()"
-            />
-          </el-form-item>
+        <div v-if="!isCreateMode" class="mb-4">
+          <span class="text-sm text-gray-500">Mã phòng ban: </span>
+          <span class="font-bold uppercase">{{ detailData?.code }}</span>
+        </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-1">
           <el-form-item label="Tên phòng ban" prop="name">
             <el-input v-model="form.name" maxlength="100" show-word-limit />
           </el-form-item>

@@ -2,7 +2,7 @@
 
 export interface Position {
   id: string
-  code: string // Mã vị trí (auto-generated bởi BE)
+  code: string // Mã vị trí (FE gen: VTyymmdd###)
   name: string // Tên vị trí
   description?: string // Mô tả (nullable)
   minSalary?: number // Lương tối thiểu (VNĐ)
@@ -27,6 +27,7 @@ export interface PositionSearchRequest {
 
 // Create/Update request
 export interface PositionFormData {
+  code: string // Mã vị trí (FE auto-gen khi create)
   name: string // Bắt buộc, max 100 ký tự, unique
   description?: string // Tùy chọn, max 1000 ký tự
   minSalary: number // Bắt buộc, >= 0

@@ -100,8 +100,8 @@ onMounted(fetchDepartments)
 </script>
 
 <template>
-  <div class="space-y-6">
-    <div class="flex items-center justify-between mb-4">
+  <div class="space-y-3">
+    <div class="flex justify-between">
       <PageBreadcrumb :icon="Guide" :items="[{ label: 'Phòng ban' }]" />
 
       <el-button type="primary" @click="handleCreate">

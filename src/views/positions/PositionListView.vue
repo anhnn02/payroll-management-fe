@@ -42,18 +42,80 @@ const {
   pageForApi,
 } = usePagination(fetchPositions)
 
+// ========== MOCK DATA (xóa khi có API) ==========
+const MOCK_POSITIONS: Position[] = [
+  {
+    id: '1',
+    code: 'VT260226001',
+    name: 'Giám đốc',
+    description: 'Quản lý điều hành toàn bộ hoạt động công ty',
+    minSalary: 50000000,
+    maxSalary: 100000000,
+    status: 'ACTIVE',
+    employeeCount: 1,
+  },
+  {
+    id: '2',
+    code: 'VT260226002',
+    name: 'Trưởng phòng',
+    description: 'Quản lý phòng ban, báo cáo trực tiếp cho giám đốc',
+    minSalary: 25000000,
+    maxSalary: 45000000,
+    status: 'ACTIVE',
+    employeeCount: 5,
+  },
+  {
+    id: '3',
+    code: 'VT260226003',
+    name: 'Nhân viên kế toán',
+    description: 'Xử lý sổ sách, chứng từ, báo cáo tài chính',
+    minSalary: 10000000,
+    maxSalary: 18000000,
+    status: 'ACTIVE',
+    employeeCount: 8,
+  },
+  {
+    id: '4',
+    code: 'VT260226004',
+    name: 'Lập trình viên',
+    description: 'Phát triển và bảo trì hệ thống phần mềm',
+    minSalary: 15000000,
+    maxSalary: 35000000,
+    status: 'ACTIVE',
+    employeeCount: 12,
+  },
+  {
+    id: '5',
+    code: 'VT260226005',
+    name: 'Thực tập sinh',
+    description: 'Hỗ trợ các công việc theo sự phân công',
+    minSalary: 3000000,
+    maxSalary: 6000000,
+    status: 'INACTIVE',
+    employeeCount: 0,
+  },
+]
+// ========== END MOCK DATA ==========
+
 // Fetch positions
 async function fetchPositions() {
   isLoading.value = true
   try {
-    const response = await positionService.search({
-      keyword: searchKeyword.value || undefined,
-      status: filterStatus.value || undefined,
-      page: pageForApi(),
-      size: pageSize.value,
-    })
-    positions.value = response.content
-    total.value = response.totalElements
+    // TODO: Bỏ mock, dùng API thật
+    // const response = await positionService.search({ ... })
+    await new Promise(resolve => setTimeout(resolve, 500)) // fake loading
+    let filtered = MOCK_POSITIONS
+    if (searchKeyword.value) {
+      const kw = searchKeyword.value.toLowerCase()
+      filtered = filtered.filter(
+        p => p.code.toLowerCase().includes(kw) || p.name.toLowerCase().includes(kw)
+      )
+    }
+    if (filterStatus.value) {
+      filtered = filtered.filter(p => p.status === filterStatus.value)
+    }
+    positions.value = filtered
+    total.value = filtered.length
   } catch {
     toast.loadError()
   } finally {
@@ -109,8 +171,8 @@ onMounted(fetchPositions)
 </script>
 
 <template>
-  <div class="space-y-6">
-    <div class="flex items-center justify-between mb-4">
+  <div class="space-y-3">
+    <div class="flex items-center justify-between">
       <PageBreadcrumb :icon="Suitcase" :items="[{ label: 'Vị trí' }]" />
 
       <el-button type="primary" @click="handleCreate">
