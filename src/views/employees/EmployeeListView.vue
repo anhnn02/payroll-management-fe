@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/constants/routes'
 import { Plus, Edit, Delete, Refresh, View, Avatar } from '@/constants/icons'
@@ -19,12 +19,17 @@ import { departmentService } from '@/services/department.services'
 import { positionService } from '@/services/position.service'
 import { useToast } from '@/composables/useToast'
 import { usePagination } from '@/composables/usePagination'
-import { EmployeeStatus } from '@/constants/enums'
+import { EmployeeStatus, UserRole } from '@/constants/enums'
 import { TABLE_EMPTY_TEXT } from '@/constants'
 import { formatDate } from '@/utils/formatContent'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
 const toast = useToast()
+const authStore = useAuthStore()
+
+// Role-based visibility (BA: Accountant chỉ xem, không sửa/xóa/thêm)
+const isHrManager = computed(() => authStore.user?.role === UserRole.HR_MANAGER)
 
 // State
 const employees = ref<Employee[]>([])
@@ -150,7 +155,7 @@ onMounted(() => {
     <div class="flex justify-between">
       <PageBreadcrumb :icon="Avatar" :items="[{ label: 'Nhân viên' }]" />
 
-      <el-button type="primary" @click="handleCreate">
+      <el-button v-if="isHrManager" type="primary" @click="handleCreate">
         <el-icon class="mr-1"><Plus /></el-icon>
         Thêm mới
       </el-button>
@@ -290,12 +295,12 @@ onMounted(() => {
                 <el-icon :size="16"><View /></el-icon>
               </el-button>
             </el-tooltip>
-            <el-tooltip content="Sửa" placement="top">
+            <el-tooltip v-if="isHrManager" content="Sửa" placement="top">
               <el-button type="warning" link @click="handleEdit(row)">
                 <el-icon :size="16"><Edit /></el-icon>
               </el-button>
             </el-tooltip>
-            <el-tooltip content="Vô hiệu hóa" placement="top">
+            <el-tooltip v-if="isHrManager" content="Vô hiệu hóa" placement="top">
               <el-button type="danger" link @click="handleDelete(row)">
                 <el-icon :size="16"><Delete /></el-icon>
               </el-button>

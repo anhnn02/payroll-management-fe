@@ -1,20 +1,30 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/constants/routes'
-import { EmployeeStatus, EmployeeStatusLabel, GenderLabel, enumToOptions } from '@/constants/enums'
+import {
+  EmployeeStatus,
+  EmployeeStatusLabel,
+  GenderLabel,
+  UserRole,
+  enumToOptions,
+} from '@/constants/enums'
 import { Avatar } from '@/constants/icons'
 import { employeeService } from '@/services/employee.service'
 import { departmentService } from '@/services/department.services'
 import { positionService } from '@/services/position.service'
 import { useToast } from '@/composables/useToast'
 import { usePageMode } from '@/composables/usePageMode'
-import { generateCode } from '@/utils'
+import { useAuthStore } from '@/stores/auth'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import type { Employee, EmployeeFormData } from './types'
 
 const router = useRouter()
 const toast = useToast()
+const authStore = useAuthStore()
+
+// Role-based visibility (BA: Accountant chỉ xem chi tiết, không sửa)
+const isHrManager = computed(() => authStore.user?.role === UserRole.HR_MANAGER)
 
 const {
   isCreateMode,
@@ -181,7 +191,9 @@ onMounted(() => {
         :items="[{ label: 'Nhân viên', to: { name: ROUTE_NAMES.EMPLOYEES } }, { label: pageTitle }]"
       />
 
-      <el-button v-if="isDetailMode" type="primary" @click="handleEdit">Cập nhật</el-button>
+      <el-button v-if="isDetailMode && isHrManager" type="primary" @click="handleEdit"
+        >Cập nhật</el-button
+      >
     </div>
 
     <el-card shadow="never">
