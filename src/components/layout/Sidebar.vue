@@ -34,6 +34,12 @@ const menuItems: MenuItem[] = [
     name: ROUTE_NAMES.DEPARTMENTS,
   },
   {
+    title: 'Quản lý vị trí',
+    icon: markRaw(MENU_ICONS.position),
+    path: ROUTE_PATHS.POSITIONS,
+    name: ROUTE_NAMES.POSITIONS,
+  },
+  {
     title: 'Quản lý nhân viên',
     icon: markRaw(MENU_ICONS.employees),
     path: ROUTE_PATHS.EMPLOYEES,

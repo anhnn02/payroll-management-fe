@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/constants/routes'
-import { Plus, Edit, Delete, Refresh, View, Guide } from '@/constants/icons'
+import { Plus, Edit, Delete, Refresh, View, Suitcase } from '@/constants/icons'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import type { Position } from './types'
@@ -111,7 +111,7 @@ onMounted(fetchPositions)
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between mb-4">
-      <PageBreadcrumb :icon="Guide" :items="[{ label: 'Vị trí làm việc' }]" />
+      <PageBreadcrumb :icon="Suitcase" :items="[{ label: 'Vị trí' }]" />
 
       <el-button type="primary" @click="handleCreate">
         <el-icon class="mr-1"><Plus /></el-icon>
@@ -166,12 +166,12 @@ onMounted(fetchPositions)
             {{ getRowIndex($index) }}
           </template>
         </el-table-column>
-        <el-table-column prop="code" label="Mã vị trí" width="120">
+        <el-table-column prop="code" label="Mã vị trí" width="120" show-overflow-tooltip>
           <template #default="{ row }">
             <span class="font-bold uppercase">{{ row.code }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="name" label="Tên vị trí" min-width="180" />
+        <el-table-column prop="name" label="Tên vị trí" min-width="180" show-overflow-tooltip />
         <el-table-column label="Khung lương" width="220">
           <template #default="{ row }">
             {{ formatSalaryRange(row.minSalary, row.maxSalary) }}
