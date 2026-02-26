@@ -27,6 +27,7 @@ export const ROUTE_NAMES = {
   // Employees
   EMPLOYEES: 'employees',
   EMPLOYEE_CREATE: 'employee-create',
+  EMPLOYEE_DETAIL: 'employee-detail',
   EMPLOYEE_EDIT: 'employee-edit',
 
   // Payroll
@@ -63,6 +64,7 @@ export const ROUTE_PATHS = {
   // Employees
   EMPLOYEES: '/employees',
   EMPLOYEE_CREATE: '/employees/create',
+  EMPLOYEE_DETAIL: '/employees/:id',
   EMPLOYEE_EDIT: '/employees/:id/edit',
 
   // Payroll

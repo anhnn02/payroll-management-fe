@@ -35,3 +35,17 @@ export const handleCurrencyInput = (rawValue: string | number): string => {
   const num = parseInt(digitsOnly, 10)
   return num.toLocaleString('de-DE')
 }
+
+/**
+ * Format ngày tháng: "2024-03-15" → "15/03/2024"
+ * Hỗ trợ ISO string hoặc YYYY-MM-DD
+ */
+export const formatDate = (dateStr?: string): string => {
+  if (!dateStr) return '-'
+  const date = new Date(dateStr)
+  if (isNaN(date.getTime())) return '-'
+  const dd = String(date.getDate()).padStart(2, '0')
+  const mm = String(date.getMonth() + 1).padStart(2, '0')
+  const yyyy = date.getFullYear()
+  return `${dd}/${mm}/${yyyy}`
+}

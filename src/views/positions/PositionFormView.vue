@@ -83,107 +83,15 @@ const onMaxSalaryInput = (val: string) => {
   form.value.maxSalary = parseCurrency(val)
 }
 
-// ========== MOCK DATA (xóa khi có API) ==========
-const MOCK_POSITIONS: Position[] = [
-  {
-    id: '1',
-    code: 'VT260226001',
-    name: 'Giám đốc',
-    description: 'Quản lý điều hành toàn bộ hoạt động công ty',
-    minSalary: 50000000,
-    maxSalary: 100000000,
-    status: 'ACTIVE',
-  },
-  {
-    id: '2',
-    code: 'VT260226002',
-    name: 'Trưởng phòng',
-    description: 'Quản lý phòng ban, báo cáo trực tiếp cho giám đốc',
-    minSalary: 25000000,
-    maxSalary: 45000000,
-    status: 'ACTIVE',
-  },
-  {
-    id: '3',
-    code: 'VT260226003',
-    name: 'Nhân viên kế toán',
-    description: 'Xử lý sổ sách, chứng từ, báo cáo tài chính',
-    minSalary: 10000000,
-    maxSalary: 18000000,
-    status: 'ACTIVE',
-  },
-  {
-    id: '4',
-    code: 'VT260226004',
-    name: 'Lập trình viên',
-    description: 'Phát triển và bảo trì hệ thống phần mềm',
-    minSalary: 15000000,
-    maxSalary: 35000000,
-    status: 'ACTIVE',
-  },
-  {
-    id: '5',
-    code: 'VT260226005',
-    name: 'Thực tập sinh',
-    description: 'Hỗ trợ các công việc theo sự phân công',
-    minSalary: 3000000,
-    maxSalary: 6000000,
-    status: 'INACTIVE',
-  },
-]
-
-const MOCK_EMPLOYEES: Employee[] = [
-  {
-    id: 'e1',
-    code: 'NV260226001',
-    name: 'Nguyễn Văn An',
-    dob: '1990-01-15',
-    gender: 'MALE',
-    idCard: '012345678901',
-    email: 'an@mail.com',
-    deptId: '1',
-    positionId: '1',
-    hireDate: '2020-03-01',
-    status: 'ACTIVE',
-    deptName: 'Ban Giám đốc',
-  },
-  {
-    id: 'e2',
-    code: 'NV260226002',
-    name: 'Trần Thị Bình',
-    dob: '1992-06-20',
-    gender: 'FEMALE',
-    idCard: '012345678902',
-    email: 'binh@mail.com',
-    deptId: '2',
-    positionId: '2',
-    hireDate: '2021-01-10',
-    status: 'ACTIVE',
-    deptName: 'Phòng Kế toán',
-  },
-  {
-    id: 'e3',
-    code: 'NV260226003',
-    name: 'Lê Hoàng Cường',
-    dob: '1995-11-03',
-    gender: 'MALE',
-    idCard: '012345678903',
-    email: 'cuong@mail.com',
-    deptId: '3',
-    positionId: '4',
-    hireDate: '2022-07-15',
-    status: 'ACTIVE',
-    deptName: 'Phòng IT',
-  },
-]
-// ========== END MOCK DATA ==========
-
 const fetchEmployees = async () => {
   if (isCreateMode.value || !positionId.value) return
   try {
-    // TODO: Bỏ mock, dùng API thật
-    await new Promise(resolve => setTimeout(resolve, 300))
-    employees.value = MOCK_EMPLOYEES.filter(e => e.positionId === positionId.value)
+    const response = await employeeService.search({
+      positionId: positionId.value,
+      page: 0,
+      size: 100,
+    })
+    employees.value = response.content || []
   } catch {
     toast.loadError()
   }
@@ -194,12 +102,10 @@ const fetchPosition = async () => {
 
   isLoading.value = true
   try {
-    // TODO: Bỏ mock, dùng API thật
-    await new Promise(resolve => setTimeout(resolve, 500))
-    const data = MOCK_POSITIONS.find(p => p.id === positionId.value)
-    if (!data) throw new Error('Not found')
-
+    const response = await positionService.getById(positionId.value)
+    const data = response.data as Position
     detailData.value = data
+
     form.value = {
       code: data.code,
       name: data.name,

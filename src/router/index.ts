@@ -128,6 +128,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Thêm nhân viên' },
       },
       {
+        path: 'employees/:id',
+        name: ROUTE_NAMES.EMPLOYEE_DETAIL,
+        component: EmployeeFormView,
+        meta: { title: 'Chi tiết nhân viên' },
+      },
+      {
         path: 'employees/:id/edit',
         name: ROUTE_NAMES.EMPLOYEE_EDIT,
         component: EmployeeFormView,
