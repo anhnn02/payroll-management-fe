@@ -131,7 +131,6 @@ const fetchEmployee = async () => {
     }
   } catch {
     toast.loadError()
-    router.push({ name: ROUTE_NAMES.EMPLOYEES })
   } finally {
     isLoading.value = false
   }

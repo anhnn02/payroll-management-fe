@@ -125,7 +125,6 @@ const fetchEntity = async () => {
     }
   } catch {
     toast.loadError()
-    router.push({ name: ROUTE_NAMES.XXXS })  // Quay về list nếu lỗi
   } finally {
     isLoading.value = false
   }

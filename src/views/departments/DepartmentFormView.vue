@@ -120,7 +120,6 @@ const fetchDepartment = async () => {
     }
   } catch {
     toast.loadError()
-    router.push({ name: ROUTE_NAMES.DEPARTMENTS })
   } finally {
     isLoading.value = false
   }

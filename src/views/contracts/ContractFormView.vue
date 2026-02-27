@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/constants/routes'
-import { ContractStatus, SalaryType, SalaryTypeLabel, enumToOptions } from '@/constants/enums'
+import { ContractStatus, EmployeeStatus, SalaryTypeLabel, enumToOptions } from '@/constants/enums'
 import { Document } from '@element-plus/icons-vue'
 import { contractService } from '@/services/contract.service'
 import { employeeService } from '@/services/employee.service'
@@ -106,10 +106,11 @@ const onOfferSalaryInput = (val: string) => {
 // Fetch employee options (ACTIVE employees)
 const fetchEmployeeOptions = async () => {
   try {
-    const response = await employeeService.search(
-      { status: 'ACTIVE', page: 0, size: 200 },
-      { showLoading: false }
-    )
+    const response = await employeeService.search({
+      status: EmployeeStatus.ACTIVE,
+      page: 0,
+      size: 200,
+    })
     const items = response.content || []
     employeeOptions.value = items.map(item => ({
       value: item.id,
@@ -146,7 +147,6 @@ const fetchContract = async () => {
     offerSalaryDisplay.value = formatCurrency(data.offerSalary)
   } catch {
     toast.loadError()
-    router.push({ name: ROUTE_NAMES.CONTRACTS })
   } finally {
     isLoading.value = false
   }

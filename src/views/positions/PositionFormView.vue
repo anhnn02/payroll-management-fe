@@ -118,7 +118,6 @@ const fetchPosition = async () => {
     maxSalaryDisplay.value = formatCurrency(data.maxSalary || 0)
   } catch {
     toast.loadError()
-    router.push({ name: ROUTE_NAMES.POSITIONS })
   } finally {
     isLoading.value = false
   }
