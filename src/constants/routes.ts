@@ -30,6 +30,12 @@ export const ROUTE_NAMES = {
   EMPLOYEE_DETAIL: 'employee-detail',
   EMPLOYEE_EDIT: 'employee-edit',
 
+  // Contracts
+  CONTRACTS: 'contracts',
+  CONTRACT_CREATE: 'contract-create',
+  CONTRACT_DETAIL: 'contract-detail',
+  CONTRACT_EDIT: 'contract-edit',
+
   // Payroll
   PAYROLL: 'payroll',
 
@@ -66,6 +72,12 @@ export const ROUTE_PATHS = {
   EMPLOYEE_CREATE: '/employees/create',
   EMPLOYEE_DETAIL: '/employees/:id',
   EMPLOYEE_EDIT: '/employees/:id/edit',
+
+  // Contracts
+  CONTRACTS: '/contracts',
+  CONTRACT_CREATE: '/contracts/create',
+  CONTRACT_DETAIL: '/contracts/:id',
+  CONTRACT_EDIT: '/contracts/:id/edit',
 
   // Payroll
   PAYROLL: '/payroll',

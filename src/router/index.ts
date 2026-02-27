@@ -14,6 +14,8 @@ const PositionListView = () => import('@/views/positions/PositionListView.vue')
 const PositionFormView = () => import('@/views/positions/PositionFormView.vue')
 const EmployeeListView = () => import('@/views/employees/EmployeeListView.vue')
 const EmployeeFormView = () => import('@/views/employees/EmployeeFormView.vue')
+const ContractListView = () => import('@/views/contracts/ContractListView.vue')
+const ContractFormView = () => import('@/views/contracts/ContractFormView.vue')
 const NotFoundView = () => import('@/views/NotFoundView.vue')
 
 // Layout
@@ -138,6 +140,31 @@ const routes: RouteRecordRaw[] = [
         name: ROUTE_NAMES.EMPLOYEE_EDIT,
         component: EmployeeFormView,
         meta: { title: 'Cập nhật nhân viên' },
+      },
+      // #region Contract
+      {
+        path: 'contracts',
+        name: ROUTE_NAMES.CONTRACTS,
+        component: ContractListView,
+        meta: { title: 'Quản lý hợp đồng' },
+      },
+      {
+        path: 'contracts/create',
+        name: ROUTE_NAMES.CONTRACT_CREATE,
+        component: ContractFormView,
+        meta: { title: 'Thêm hợp đồng' },
+      },
+      {
+        path: 'contracts/:id',
+        name: ROUTE_NAMES.CONTRACT_DETAIL,
+        component: ContractFormView,
+        meta: { title: 'Chi tiết hợp đồng' },
+      },
+      {
+        path: 'contracts/:id/edit',
+        name: ROUTE_NAMES.CONTRACT_EDIT,
+        component: ContractFormView,
+        meta: { title: 'Cập nhật hợp đồng' },
       },
     ],
   },

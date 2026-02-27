@@ -46,6 +46,12 @@ const menuItems: MenuItem[] = [
     name: ROUTE_NAMES.EMPLOYEES,
   },
   {
+    title: 'Quản lý hợp đồng',
+    icon: markRaw(MENU_ICONS.contracts),
+    path: ROUTE_PATHS.CONTRACTS,
+    name: ROUTE_NAMES.CONTRACTS,
+  },
+  {
     title: 'Bảng lương',
     icon: markRaw(MENU_ICONS.payroll),
     path: ROUTE_PATHS.PAYROLL,

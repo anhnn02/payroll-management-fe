@@ -39,6 +39,7 @@ export const API_ENDPOINTS = {
     DETAIL: (id: string) => `/contracts/${id}`,
     CREATE: '/contracts',
     UPDATE: (id: string) => `/contracts/${id}`,
+    DELETE: (id: string) => `/contracts/${id}`,
     UPLOAD: (id: string) => `/contracts/${id}/upload`,
   },
   ATTENDANCE: {

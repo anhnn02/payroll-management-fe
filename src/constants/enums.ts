@@ -78,16 +78,37 @@ export const ContractTypeLabel: Record<ContractType, string> = {
   [ContractType.SEASONAL]: 'Thời vụ',
 }
 
+export const ContractTypeTagType: Record<ContractType, string> = {
+  [ContractType.PROBATION]: 'warning',
+  [ContractType.OFFICIAL]: 'success',
+  [ContractType.SEASONAL]: 'info',
+}
+
 // ===== Trạng thái hợp đồng =====
 export enum ContractStatus {
   ACTIVE = 'ACTIVE',
   EXPIRED = 'EXPIRED',
 }
 
+export const ContractStatusLabel: Record<ContractStatus, string> = {
+  [ContractStatus.ACTIVE]: 'Hiệu lực',
+  [ContractStatus.EXPIRED]: 'Hết hạn',
+}
+
+export const ContractStatusTagType: Record<ContractStatus, string> = {
+  [ContractStatus.ACTIVE]: 'success',
+  [ContractStatus.EXPIRED]: 'info',
+}
+
 // ===== Loại lương =====
 export enum SalaryType {
   GROSS = 'GROSS',
   NET = 'NET',
+}
+
+export const SalaryTypeLabel: Record<SalaryType, string> = {
+  [SalaryType.GROSS]: 'GROSS (Gộp)',
+  [SalaryType.NET]: 'NET (Thực nhận)',
 }
 
 // ===== Trạng thái Payroll =====

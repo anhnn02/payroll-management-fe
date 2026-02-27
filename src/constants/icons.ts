@@ -20,6 +20,7 @@ import {
   Guide,
   DeleteFilled,
   Suitcase,
+  Document,
 } from '@element-plus/icons-vue'
 
 // Re-export all icons
@@ -42,6 +43,7 @@ export {
   Guide,
   DeleteFilled,
   Suitcase,
+  Document,
 }
 
 // Menu icons mapping
@@ -51,5 +53,6 @@ export const MENU_ICONS = {
   departments: Guide,
   position: Suitcase,
   employees: Avatar,
+  contracts: Document,
   payroll: Money,
 } as const
