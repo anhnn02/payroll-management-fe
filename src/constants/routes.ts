@@ -38,6 +38,8 @@ export const ROUTE_NAMES = {
 
   // Payroll
   PAYROLL: 'payroll',
+  PAYROLL_DETAIL: 'payroll-detail',
+  PAYROLL_EDIT: 'payroll-edit',
 
   // Errors
   NOT_FOUND: 'not-found',
@@ -81,6 +83,8 @@ export const ROUTE_PATHS = {
 
   // Payroll
   PAYROLL: '/payroll',
+  PAYROLL_DETAIL: '/payroll/:id',
+  PAYROLL_EDIT: '/payroll/:id/edit',
 } as const
 
 export type RouteName = (typeof ROUTE_NAMES)[keyof typeof ROUTE_NAMES]

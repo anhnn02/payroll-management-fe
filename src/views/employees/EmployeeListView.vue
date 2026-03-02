@@ -89,7 +89,7 @@ const fetchDepartmentOptions = async () => {
       label: d.name,
     }))
   } catch {
-    /* ignore */
+    toast.loadError()
   }
 }
 
@@ -101,7 +101,7 @@ const fetchPositionOptions = async () => {
       label: p.name,
     }))
   } catch {
-    /* ignore */
+    toast.loadError()
   }
 }
 
@@ -255,12 +255,14 @@ onMounted(() => {
             {{ getRowIndex($index) }}
           </template>
         </el-table-column>
-        <el-table-column prop="code" label="Mã NV" width="130" show-overflow-tooltip>
+        <el-table-column label="Nhân viên" min-width="170">
           <template #default="{ row }">
-            <span class="font-bold uppercase">{{ row.code }}</span>
+            <div>
+              <span class="font-bold">{{ row.name }}</span>
+            </div>
+            <div class="text-gray-500 text-xs">{{ row.code }}</div>
           </template>
         </el-table-column>
-        <el-table-column prop="name" label="Họ và tên" min-width="160" show-overflow-tooltip />
         <el-table-column label="Giới tính" width="90" align="center">
           <template #default="{ row }">
             {{ GENDER_LABELS[row.gender as keyof typeof GENDER_LABELS] || '-' }}
@@ -272,10 +274,20 @@ onMounted(() => {
           </template>
         </el-table-column>
         <el-table-column prop="idCard" label="CCCD" width="130" show-overflow-tooltip />
-        <el-table-column prop="email" label="Email" min-width="180" show-overflow-tooltip />
-        <el-table-column prop="phone" label="SĐT" width="120" />
-        <el-table-column prop="deptName" label="Phòng ban" width="140" show-overflow-tooltip />
-        <el-table-column prop="positionName" label="Vị trí" width="140" show-overflow-tooltip />
+        <el-table-column label="Liên hệ" min-width="180">
+          <template #default="{ row }">
+            <div class="truncate" :title="row.email">{{ row.email || '-' }}</div>
+            <div class="text-gray-500 text-xs">{{ row.phone || '-' }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="Phòng ban / Vị trí" width="170">
+          <template #default="{ row }">
+            <div class="font-medium truncate" :title="row.deptName">{{ row.deptName || '-' }}</div>
+            <div class="text-gray-500 text-xs truncate" :title="row.positionName">
+              {{ row.positionName || '-' }}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column label="Ngày vào làm" width="120" align="center">
           <template #default="{ row }">
             {{ formatDate(row.hireDate) }}

@@ -7,26 +7,22 @@ import { Document } from '@element-plus/icons-vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import type { Contract } from './types'
-import { formatDate } from './utils'
+import { formatDate, getContractTypeClass } from './utils'
 import { formatCurrency } from '@/utils/formatContent'
 import {
   CONTRACT_TYPE_OPTIONS,
   CONTRACT_TYPE_LABELS,
-  CONTRACT_TYPE_TAG_TYPE,
   CONTRACT_STATUS_OPTIONS,
   CONTRACT_STATUS_LABELS,
   CONTRACT_STATUS_TAG_TYPE,
 } from './constants'
-import { ContractType } from '@/constants/enums'
 import type { ContractStatus } from '@/constants/enums'
 import { COLORS } from '@/constants/colors'
 import { contractService } from '@/services/contract.service'
-import { useToast } from '@/composables/useToast'
 import { usePagination } from '@/composables/usePagination'
 import { TABLE_EMPTY_TEXT } from '@/constants'
 
 const router = useRouter()
-const toast = useToast()
 
 const contracts = ref<Contract[]>([])
 const isLoading = ref(false)
@@ -177,34 +173,27 @@ onMounted(fetchContracts)
             {{ getRowIndex($index) }}
           </template>
         </el-table-column>
-        <el-table-column prop="contractNumber" label="Số hợp đồng" width="150">
+        <el-table-column prop="contractNumber" label="Số hợp đồng" width="170">
           <template #default="{ row }">
             <span class="font-bold uppercase">{{ row.contractNumber }}</span>
+            <div class="text-xs mt-0.5">
+              <span :class="getContractTypeClass(row.contractType)">
+                {{ CONTRACT_TYPE_LABELS[row.contractType as keyof typeof CONTRACT_TYPE_LABELS] }}
+              </span>
+            </div>
           </template>
         </el-table-column>
         <el-table-column label="Nhân viên" min-width="150">
           <template #default="{ row }">
             <div>
-              <span class="font-bold">{{ row.employeeCode || '-' }}</span>
+              <span class="font-bold">{{ row.employeeName || '-' }}</span>
             </div>
-            <div class="text-gray-500 text-xs">{{ row.employeeName || '-' }}</div>
+            <div class="text-gray-500 text-xs">{{ row.employeeCode || '-' }}</div>
           </template>
         </el-table-column>
-        <el-table-column prop="contractType" label="Loại HĐ" width="120" align="center">
+        <el-table-column label="Thời hạn" width="220">
           <template #default="{ row }">
-            <el-tag :type="CONTRACT_TYPE_TAG_TYPE[row.contractType as ContractType]">
-              {{ CONTRACT_TYPE_LABELS[row.contractType as keyof typeof CONTRACT_TYPE_LABELS] }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="startDate" label="Ngày bắt đầu" width="120" align="center">
-          <template #default="{ row }">
-            {{ formatDate(row.startDate) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="endDate" label="Ngày kết thúc" width="130" align="center">
-          <template #default="{ row }">
-            {{ formatDate(row.endDate) }}
+            {{ formatDate(row.startDate) }} - {{ formatDate(row.endDate) }}
           </template>
         </el-table-column>
         <el-table-column prop="offerSalary" label="Lương thỏa thuận" width="150" align="right">
