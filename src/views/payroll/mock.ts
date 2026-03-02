@@ -255,3 +255,14 @@ export const MOCK_DEPARTMENTS = [
   { id: 'dept-004', name: 'Phòng Kế toán' },
   { id: 'dept-005', name: 'Phòng Hành chính' },
 ]
+
+// Mock employee list (for calculate dialog dropdown)
+export const MOCK_EMPLOYEES = [
+  { code: 'NV260301001', name: 'Nguyễn Văn An' },
+  { code: 'NV260301002', name: 'Trần Thị Bình' },
+  { code: 'NV260226003', name: 'Lê Hoàng Cường' },
+  { code: 'NV260301004', name: 'Phạm Minh Đức' },
+  { code: 'NV260226005', name: 'Hoàng Thị Mai' },
+  { code: 'NV260226006', name: 'Vũ Đình Khoa' },
+  { code: 'NV260301007', name: 'Đặng Thùy Linh' },
+]
