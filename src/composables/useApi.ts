@@ -2,6 +2,7 @@ import { ElMessage } from 'element-plus'
 import type { ApiResponse, ApiError, ApiRequestOptions } from '@/types'
 import { ERROR_CODES, getErrorMessage } from '@/constants'
 import { useAuthStore } from '@/stores/auth'
+import { useLoadingStore } from './useLoading'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
 const DEFAULT_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT_MS) || 8000
@@ -28,7 +29,16 @@ export function useApi() {
     data?: unknown,
     options: ApiRequestOptions = {}
   ): Promise<ApiResponse<T>> {
-    const { timeout = DEFAULT_TIMEOUT, headers = {}, showErrorToast = true } = options
+    const {
+      timeout = DEFAULT_TIMEOUT,
+      headers = {},
+      showErrorToast = true,
+      showLoading = true,
+    } = options
+
+    // Global loading
+    const loading = useLoadingStore()
+    if (showLoading) loading.show()
 
     const url = `${BASE_URL}${endpoint}`
     const requestKey = getRequestKey(method, url)
@@ -126,6 +136,10 @@ export function useApi() {
 
       // Re-throw ApiError
       throw error
+    } finally {
+      setTimeout(() => {
+        if (showLoading) loading.hide()
+      }, 300)
     }
   }
 

@@ -1,6 +1,6 @@
 import type { EmployeeStatus } from './types'
-import { EMPLOYEE_STATUS_COLORS } from './constants'
+import { EMPLOYEE_STATUS_TAG_TYPE } from './constants'
 
 export const getStatusColor = (status: EmployeeStatus): string => {
-  return EMPLOYEE_STATUS_COLORS[status] || ''
+  return EMPLOYEE_STATUS_TAG_TYPE[status] || ''
 }

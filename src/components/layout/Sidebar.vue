@@ -28,16 +28,40 @@ const menuItems: MenuItem[] = [
     name: ROUTE_NAMES.ACCOUNTS,
   },
   {
+    title: 'Quản lý phòng ban',
+    icon: markRaw(MENU_ICONS.departments),
+    path: ROUTE_PATHS.DEPARTMENTS,
+    name: ROUTE_NAMES.DEPARTMENTS,
+  },
+  {
+    title: 'Quản lý vị trí',
+    icon: markRaw(MENU_ICONS.position),
+    path: ROUTE_PATHS.POSITIONS,
+    name: ROUTE_NAMES.POSITIONS,
+  },
+  {
     title: 'Quản lý nhân viên',
     icon: markRaw(MENU_ICONS.employees),
     path: ROUTE_PATHS.EMPLOYEES,
     name: ROUTE_NAMES.EMPLOYEES,
   },
   {
+    title: 'Quản lý hợp đồng',
+    icon: markRaw(MENU_ICONS.contracts),
+    path: ROUTE_PATHS.CONTRACTS,
+    name: ROUTE_NAMES.CONTRACTS,
+  },
+  {
     title: 'Bảng lương',
     icon: markRaw(MENU_ICONS.payroll),
     path: ROUTE_PATHS.PAYROLL,
     name: ROUTE_NAMES.PAYROLL,
+  },
+  {
+    title: 'Cấu hình lương',
+    icon: markRaw(MENU_ICONS.salaryConfig),
+    path: ROUTE_PATHS.SALARY_CONFIG,
+    name: ROUTE_NAMES.SALARY_CONFIG,
   },
 ]
 
@@ -80,6 +104,6 @@ const handleMenuClick = (item: MenuItem) => {
     </nav>
 
     <!-- Footer -->
-    <div class="p-4 border-t border-gray-200 text-center text-gray-400 text-sm">v1.0.0</div>
+    <!-- <div class="p-4 border-t border-gray-200 text-center text-gray-400 text-sm">v1.0.0</div> -->
   </aside>
 </template>

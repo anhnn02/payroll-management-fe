@@ -1,34 +1,43 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import { requireAuth, requireGuest } from '@/middleware/auth'
+// import { requireAuth, requireGuest } from '@/middleware/auth'
 import { ROUTE_NAMES, ROUTE_PATHS } from '@/constants/routes'
+import { useLoadingStore } from '@/composables/useLoading'
 
 // Lazy load views
 const LoginView = () => import('@/views/LoginView.vue')
 const DashboardView = () => import('@/views/dashboard/DashboardView.vue')
 const AccountListView = () => import('@/views/accounts/AccountListView.vue')
 const AccountFormView = () => import('@/views/accounts/AccountFormView.vue')
+const DepartmentListView = () => import('@/views/departments/DepartmentListView.vue')
+const DepartmentFormView = () => import('@/views/departments/DepartmentFormView.vue')
+const PositionListView = () => import('@/views/positions/PositionListView.vue')
+const PositionFormView = () => import('@/views/positions/PositionFormView.vue')
 const EmployeeListView = () => import('@/views/employees/EmployeeListView.vue')
 const EmployeeFormView = () => import('@/views/employees/EmployeeFormView.vue')
+const ContractListView = () => import('@/views/contracts/ContractListView.vue')
+const ContractFormView = () => import('@/views/contracts/ContractFormView.vue')
+const PayrollListView = () => import('@/views/payroll/PayrollListView.vue')
+const SalaryConfigView = () => import('@/views/config/SalaryConfigView.vue')
 const NotFoundView = () => import('@/views/NotFoundView.vue')
 
 // Layout
 const AdminLayout = () => import('@/components/layout/AdminLayout.vue')
 
 const routes: RouteRecordRaw[] = [
-  // Auth routes (no layout)
+  // #region Auth routes (no layout)
   {
     path: ROUTE_PATHS.LOGIN,
     name: ROUTE_NAMES.LOGIN,
     component: LoginView,
-    beforeEnter: requireGuest,
+    // beforeEnter: requireGuest,
     meta: { title: 'Đăng nhập' },
   },
 
-  // Admin routes (with layout)
+  // #region Admin routes (with layout)
   {
     path: '/',
     component: AdminLayout,
-    beforeEnter: requireAuth,
+    // beforeEnter: requireAuth,
     children: [
       {
         path: '',
@@ -40,7 +49,7 @@ const routes: RouteRecordRaw[] = [
         component: DashboardView,
         meta: { title: 'Dashboard' },
       },
-      // Account CRUD
+      // #region Account
       {
         path: 'accounts',
         name: ROUTE_NAMES.ACCOUNTS,
@@ -57,9 +66,59 @@ const routes: RouteRecordRaw[] = [
         path: 'accounts/:id/edit',
         name: ROUTE_NAMES.ACCOUNT_EDIT,
         component: AccountFormView,
-        meta: { title: 'Sửa tài khoản' },
+        meta: { title: 'Cập nhật tài khoản' },
       },
-      // Employee CRUD
+      // #region Department
+      {
+        path: 'departments',
+        name: ROUTE_NAMES.DEPARTMENTS,
+        component: DepartmentListView,
+        meta: { title: 'Quản lý phòng ban' },
+      },
+      {
+        path: 'departments/create',
+        name: ROUTE_NAMES.DEPARTMENT_CREATE,
+        component: DepartmentFormView,
+        meta: { title: 'Thêm phòng ban' },
+      },
+      {
+        path: 'departments/:id',
+        name: ROUTE_NAMES.DEPARTMENT_DETAIL,
+        component: DepartmentFormView,
+        meta: { title: 'Chi tiết phòng ban' },
+      },
+      {
+        path: 'departments/:id/edit',
+        name: ROUTE_NAMES.DEPARTMENT_EDIT,
+        component: DepartmentFormView,
+        meta: { title: 'Cập nhật phòng ban' },
+      },
+      // #region Position
+      {
+        path: 'positions',
+        name: ROUTE_NAMES.POSITIONS,
+        component: PositionListView,
+        meta: { title: 'Quản lý vị trí' },
+      },
+      {
+        path: 'positions/create',
+        name: ROUTE_NAMES.POSITION_CREATE,
+        component: PositionFormView,
+        meta: { title: 'Thêm vị trí' },
+      },
+      {
+        path: 'positions/:id',
+        name: ROUTE_NAMES.POSITION_DETAIL,
+        component: PositionFormView,
+        meta: { title: 'Chi tiết vị trí' },
+      },
+      {
+        path: 'positions/:id/edit',
+        name: ROUTE_NAMES.POSITION_EDIT,
+        component: PositionFormView,
+        meta: { title: 'Cập nhật vị trí' },
+      },
+      // #region Employee
       {
         path: 'employees',
         name: ROUTE_NAMES.EMPLOYEES,
@@ -73,15 +132,60 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Thêm nhân viên' },
       },
       {
+        path: 'employees/:id',
+        name: ROUTE_NAMES.EMPLOYEE_DETAIL,
+        component: EmployeeFormView,
+        meta: { title: 'Chi tiết nhân viên' },
+      },
+      {
         path: 'employees/:id/edit',
         name: ROUTE_NAMES.EMPLOYEE_EDIT,
         component: EmployeeFormView,
-        meta: { title: 'Sửa nhân viên' },
+        meta: { title: 'Cập nhật nhân viên' },
+      },
+      // #region Contract
+      {
+        path: 'contracts',
+        name: ROUTE_NAMES.CONTRACTS,
+        component: ContractListView,
+        meta: { title: 'Quản lý hợp đồng' },
+      },
+      {
+        path: 'contracts/create',
+        name: ROUTE_NAMES.CONTRACT_CREATE,
+        component: ContractFormView,
+        meta: { title: 'Thêm hợp đồng' },
+      },
+      {
+        path: 'contracts/:id',
+        name: ROUTE_NAMES.CONTRACT_DETAIL,
+        component: ContractFormView,
+        meta: { title: 'Chi tiết hợp đồng' },
+      },
+      {
+        path: 'contracts/:id/edit',
+        name: ROUTE_NAMES.CONTRACT_EDIT,
+        component: ContractFormView,
+        meta: { title: 'Cập nhật hợp đồng' },
+      },
+      // #region Payroll
+      {
+        path: 'payroll',
+        name: ROUTE_NAMES.PAYROLL,
+        component: PayrollListView,
+        meta: { title: 'Bảng lương' },
+      },
+      // #region Salary Config
+      {
+        path: 'config/salary',
+        name: ROUTE_NAMES.SALARY_CONFIG,
+        component: SalaryConfigView,
+        meta: { title: 'Cấu hình lương' },
       },
     ],
   },
 
-  // 404
+  // #region 404
   {
     path: '/:pathMatch(.*)*',
     name: ROUTE_NAMES.NOT_FOUND,
@@ -93,6 +197,12 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
+})
+
+// Reset loading on navigation (safety net)
+router.beforeEach(() => {
+  const loading = useLoadingStore()
+  loading.reset()
 })
 
 // Update page title

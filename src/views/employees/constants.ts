@@ -1,30 +1,26 @@
-// Employee constants
+// Employee constants - using common enums from @/constants/enums
 
-import type { EmployeeStatus } from './types'
+import { EmployeeStatus, EmployeeStatusLabel, GenderLabel, enumToOptions } from '@/constants/enums'
 
-export const EMPLOYEE_STATUS_OPTIONS: { label: string; value: EmployeeStatus }[] = [
-  { label: 'Đang làm việc', value: 'ACTIVE' },
-  { label: 'Nghỉ việc', value: 'INACTIVE' },
-  { label: 'Nghỉ phép', value: 'ON_LEAVE' },
-]
+// Re-export for backward compatibility
+export type { EmployeeStatus } from '@/constants/enums'
 
-export const EMPLOYEE_STATUS_LABELS: Record<EmployeeStatus, string> = {
-  ACTIVE: 'Đang làm việc',
-  INACTIVE: 'Nghỉ việc',
-  ON_LEAVE: 'Nghỉ phép',
+// Status options (from common enum)
+export const EMPLOYEE_STATUS_OPTIONS = enumToOptions(EmployeeStatusLabel)
+
+// Status labels (from common enum)
+export const EMPLOYEE_STATUS_LABELS = EmployeeStatusLabel
+
+// Status tag type (Element Plus tag types)
+type TagType = 'success' | 'info' | 'warning' | 'danger' | 'primary'
+
+export const EMPLOYEE_STATUS_TAG_TYPE: Record<EmployeeStatus, TagType> = {
+  [EmployeeStatus.ACTIVE]: 'success',
+  [EmployeeStatus.INACTIVE]: 'danger',
 }
 
-import { COLORS } from '@/constants/colors'
+// Gender options (from common enum)
+export const GENDER_OPTIONS = enumToOptions(GenderLabel)
 
-export const EMPLOYEE_STATUS_COLORS: Record<EmployeeStatus, string> = {
-  ACTIVE: COLORS.SUCCESS,
-  INACTIVE: COLORS.DANGER,
-  ON_LEAVE: COLORS.WARNING,
-}
-
-export const DEPARTMENT_OPTIONS = [
-  { label: 'Kế toán', value: 'ACCOUNTING' },
-  { label: 'Nhân sự', value: 'HR' },
-  { label: 'Kỹ thuật', value: 'IT' },
-  { label: 'Kinh doanh', value: 'SALES' },
-]
+// Gender labels
+export const GENDER_LABELS = GenderLabel

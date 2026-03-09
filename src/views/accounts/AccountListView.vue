@@ -11,6 +11,7 @@ import {
   ACCOUNT_STATUS_LABELS,
   ACCOUNT_STATUS_COLORS,
 } from './constants'
+import { accountService } from '@/services/account.service'
 
 const router = useRouter()
 
@@ -26,101 +27,20 @@ const currentPage = ref(DEFAULT_PAGE)
 const pageSize = ref(DEFAULT_PAGE_SIZE)
 const total = ref(0)
 
-// Mock data for development
-const MOCK_ACCOUNTS: Account[] = [
-  {
-    id: 1,
-    username: 'admin',
-    email: 'admin@company.com',
-    fullName: 'Admin User',
-    role: 'HR',
-    status: 'ACTIVE',
-    createdAt: '2024-01-01',
-    updatedAt: '2024-01-01',
-  },
-  {
-    id: 2,
-    username: 'ketoan01',
-    email: 'ketoan01@company.com',
-    fullName: 'Nguyễn Văn A',
-    role: 'ACCOUNTANT',
-    status: 'ACTIVE',
-    createdAt: '2024-01-02',
-    updatedAt: '2024-01-02',
-  },
-  {
-    id: 3,
-    username: 'hr01',
-    email: 'hr01@company.com',
-    fullName: 'Trần Thị B',
-    role: 'HR',
-    status: 'ACTIVE',
-    createdAt: '2024-01-03',
-    updatedAt: '2024-01-03',
-  },
-  {
-    id: 4,
-    username: 'ketoan02',
-    email: 'ketoan02@company.com',
-    fullName: 'Lê Văn C',
-    role: 'ACCOUNTANT',
-    status: 'INACTIVE',
-    createdAt: '2024-01-04',
-    updatedAt: '2024-01-04',
-  },
-  {
-    id: 5,
-    username: 'hr02',
-    email: 'hr02@company.com',
-    fullName: 'Phạm Thị D',
-    role: 'HR',
-    status: 'ACTIVE',
-    createdAt: '2024-01-05',
-    updatedAt: '2024-01-05',
-  },
-]
-
-// Fetch accounts (using mock data for development)
+// Fetch accounts (POST /users/search)
 const fetchAccounts = async () => {
   isLoading.value = true
-  //  isLoading.value = true
-  // try {
-  //   const params: AccountQueryParams = {
-  //     page: currentPage.value,
-  //     limit: pageSize.value,
-  //   }
-  //   if (searchQuery.value) params.search = searchQuery.value
-  //   if (filterRole.value) params.role = filterRole.value as AccountQueryParams['role']
-  //   if (filterStatus.value) params.status = filterStatus.value as AccountQueryParams['status']
-
-  //   const response = await accountService.getList(params)
-  //   accounts.value = response.data
-  //   total.value = response.meta.total
-  // } catch (error) {
   try {
-    // Filter mock data
-    let filtered = [...MOCK_ACCOUNTS]
-    if (searchQuery.value) {
-      const query = searchQuery.value.toLowerCase()
-      filtered = filtered.filter(
-        a =>
-          a.username.toLowerCase().includes(query) ||
-          a.fullName.toLowerCase().includes(query) ||
-          a.email.toLowerCase().includes(query)
-      )
-    }
-    if (filterRole.value) {
-      filtered = filtered.filter(a => a.role === filterRole.value)
-    }
-    if (filterStatus.value) {
-      filtered = filtered.filter(a => a.status === filterStatus.value)
-    }
-
-    // Paginate
-    total.value = filtered.length
-    const start = (currentPage.value - 1) * pageSize.value
-    accounts.value = filtered.slice(start, start + pageSize.value)
-  } catch (error) {
+    const response = await accountService.search({
+      keyword: searchQuery.value || undefined,
+      role: filterRole.value || undefined,
+      status: filterStatus.value || undefined,
+      page: currentPage.value - 1, // BE dùng 0-indexed
+      size: pageSize.value,
+    })
+    accounts.value = response.content
+    total.value = response.totalElements
+  } catch {
     ElMessage.error('Không thể tải danh sách tài khoản')
   } finally {
     isLoading.value = false
@@ -152,9 +72,7 @@ const handleDelete = async (row: Account) => {
         type: 'warning',
       }
     )
-    // Mock delete - remove from local array
-    const index = MOCK_ACCOUNTS.findIndex(a => a.id === row.id)
-    if (index > -1) MOCK_ACCOUNTS.splice(index, 1)
+    await accountService.delete(row.id)
     ElMessage.success('Xóa tài khoản thành công')
     fetchAccounts()
   } catch (error) {
@@ -247,7 +165,7 @@ onMounted(fetchAccounts)
 
     <!-- Table -->
     <el-card shadow="never">
-      <el-table :data="accounts" v-loading="isLoading" stripe>
+      <el-table v-loading="isLoading" :data="accounts" stripe>
         <el-table-column prop="username" label="Tên đăng nhập" min-width="120" />
         <el-table-column prop="fullName" label="Họ và tên" min-width="150" />
         <el-table-column prop="email" label="Email" min-width="180" />

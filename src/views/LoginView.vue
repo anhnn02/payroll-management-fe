@@ -2,41 +2,48 @@
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores'
+import { useAuthService } from '@/services/auth.service'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const authService = useAuthService()
 
 const isLoading = ref(false)
 const form = ref({
-  email: 'admin@company.com',
-  password: '123456',
+  username: '',
+  password: '',
 })
 
-// Mock user data for development
-const MOCK_USER = {
-  id: 1,
-  username: 'admin',
-  email: 'admin@company.com',
-  fullName: 'Admin User',
-  role: 'HR',
-}
-
 async function handleLogin() {
+  if (!form.value.username || !form.value.password) {
+    ElMessage.warning('Vui lòng nhập tên đăng nhập và mật khẩu')
+    return
+  }
+
   isLoading.value = true
 
   try {
-    // Mock login - no API call
-    // In production, replace with actual API call
-    authStore.setToken('mock_token_' + Date.now())
-    authStore.setUser(MOCK_USER)
+    const response = await authService.login(form.value)
+    const data = response.data
+
+    // Lưu token & user info theo BE response format
+    authStore.setToken(data.accessToken)
+    authStore.setUser({
+      id: data.employeeId || '',
+      username: data.username,
+      role: data.role,
+      fullName: data.username,
+    })
 
     ElMessage.success('Đăng nhập thành công!')
 
     // Redirect to intended page or dashboard
     const redirect = route.query.redirect as string
     router.push(redirect || '/dashboard')
+  } catch {
+    // Error already handled by useApi interceptor
   } finally {
     isLoading.value = false
   }
@@ -49,8 +56,8 @@ async function handleLogin() {
       <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Đăng nhập</h1>
 
       <el-form :model="form" label-position="top" @submit.prevent="handleLogin">
-        <el-form-item label="Email">
-          <el-input v-model="form.email" type="email" placeholder="Nhập email" size="large" />
+        <el-form-item label="Tên đăng nhập">
+          <el-input v-model="form.username" placeholder="Nhập tên đăng nhập" size="large" />
         </el-form-item>
 
         <el-form-item label="Mật khẩu">

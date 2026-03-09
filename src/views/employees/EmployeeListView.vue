@@ -1,137 +1,112 @@
 <script setup lang="ts">
-console.log('=== EmployeeListView component loaded ===')
-
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '@/constants/pagination'
 import { ROUTE_NAMES } from '@/constants/routes'
-import { Plus, Edit, Delete } from '@/constants/icons'
+import { Plus, Edit, Delete, Refresh, View, Avatar } from '@/constants/icons'
+import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import type { Employee } from './types'
-import { EMPLOYEE_STATUS_OPTIONS, EMPLOYEE_STATUS_LABELS, DEPARTMENT_OPTIONS } from './constants'
+import {
+  EMPLOYEE_STATUS_OPTIONS,
+  EMPLOYEE_STATUS_LABELS,
+  EMPLOYEE_STATUS_TAG_TYPE,
+  GENDER_OPTIONS,
+  GENDER_LABELS,
+} from './constants'
 import { COLORS } from '@/constants/colors'
-import { getStatusColor } from './utils'
-
-console.log('=== EmployeeListView imports done ===')
+import { employeeService } from '@/services/employee.service'
+import { departmentService } from '@/services/department.services'
+import { positionService } from '@/services/position.service'
+import { useToast } from '@/composables/useToast'
+import { usePagination } from '@/composables/usePagination'
+import { EmployeeStatus, UserRole } from '@/constants/enums'
+import { TABLE_EMPTY_TEXT } from '@/constants'
+import { formatDate } from '@/utils/formatContent'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const toast = useToast()
+const authStore = useAuthStore()
+
+// Role-based visibility (BA: Accountant chỉ xem, không sửa/xóa/thêm)
+const isHrManager = computed(() => authStore.user?.role === UserRole.HR_MANAGER)
 
 // State
 const employees = ref<Employee[]>([])
 const isLoading = ref(false)
-const searchQuery = ref('')
-const filterDepartment = ref('')
-const filterStatus = ref('')
+const searchKeyword = ref('')
+const filterStatus = ref<string>(EmployeeStatus.ACTIVE)
+const filterDeptId = ref('')
+const filterPositionId = ref('')
+const filterGender = ref('')
+const showDeleteDialog = ref(false)
+const deletingEmployee = ref<Employee | null>(null)
+
+// Filter options (load from API)
+const departmentOptions = ref<{ value: string; label: string }[]>([])
+const positionOptions = ref<{ value: string; label: string }[]>([])
 
 // Pagination
-const currentPage = ref(DEFAULT_PAGE)
-const pageSize = ref(DEFAULT_PAGE_SIZE)
-const total = ref(0)
+const {
+  currentPage,
+  pageSize,
+  total,
+  PAGE_SIZE_OPTIONS,
+  handlePageChange,
+  handleSizeChange,
+  resetPage,
+  getRowIndex,
+  pageForApi,
+} = usePagination(fetchEmployees)
 
-// Mock data
-const MOCK_EMPLOYEES: Employee[] = [
-  {
-    id: 1,
-    employeeCode: 'NV001',
-    fullName: 'Nguyễn Văn A',
-    email: 'nva@company.com',
-    phone: '0901234567',
-    department: 'IT',
-    position: 'Developer',
-    status: 'ACTIVE',
-    joinDate: '2023-01-15',
-    createdAt: '2023-01-15',
-    updatedAt: '2023-01-15',
-  },
-  {
-    id: 2,
-    employeeCode: 'NV002',
-    fullName: 'Trần Thị B',
-    email: 'ttb@company.com',
-    phone: '0901234568',
-    department: 'HR',
-    position: 'HR Manager',
-    status: 'ACTIVE',
-    joinDate: '2023-02-01',
-    createdAt: '2023-02-01',
-    updatedAt: '2023-02-01',
-  },
-  {
-    id: 3,
-    employeeCode: 'NV003',
-    fullName: 'Lê Văn C',
-    email: 'lvc@company.com',
-    phone: '0901234569',
-    department: 'ACCOUNTING',
-    position: 'Accountant',
-    status: 'ON_LEAVE',
-    joinDate: '2023-03-10',
-    createdAt: '2023-03-10',
-    updatedAt: '2023-03-10',
-  },
-  {
-    id: 4,
-    employeeCode: 'NV004',
-    fullName: 'Phạm Thị D',
-    email: 'ptd@company.com',
-    phone: '0901234570',
-    department: 'SALES',
-    position: 'Sales Executive',
-    status: 'ACTIVE',
-    joinDate: '2023-04-20',
-    createdAt: '2023-04-20',
-    updatedAt: '2023-04-20',
-  },
-  {
-    id: 5,
-    employeeCode: 'NV005',
-    fullName: 'Hoàng Văn E',
-    email: 'hve@company.com',
-    phone: '0901234571',
-    department: 'IT',
-    position: 'Tester',
-    status: 'INACTIVE',
-    joinDate: '2022-06-01',
-    createdAt: '2022-06-01',
-    updatedAt: '2024-01-01',
-  },
-]
-
-// Fetch employees (mock)
-const fetchEmployees = async () => {
-  console.log('=== fetchEmployees called ===')
+// Fetch employees
+async function fetchEmployees() {
   isLoading.value = true
   try {
-    let filtered = [...MOCK_EMPLOYEES]
-    console.log('MOCK_EMPLOYEES:', MOCK_EMPLOYEES)
-    if (searchQuery.value) {
-      const query = searchQuery.value.toLowerCase()
-      filtered = filtered.filter(
-        e =>
-          e.fullName.toLowerCase().includes(query) ||
-          e.employeeCode.toLowerCase().includes(query) ||
-          e.email.toLowerCase().includes(query)
-      )
-    }
-    if (filterDepartment.value) {
-      filtered = filtered.filter(e => e.department === filterDepartment.value)
-    }
-    if (filterStatus.value) {
-      filtered = filtered.filter(e => e.status === filterStatus.value)
-    }
-
-    total.value = filtered.length
-    const start = (currentPage.value - 1) * pageSize.value
-    employees.value = filtered.slice(start, start + pageSize.value)
+    const response = await employeeService.search({
+      keyword: searchKeyword.value || undefined,
+      status: filterStatus.value || undefined,
+      deptId: filterDeptId.value || undefined,
+      positionId: filterPositionId.value || undefined,
+      page: pageForApi(),
+      size: pageSize.value,
+    })
+    employees.value = response.content
+    total.value = response.totalElements
   } catch {
-    ElMessage.error('Không thể tải danh sách nhân viên')
+    toast.loadError()
   } finally {
     isLoading.value = false
   }
 }
 
+// Fetch filter options
+const fetchDepartmentOptions = async () => {
+  try {
+    const response = await departmentService.search({ status: 'ACTIVE', page: 0, size: 100 })
+    departmentOptions.value = response.content.map((d: { id: string; name: string }) => ({
+      value: d.id,
+      label: d.name,
+    }))
+  } catch {
+    toast.loadError()
+  }
+}
+
+const fetchPositionOptions = async () => {
+  try {
+    const response = await positionService.search({ status: 'ACTIVE', page: 0, size: 100 })
+    positionOptions.value = response.content.map((p: { id: string; name: string }) => ({
+      value: p.id,
+      label: p.name,
+    }))
+  } catch {
+    toast.loadError()
+  }
+}
+
 const handleSearch = () => {
-  currentPage.value = DEFAULT_PAGE
+  resetPage()
   fetchEmployees()
 }
 
@@ -139,92 +114,102 @@ const handleCreate = () => {
   router.push({ name: ROUTE_NAMES.EMPLOYEE_CREATE })
 }
 
+const handleView = (row: Employee) => {
+  router.push({ name: ROUTE_NAMES.EMPLOYEE_DETAIL, params: { id: row.id } })
+}
+
 const handleEdit = (row: Employee) => {
   router.push({ name: ROUTE_NAMES.EMPLOYEE_EDIT, params: { id: row.id } })
 }
 
-const handleDelete = async (row: Employee) => {
-  try {
-    await ElMessageBox.confirm(
-      `Bạn có chắc chắn muốn xóa nhân viên "${row.fullName}"?`,
-      'Xác nhận xóa',
-      { confirmButtonText: 'Xóa', cancelButtonText: 'Hủy', type: 'warning' }
-    )
-    const index = MOCK_EMPLOYEES.findIndex(e => e.id === row.id)
-    if (index > -1) MOCK_EMPLOYEES.splice(index, 1)
-    ElMessage.success('Xóa nhân viên thành công')
-    fetchEmployees()
-  } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error('Không thể xóa nhân viên')
-    }
-  }
+const handleDelete = (row: Employee) => {
+  deletingEmployee.value = row
+  showDeleteDialog.value = true
 }
 
-const handlePageChange = (page: number) => {
-  currentPage.value = page
-  fetchEmployees()
-}
-
-const handleSizeChange = (size: number) => {
-  pageSize.value = size
-  currentPage.value = DEFAULT_PAGE
+const onConfirmDelete = async () => {
+  if (!deletingEmployee.value) return
+  await employeeService.delete(deletingEmployee.value.id)
   fetchEmployees()
 }
 
 const handleReset = () => {
-  searchQuery.value = ''
-  filterDepartment.value = ''
-  filterStatus.value = ''
-  currentPage.value = DEFAULT_PAGE
+  searchKeyword.value = ''
+  filterStatus.value = EmployeeStatus.ACTIVE
+  filterDeptId.value = ''
+  filterPositionId.value = ''
+  filterGender.value = ''
+  resetPage()
   fetchEmployees()
 }
 
-onMounted(fetchEmployees)
+onMounted(() => {
+  fetchEmployees()
+  fetchDepartmentOptions()
+  fetchPositionOptions()
+})
 </script>
 
 <template>
-  <div class="space-y-6">
-    <!-- Header: Breadcrumb & Actions -->
-    <div class="flex items-center justify-between mb-4">
-      <el-breadcrumb separator="/">
-        <el-breadcrumb-item :to="{ name: ROUTE_NAMES.DASHBOARD }">Trang chủ</el-breadcrumb-item>
-        <el-breadcrumb-item>Quản lý nhân viên</el-breadcrumb-item>
-      </el-breadcrumb>
+  <div class="space-y-3">
+    <div class="flex justify-between">
+      <PageBreadcrumb :icon="Avatar" :items="[{ label: 'Nhân viên' }]" />
 
-      <el-button type="primary" @click="handleCreate">
+      <el-button v-if="isHrManager" type="primary" @click="handleCreate">
         <el-icon class="mr-1"><Plus /></el-icon>
         Thêm mới
       </el-button>
     </div>
 
     <el-card shadow="never">
-      <!-- Filters -->
       <div class="flex flex-wrap gap-4 items-end mb-4">
-        <div class="flex-1 min-w-[200px]">
+        <div class="flex-1 min-w-[250px]">
           <label class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
           <el-input
-            v-model="searchQuery"
-            placeholder="Tìm theo tên, mã NV, email..."
+            v-model="searchKeyword"
+            placeholder="Nhập tên, mã NV, email, SĐT, CCCD..."
             clearable
             @keyup.enter="handleSearch"
-          >
-          </el-input>
+          />
         </div>
 
         <div class="w-40">
           <label class="block text-sm font-medium text-gray-700 mb-1">Phòng ban</label>
-          <el-select v-model="filterDepartment" placeholder="Tất cả" clearable class="w-full">
+          <el-select
+            v-model="filterDeptId"
+            placeholder="Tất cả"
+            clearable
+            filterable
+            class="w-full"
+          >
             <el-option
-              v-for="option in DEPARTMENT_OPTIONS"
-              :key="option.value"
-              :label="option.label"
-              :value="option.value"
+              v-for="opt in departmentOptions"
+              :key="opt.value"
+              :label="opt.label"
+              :value="opt.value"
             />
           </el-select>
         </div>
 
         <div class="w-40">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Vị trí</label>
+          <el-select
+            v-model="filterPositionId"
+            placeholder="Tất cả"
+            clearable
+            filterable
+            class="w-full"
+          >
+            <el-option
+              v-for="opt in positionOptions"
+              :key="opt.value"
+              :label="opt.label"
+              :value="opt.value"
+            />
+          </el-select>
+        </div>
+
+        <div class="w-32">
           <label class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
           <el-select v-model="filterStatus" placeholder="Tất cả" clearable class="w-full">
             <el-option
@@ -236,42 +221,100 @@ onMounted(fetchEmployees)
           </el-select>
         </div>
 
-        <div class="flex gap-2">
+        <div class="w-28">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Giới tính</label>
+          <el-select v-model="filterGender" placeholder="Tất cả" clearable class="w-full">
+            <el-option
+              v-for="option in GENDER_OPTIONS"
+              :key="option.value"
+              :label="option.label"
+              :value="option.value"
+            />
+          </el-select>
+        </div>
+
+        <div class="flex gap-1">
           <el-button type="primary" @click="handleSearch">Tìm kiếm</el-button>
-          <el-button @click="handleReset">Đặt lại</el-button>
+          <el-tooltip content="Đặt lại">
+            <el-button :icon="Refresh" @click="handleReset"></el-button>
+          </el-tooltip>
         </div>
       </div>
+
       <el-table
-        :data="employees"
         v-loading="isLoading"
+        :data="employees"
         stripe
         :header-cell-style="{
           backgroundColor: COLORS.TABLE_HEADER_BG,
         }"
+        :empty-text="TABLE_EMPTY_TEXT"
       >
-        <el-table-column prop="employeeCode" label="Mã NV" width="100" />
-        <el-table-column prop="fullName" label="Họ và tên" min-width="150" />
-        <el-table-column prop="email" label="Email" min-width="180" />
-        <el-table-column prop="phone" label="SĐT" width="120" />
-        <el-table-column prop="department" label="Phòng ban" width="120" />
-        <el-table-column prop="position" label="Chức vụ" min-width="130" />
-        <el-table-column prop="status" label="Trạng thái" width="130">
+        <el-table-column label="STT" width="60" align="center">
+          <template #default="{ $index }">
+            {{ getRowIndex($index) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="Nhân viên" min-width="170">
           <template #default="{ row }">
-            <el-tag round effect="dark" :color="getStatusColor(row.status)" class="!border-none">
+            <div>
+              <span class="font-bold">{{ row.name }}</span>
+            </div>
+            <div class="text-gray-500 text-xs">{{ row.code }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="Giới tính" width="90" align="center">
+          <template #default="{ row }">
+            {{ GENDER_LABELS[row.gender as keyof typeof GENDER_LABELS] || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column label="Ngày sinh" width="110" align="center">
+          <template #default="{ row }">
+            {{ formatDate(row.dob) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="idCard" label="CCCD" width="130" show-overflow-tooltip />
+        <el-table-column label="Liên hệ" min-width="180">
+          <template #default="{ row }">
+            <div class="truncate" :title="row.email">{{ row.email || '-' }}</div>
+            <div class="text-gray-500 text-xs">{{ row.phone || '-' }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="Phòng ban / Vị trí" width="170">
+          <template #default="{ row }">
+            <div class="font-medium truncate" :title="row.deptName">{{ row.deptName || '-' }}</div>
+            <div class="text-gray-500 text-xs truncate" :title="row.positionName">
+              {{ row.positionName || '-' }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="Ngày vào làm" width="120" align="center">
+          <template #default="{ row }">
+            {{ formatDate(row.hireDate) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="status" label="Trạng thái" width="130" align="center">
+          <template #default="{ row }">
+            <el-tag :type="EMPLOYEE_STATUS_TAG_TYPE[row.status as EmployeeStatus]" size="small">
               {{ EMPLOYEE_STATUS_LABELS[row.status as keyof typeof EMPLOYEE_STATUS_LABELS] }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="Thao tác" width="120" fixed="right" align="center">
+        <el-table-column label="Thao tác" width="150" fixed="right" align="center">
           <template #default="{ row }">
-            <el-tooltip content="Sửa nhân viên" placement="top">
-              <el-button type="primary" link @click="handleEdit(row)">
-                <el-icon :size="20"><Edit /></el-icon>
+            <el-tooltip content="Xem chi tiết" placement="top">
+              <el-button type="primary" link @click="handleView(row)">
+                <el-icon :size="16"><View /></el-icon>
               </el-button>
             </el-tooltip>
-            <el-tooltip content="Xóa nhân viên" placement="top">
+            <el-tooltip v-if="isHrManager" content="Sửa" placement="top">
+              <el-button type="warning" link @click="handleEdit(row)">
+                <el-icon :size="16"><Edit /></el-icon>
+              </el-button>
+            </el-tooltip>
+            <el-tooltip v-if="isHrManager" content="Vô hiệu hóa" placement="top">
               <el-button type="danger" link @click="handleDelete(row)">
-                <el-icon :size="20"><Delete /></el-icon>
+                <el-icon :size="16"><Delete /></el-icon>
               </el-button>
             </el-tooltip>
           </template>
@@ -284,11 +327,21 @@ onMounted(fetchEmployees)
           v-model:page-size="pageSize"
           :total="total"
           :page-sizes="PAGE_SIZE_OPTIONS"
-          layout="total, sizes, prev, pager, next, jumper"
+          layout="total, sizes, prev, pager, next"
           @current-change="handlePageChange"
           @size-change="handleSizeChange"
         />
       </div>
     </el-card>
   </div>
+
+  <ConfirmDialog
+    v-model="showDeleteDialog"
+    title="Xác nhận vô hiệu hóa"
+    :message="`Bạn có chắc muốn vô hiệu hóa nhân viên '${deletingEmployee?.code} - ${deletingEmployee?.name}'? Sẽ ngừng tính lương và chấm công.`"
+    confirm-type="danger"
+    :icon="Delete"
+    :icon-color="COLORS.DANGER"
+    :on-confirm="onConfirmDelete"
+  />
 </template>
