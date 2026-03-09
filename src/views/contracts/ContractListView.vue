@@ -107,15 +107,18 @@ const handleReset = () => {
 // Hàm dùng fetch gọi API trực tiếp
 async function fetchContractsDirect() {
   try {
-    const response = await fetch('http://localhost:8080/api/v1/contracts/search', {
+    const response = await fetch('https://be-salary.goldhorizon.asia/api/v1/contracts/search', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization:
+          'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJocl9tYW5hZ2VyIiwiaWF0IjoxNzczMDU3NjEwLCJleHAiOjE3NzMwNjEyMTB9.JajCkSqkcDN9uJLeGyW4OZgVPoDoSi3JH_nCTdzbFso',
+        accept: '*/*',
       },
       body: JSON.stringify({
-        page: 0,
+        page: 10,
         size: 10,
-        sort: 'desc',
+        sort: 'asc',
       }),
     })
 

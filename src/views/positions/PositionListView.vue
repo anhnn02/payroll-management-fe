@@ -11,15 +11,14 @@ import {
   POSITION_STATUS_LABELS,
   POSITION_STATUS_TAG_TYPE,
 } from './constants'
+import { MOCK_POSITIONS } from './mock'
 import { COLORS } from '@/constants/colors'
 import { positionService } from '@/services/position.service'
-import { useToast } from '@/composables/useToast'
 import { usePagination } from '@/composables/usePagination'
 import { Status } from '@/constants/enums'
 import { TABLE_EMPTY_TEXT } from '@/constants'
 
 const router = useRouter()
-const toast = useToast()
 
 // State
 const positions = ref<Position[]>([])
@@ -42,20 +41,26 @@ const {
   pageForApi,
 } = usePagination(fetchPositions)
 
-// Fetch positions
+// Fetch positions (Temp override to show MOCK_POSITIONS)
 async function fetchPositions() {
   isLoading.value = true
   try {
-    const response = await positionService.search({
-      keyword: searchKeyword.value || undefined,
-      status: filterStatus.value || undefined,
-      page: pageForApi(),
-      size: pageSize.value,
-    })
-    positions.value = response.content
-    total.value = response.totalElements
-  } catch {
-    toast.loadError()
+    let filtered = [...MOCK_POSITIONS]
+    if (searchKeyword.value) {
+      const kw = searchKeyword.value.toLowerCase()
+      filtered = filtered.filter(
+        p => p.code.toLowerCase().includes(kw) || p.name.toLowerCase().includes(kw)
+      )
+    }
+    if (filterStatus.value) {
+      filtered = filtered.filter(p => p.status === filterStatus.value)
+    }
+    total.value = filtered.length
+    const start = pageForApi() * pageSize.value
+    positions.value = filtered.slice(start, start + pageSize.value)
+
+    // Bypass API call temporarily
+    // const response = await positionService.search(...)
   } finally {
     isLoading.value = false
   }

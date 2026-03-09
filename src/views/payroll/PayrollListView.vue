@@ -115,23 +115,10 @@ async function fetchEmployeeOptions() {
   }
 }
 
-// Fetch payrolls
+// Fetch payrolls (Temp override to show MOCK_PAYROLLS)
 async function fetchPayrolls() {
   isLoading.value = true
   try {
-    const response = await payrollService.search({
-      keyword: searchKeyword.value || undefined,
-      monthNum: filterMonth.value || undefined,
-      yearNum: filterYear.value || undefined,
-      deptId: filterDeptId.value || undefined,
-      status: filterStatus.value || undefined,
-      page: pageForApi(),
-      size: pageSize.value,
-    })
-    payrolls.value = response.content
-    total.value = response.totalElements
-  } catch {
-    // Fallback: mock data with client-side filtering
     let filtered = [...MOCK_PAYROLLS]
     if (searchKeyword.value) {
       const kw = searchKeyword.value.toLowerCase()
@@ -158,6 +145,9 @@ async function fetchPayrolls() {
     total.value = filtered.length
     const start = pageForApi() * pageSize.value
     payrolls.value = filtered.slice(start, start + pageSize.value)
+
+    // Bypass API call temporarily
+    // const response = await payrollService.search(...)
   } finally {
     isLoading.value = false
   }
