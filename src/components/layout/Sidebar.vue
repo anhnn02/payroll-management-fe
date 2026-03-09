@@ -57,6 +57,12 @@ const menuItems: MenuItem[] = [
     path: ROUTE_PATHS.PAYROLL,
     name: ROUTE_NAMES.PAYROLL,
   },
+  {
+    title: 'Cấu hình lương',
+    icon: markRaw(MENU_ICONS.salaryConfig),
+    path: ROUTE_PATHS.SALARY_CONFIG,
+    name: ROUTE_NAMES.SALARY_CONFIG,
+  },
 ]
 
 const isActive = (item: MenuItem) => {

@@ -28,7 +28,6 @@ const isHrManager = computed(() => authStore.user?.role === UserRole.HR_MANAGER)
 
 const {
   isCreateMode,
-  isEditMode,
   isDetailMode,
   isReadonly,
   entityId: employeeId,

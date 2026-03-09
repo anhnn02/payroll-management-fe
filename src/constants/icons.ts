@@ -55,4 +55,5 @@ export const MENU_ICONS = {
   employees: Avatar,
   contracts: Document,
   payroll: Money,
+  salaryConfig: Setting,
 } as const

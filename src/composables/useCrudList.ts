@@ -1,8 +1,8 @@
 import { ref, computed, type Ref } from 'vue'
-import type { ApiResponse, PaginationMeta, ListParams } from '@/types'
+import type { ApiResponse, SearchRequest } from '@/types'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/constants'
 
-interface CrudListOptions<T, P extends ListParams = ListParams> {
+interface CrudListOptions<T, P extends SearchRequest = SearchRequest> {
   fetchFn: (params: P) => Promise<ApiResponse<T[]>>
   createFn?: (data: Partial<T>) => Promise<ApiResponse<T>>
   updateFn?: (id: number | string, data: Partial<T>) => Promise<ApiResponse<T>>
@@ -10,9 +10,10 @@ interface CrudListOptions<T, P extends ListParams = ListParams> {
   initialParams?: Partial<P>
 }
 
-export function useCrudList<T extends { id: number | string }, P extends ListParams = ListParams>(
-  options: CrudListOptions<T, P>
-) {
+export function useCrudList<
+  T extends { id: number | string },
+  P extends SearchRequest = SearchRequest,
+>(options: CrudListOptions<T, P>) {
   const { fetchFn, createFn, updateFn, deleteFn, initialParams = {} } = options
 
   // State
@@ -44,15 +45,15 @@ export function useCrudList<T extends { id: number | string }, P extends ListPar
     try {
       const response = await fetchFn({
         page: page.value,
-        limit: limit.value,
+        size: limit.value,
         ...params.value,
-      } as P)
+      } as unknown as P)
 
       items.value = response.data
       if (response.meta) {
-        total.value = response.meta.total
-        page.value = response.meta.page
-        limit.value = response.meta.limit
+        total.value = response.meta.total || 0
+        page.value = response.meta.currentPage || DEFAULT_PAGE
+        limit.value = response.meta.perPage || DEFAULT_PAGE_SIZE
       }
     } catch (e) {
       error.value = e as Error
@@ -71,9 +72,9 @@ export function useCrudList<T extends { id: number | string }, P extends ListPar
     try {
       const response = await fetchFn({
         page: page.value,
-        limit: limit.value,
+        size: limit.value,
         ...params.value,
-      } as P)
+      } as unknown as P)
 
       items.value = [...items.value, ...response.data]
       if (response.meta) {

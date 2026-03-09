@@ -41,6 +41,9 @@ export const ROUTE_NAMES = {
   PAYROLL_DETAIL: 'payroll-detail',
   PAYROLL_EDIT: 'payroll-edit',
 
+  // Salary Config
+  SALARY_CONFIG: 'salary-config',
+
   // Errors
   NOT_FOUND: 'not-found',
 } as const
@@ -85,6 +88,9 @@ export const ROUTE_PATHS = {
   PAYROLL: '/payroll',
   PAYROLL_DETAIL: '/payroll/:id',
   PAYROLL_EDIT: '/payroll/:id/edit',
+
+  // Salary Config
+  SALARY_CONFIG: '/config/salary',
 } as const
 
 export type RouteName = (typeof ROUTE_NAMES)[keyof typeof ROUTE_NAMES]

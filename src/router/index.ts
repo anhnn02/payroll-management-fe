@@ -17,6 +17,7 @@ const EmployeeFormView = () => import('@/views/employees/EmployeeFormView.vue')
 const ContractListView = () => import('@/views/contracts/ContractListView.vue')
 const ContractFormView = () => import('@/views/contracts/ContractFormView.vue')
 const PayrollListView = () => import('@/views/payroll/PayrollListView.vue')
+const SalaryConfigView = () => import('@/views/config/SalaryConfigView.vue')
 const NotFoundView = () => import('@/views/NotFoundView.vue')
 
 // Layout
@@ -173,6 +174,13 @@ const routes: RouteRecordRaw[] = [
         name: ROUTE_NAMES.PAYROLL,
         component: PayrollListView,
         meta: { title: 'Bảng lương' },
+      },
+      // #region Salary Config
+      {
+        path: 'config/salary',
+        name: ROUTE_NAMES.SALARY_CONFIG,
+        component: SalaryConfigView,
+        meta: { title: 'Cấu hình lương' },
       },
     ],
   },

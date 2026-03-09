@@ -20,6 +20,7 @@ import type { ContractStatus } from '@/constants/enums'
 import { COLORS } from '@/constants/colors'
 import { contractService } from '@/services/contract.service'
 import { usePagination } from '@/composables/usePagination'
+import { useToast } from '@/composables'
 import { TABLE_EMPTY_TEXT } from '@/constants'
 
 const router = useRouter()
@@ -44,6 +45,8 @@ const {
   pageForApi,
 } = usePagination(fetchContracts)
 
+const toast = useToast()
+
 // Fetch contracts
 async function fetchContracts() {
   isLoading.value = true
@@ -54,6 +57,7 @@ async function fetchContracts() {
       status: filterStatus.value || undefined,
       page: pageForApi(),
       size: pageSize.value,
+      sort: 'desc',
     })
     contracts.value = response.content
     total.value = response.totalElements
@@ -100,7 +104,36 @@ const handleReset = () => {
   fetchContracts()
 }
 
-onMounted(fetchContracts)
+// Hàm dùng fetch gọi API trực tiếp
+async function fetchContractsDirect() {
+  try {
+    const response = await fetch('http://localhost:8080/api/v1/contracts/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        page: 0,
+        size: 10,
+        sort: 'desc',
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const data = await response.json()
+    console.log('>>> [fetchContractsDirect] Kết quả từ API:', data)
+  } catch (error) {
+    console.error('>>> [fetchContractsDirect] Lỗi khi gọi API:', error)
+  }
+}
+
+onMounted(() => {
+  fetchContracts()
+  fetchContractsDirect()
+})
 </script>
 
 <template>
