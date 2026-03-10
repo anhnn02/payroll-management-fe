@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { User } from '@/types'
+import router from '@/router'
+import { ROUTE_NAMES } from '@/constants/routes'
 
 const TOKEN_KEY = 'auth_token'
 const USER_KEY = 'auth_user'
@@ -37,6 +39,7 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
     localStorage.removeItem(TOKEN_KEY)
     localStorage.removeItem(USER_KEY)
+    router.push({ name: ROUTE_NAMES.LOGIN })
   }
 
   function initFromStorage() {

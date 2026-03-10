@@ -22,12 +22,6 @@ const menuItems: MenuItem[] = [
     name: ROUTE_NAMES.DASHBOARD,
   },
   {
-    title: 'Quản lý tài khoản',
-    icon: markRaw(MENU_ICONS.accounts),
-    path: ROUTE_PATHS.ACCOUNTS,
-    name: ROUTE_NAMES.ACCOUNTS,
-  },
-  {
     title: 'Quản lý phòng ban',
     icon: markRaw(MENU_ICONS.departments),
     path: ROUTE_PATHS.DEPARTMENTS,

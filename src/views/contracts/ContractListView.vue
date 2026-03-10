@@ -104,35 +104,8 @@ const handleReset = () => {
   fetchContracts()
 }
 
-// Hàm dùng fetch gọi API trực tiếp
-async function fetchContractsDirect() {
-  try {
-    const response = await fetch('http://localhost:8080/api/v1/contracts/search', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        page: 0,
-        size: 10,
-        sort: 'desc',
-      }),
-    })
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-
-    const data = await response.json()
-    console.log('>>> [fetchContractsDirect] Kết quả từ API:', data)
-  } catch (error) {
-    console.error('>>> [fetchContractsDirect] Lỗi khi gọi API:', error)
-  }
-}
-
 onMounted(() => {
   fetchContracts()
-  fetchContractsDirect()
 })
 </script>
 

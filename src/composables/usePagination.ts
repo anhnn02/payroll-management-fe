@@ -53,7 +53,7 @@ export function usePagination(fetchFn: () => void | Promise<void>, options?: Use
    * Lấy page 0-indexed cho BE
    * BE dùng 0-indexed, FE (el-pagination) dùng 1-indexed
    */
-  const pageForApi = () => currentPage.value - 1
+  const pageForApi = () => Math.max(0, currentPage.value - 1)
 
   return {
     // State
