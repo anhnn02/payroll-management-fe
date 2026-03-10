@@ -76,7 +76,31 @@ export function useApi() {
       clearTimeout(timeoutId)
       pendingRequests.delete(requestKey)
 
-      const result = await response.json()
+      // Handle unauthorized or forbidden (token expired) - logout BEFORE parsing body
+      if (
+        response.status === ERROR_CODES.UNAUTHORIZED ||
+        response.status === ERROR_CODES.FORBIDDEN
+      ) {
+        authStore.logout()
+        const error: ApiError = {
+          status: 'error',
+          code: Number(response.status),
+          message: getErrorMessage(response.status),
+        }
+        if (showErrorToast) {
+          ElMessage.error(error.message)
+        }
+        throw error
+      }
+
+      // Safely parse JSON response
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let result: Record<string, any>
+      try {
+        result = await response.json()
+      } catch {
+        result = {}
+      }
 
       // Normalize response
       if (!response.ok) {
@@ -85,11 +109,6 @@ export function useApi() {
           code: response.status,
           message: result.message || getErrorMessage(response.status),
           errors: result.errors,
-        }
-
-        // Handle unauthorized - logout
-        if (response.status === ERROR_CODES.UNAUTHORIZED) {
-          authStore.logout()
         }
 
         if (showErrorToast) {

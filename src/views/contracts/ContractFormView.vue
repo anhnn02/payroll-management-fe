@@ -36,7 +36,7 @@ const isSubmitting = ref(false)
 
 const form = ref<ContractFormData>({
   empId: '',
-  contractNumber: '',
+  code: '',
   contractType: 'OFFICIAL',
   startDate: '',
   endDate: '',
@@ -62,7 +62,7 @@ const salaryTypeOptions = enumToOptions(SalaryTypeLabel)
 
 const rules = {
   empId: [{ required: true, message: 'Vui lòng chọn nhân viên', trigger: 'change' }],
-  contractNumber: [
+  code: [
     { required: true, message: 'Vui lòng nhập số hợp đồng', trigger: 'blur' },
     { max: 50, message: 'Số hợp đồng tối đa 50 ký tự', trigger: 'blur' },
   ],
@@ -133,7 +133,7 @@ const fetchContract = async () => {
 
     form.value = {
       empId: data.empId,
-      contractNumber: data.contractNumber,
+      code: data.code,
       contractType: data.contractType,
       startDate: data.startDate,
       endDate: data.endDate || '',
@@ -236,9 +236,9 @@ onMounted(() => {
               </el-select>
             </el-form-item>
 
-            <el-form-item label="Số hợp đồng" prop="contractNumber">
+            <el-form-item label="Số hợp đồng" prop="code">
               <el-input
-                v-model="form.contractNumber"
+                v-model="form.code"
                 placeholder="Nhập số hợp đồng (VD: HD2026-001)"
                 maxlength="50"
                 show-word-limit

@@ -21,7 +21,7 @@ const ERROR_MESSAGES: Record<string | number, string> = {
   [ERROR_CODES.ABORTED]: 'Yêu cầu đã bị hủy.',
   [ERROR_CODES.BAD_REQUEST]: 'Yêu cầu không hợp lệ.',
   [ERROR_CODES.UNAUTHORIZED]: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
-  [ERROR_CODES.FORBIDDEN]: 'Bạn không có quyền truy cập tài nguyên này.',
+  [ERROR_CODES.FORBIDDEN]: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
   [ERROR_CODES.NOT_FOUND]: 'Không tìm thấy dữ liệu.',
   [ERROR_CODES.VALIDATION_ERROR]: 'Dữ liệu không hợp lệ.',
   [ERROR_CODES.TOO_MANY_REQUESTS]: 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',

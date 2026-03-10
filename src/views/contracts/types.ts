@@ -13,12 +13,12 @@ export interface Contract {
   offerSalary: number // Lương thỏa thuận
   salaryType: SalaryTypeValue // 'GROSS' | 'NET'
   terms?: string
-  fileUrl?: string // URL file PDF
+  filePath?: string // Ánh xạ từ file_url
   status: ContractStatusType // 'ACTIVE' | 'EXPIRED'
   createdAt: string // ISO timestamp
   createdBy: string // Username
-  updatedAt: string // ISO timestamp
-  updatedBy: string // Username
+  updatedAt?: string // ISO timestamp
+  updatedBy?: string // Username
 }
 
 export type ContractTypeValue = 'PROBATION' | 'OFFICIAL' | 'SEASONAL'
@@ -48,4 +48,5 @@ export interface ContractFormData {
   salaryType: string // GROSS | NET
   terms?: string
   status: string // ACTIVE | EXPIRED
+  factorId?: string
 }
