@@ -179,9 +179,9 @@ onMounted(() => {
             {{ getRowIndex($index) }}
           </template>
         </el-table-column>
-        <el-table-column prop="code" label="Số hợp đồng" width="170">
+        <el-table-column prop="contractNumber" label="Số hợp đồng" width="170">
           <template #default="{ row }">
-            <span class="font-bold uppercase">{{ row.code }}</span>
+            <span class="font-bold uppercase">{{ row.contractNumber }}</span>
             <div class="text-xs mt-0.5">
               <span :class="getContractTypeClass(row.contractType)">
                 {{ CONTRACT_TYPE_LABELS[row.contractType as keyof typeof CONTRACT_TYPE_LABELS] }}
@@ -255,7 +255,7 @@ onMounted(() => {
   <ConfirmDialog
     v-model="showDeleteDialog"
     title="Xác nhận xóa"
-    :message="`Bạn có chắc muốn xóa hợp đồng '${deletingContract?.code}'?`"
+    :message="`Bạn có chắc muốn xóa hợp đồng '${deletingContract?.contractNumber}'?`"
     confirm-type="danger"
     :icon="Delete"
     :icon-color="COLORS.DANGER"
