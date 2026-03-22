@@ -21,6 +21,7 @@ import {
   DeleteFilled,
   Suitcase,
   Document,
+  Calendar,
 } from '@element-plus/icons-vue'
 
 // Re-export all icons
@@ -44,6 +45,7 @@ export {
   DeleteFilled,
   Suitcase,
   Document,
+  Calendar,
 }
 
 // Menu icons mapping
@@ -54,6 +56,7 @@ export const MENU_ICONS = {
   position: Suitcase,
   employees: Avatar,
   contracts: Document,
+  attendance: Calendar,
   payroll: Money,
   salaryConfig: Setting,
 } as const
