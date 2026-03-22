@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useAttendanceStore } from '@/stores/attendance'
+import { useAuthStore } from '@/stores/auth'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import { Document, User, Timer, Finished, Warning } from '@element-plus/icons-vue'
 import AttendanceListTab from './components/AttendanceListTab.vue'
 import AttendanceImportTab from './components/AttendanceImportTab.vue'
+import { UserRole } from '@/constants/enums'
 
 const attendanceStore = useAttendanceStore()
+const authStore = useAuthStore()
+const isAccountant = computed(() => authStore.user?.role === UserRole.ACCOUNTANT)
 const activeTab = ref('manage')
 
 const currentMonth = computed({
@@ -113,8 +117,12 @@ const handleMonthChange = () => {
           <AttendanceListTab @switch-tab="activeTab = $event" />
         </el-tab-pane>
 
-        <el-tab-pane label="Import Excel" name="import">
-          <AttendanceImportTab />
+        <el-tab-pane 
+          v-if="!isAccountant && !attendanceStore.isLocked"
+          label="Import Excel" 
+          name="import"
+        >
+          <AttendanceImportTab @switch-tab="activeTab = $event" />
         </el-tab-pane>
       </el-tabs>
     </el-card>

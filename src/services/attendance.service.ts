@@ -58,9 +58,7 @@ export const attendanceService = {
       API_ENDPOINTS.ATTENDANCE.IMPORT_PREVIEW,
       formData,
       {
-        headers: {
-          // Bỏ qua Content-Type mặc định (application/json) vì browser tự set multipart/form-data kèm boundary
-        }
+        headers: {} // Axios/fetch tự thêm boundary cho multipart
       }
     )
   },
@@ -77,9 +75,7 @@ export const attendanceService = {
       `${API_ENDPOINTS.ATTENDANCE.IMPORT_APPLY}?overwrite=${overwrite}`,
       formData,
       {
-        headers: {
-          // Bỏ qua Content-Type mặc định
-        }
+        headers: {}
       }
     )
   },

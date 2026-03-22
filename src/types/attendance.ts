@@ -69,12 +69,27 @@ export interface AttendanceMonthlyResponse {
 export interface AttendanceImportError {
   row: number
   employeeCode: string
+  employeeName?: string
+  workDays?: number | string
+  otHours?: number | string
+  leaveDays?: number | string
   error: string
+}
+
+export interface AttendanceImportRecord {
+  row: number
+  employeeCode: string
+  employeeName?: string
+  workDays?: number | string
+  otHours?: number | string
+  leaveDays?: number | string
+  error?: string
 }
 
 export interface AttendanceImportResultResponse {
   totalRows: number
   successCount: number
   failedCount: number
-  errors: AttendanceImportError[]
+  errors?: AttendanceImportRecord[]
+  records?: AttendanceImportRecord[]
 }
