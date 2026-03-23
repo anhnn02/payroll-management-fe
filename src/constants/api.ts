@@ -78,6 +78,7 @@ export const API_ENDPOINTS = {
   REPORTS: {
     SALARY: '/reports/salary',
     DASHBOARD: '/reports/dashboard',
+    DASHBOARD_PYC: '/reports/dashboard-pyc',
     EXPORT: '/reports/export',
   },
 } as const

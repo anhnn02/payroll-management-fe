@@ -1,48 +1,128 @@
 <script setup lang="ts">
-// Dashboard placeholder
+import { ref, onMounted, computed } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { dashboardService } from '@/services/dashboard.service'
+import type { DashboardPycResponse } from '@/services/dashboard.service'
+import { ElMessage } from 'element-plus'
+import DashboardAlerts from './components/DashboardAlerts.vue'
+import DashboardKpis from './components/DashboardKpis.vue'
+import DashboardCharts from './components/DashboardCharts.vue'
+import DashboardTable from './components/DashboardTable.vue'
+import DashboardQuickLinks from './components/DashboardQuickLinks.vue'
+import { Refresh } from '@element-plus/icons-vue'
+
+const authStore = useAuthStore()
+const userRole = computed(() => authStore.user?.role || '')
+
+const loading = ref(true)
+const dashboardData = ref<DashboardPycResponse | null>(null)
+
+// For month selector
+const currentDate = new Date()
+const selectedMonth = ref(
+  `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`
+)
+
+const fetchDashboardData = async () => {
+  loading.value = true
+  try {
+    const res = await dashboardService.getDashboardPyc(selectedMonth.value)
+    if (res.data) {
+      dashboardData.value = res.data
+    } else {
+      dashboardData.value = null
+    }
+  } catch (error) {
+    console.error('Failed to load dashboard data', error)
+    ElMessage.error('Không thể tải dữ liệu Dashboard. Vui lòng thử lại.')
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchDashboardData()
+})
+
+const handleMonthChange = (val: string) => {
+  if (val) {
+    fetchDashboardData()
+  }
+}
 </script>
 
 <template>
-  <div class="space-y-6">
-    <h1 class="text-2xl font-bold text-gray-800">Dashboard</h1>
+  <div class="px-6 py-4">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800">Dashboard Tổng Hợp</h1>
+        <p class="text-gray-500 text-sm mt-1" v-if="dashboardData?.generatedAt">
+          Cập nhật lúc
+          {{
+            new Date(dashboardData.generatedAt).toLocaleTimeString('vi-VN', {
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+          }}
+        </p>
+      </div>
 
-    <!-- Stats cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <el-card shadow="hover">
-        <div class="text-center">
-          <div class="text-3xl font-bold text-primary">150</div>
-          <div class="text-gray-500 mt-2">Nhân viên</div>
-        </div>
-      </el-card>
-
-      <el-card shadow="hover">
-        <div class="text-center">
-          <div class="text-3xl font-bold text-green-500">12</div>
-          <div class="text-gray-500 mt-2">Tài khoản</div>
-        </div>
-      </el-card>
-
-      <el-card shadow="hover">
-        <div class="text-center">
-          <div class="text-3xl font-bold text-accent">8</div>
-          <div class="text-gray-500 mt-2">Phòng ban</div>
-        </div>
-      </el-card>
-
-      <el-card shadow="hover">
-        <div class="text-center">
-          <div class="text-3xl font-bold text-secondary">₫ 2.5B</div>
-          <div class="text-gray-500 mt-2">Tổng lương tháng</div>
-        </div>
-      </el-card>
+      <div class="flex items-center gap-4">
+        <el-date-picker
+          v-model="selectedMonth"
+          type="month"
+          placeholder="Chọn tháng"
+          format="MM/YYYY"
+          value-format="YYYY-MM"
+          :clearable="false"
+          @change="handleMonthChange"
+          style="width: 150px"
+        />
+        <el-button :icon="Refresh" circle @click="fetchDashboardData" :loading="loading" />
+      </div>
     </div>
 
-    <!-- Recent activity -->
-    <el-card shadow="never">
-      <template #header>
-        <span class="font-semibold">Hoạt động gần đây</span>
-      </template>
-      <div class="text-gray-500 text-center py-8">Chưa có hoạt động nào</div>
-    </el-card>
+    <!-- Skeleton Loading -->
+    <div v-if="loading" class="space-y-6">
+      <el-skeleton animated>
+        <template #template>
+          <div class="h-12 w-full mb-6 bg-gray-100 rounded"></div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <el-skeleton-item variant="rect" class="h-32 rounded" />
+            <el-skeleton-item variant="rect" class="h-32 rounded" />
+            <el-skeleton-item variant="rect" class="h-32 rounded" />
+            <el-skeleton-item variant="rect" class="h-32 rounded" />
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <el-skeleton-item variant="rect" class="h-80 rounded" />
+            <el-skeleton-item variant="rect" class="h-80 rounded" />
+          </div>
+          <el-skeleton-item variant="rect" class="h-64 rounded w-full" />
+        </template>
+      </el-skeleton>
+    </div>
+
+    <template v-else-if="dashboardData">
+      <DashboardAlerts :alerts="dashboardData.alerts" />
+
+      <DashboardKpis :kpi="dashboardData.kpi" :role="userRole" />
+
+      <DashboardCharts
+        :trend-chart="dashboardData.trendChart"
+        :dept-pie-chart="dashboardData.deptPieChart"
+        :dept-o-t-bar-chart="dashboardData.deptOTBarChart"
+        :current-month="dashboardData.currentMonth"
+      />
+
+      <DashboardTable :table-data="dashboardData.deptStatusTable" :role="userRole" />
+
+      <DashboardQuickLinks :role="userRole" />
+    </template>
+
+    <!-- Empty State / Error State -->
+    <div v-else class="py-20 text-center">
+      <el-empty description="Không có dữ liệu" />
+      <el-button type="primary" class="mt-4" @click="fetchDashboardData">Thử lại</el-button>
+    </div>
   </div>
 </template>
