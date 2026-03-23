@@ -48,6 +48,11 @@ export const API_ENDPOINTS = {
     UPDATE: (id: string) => `/attendance/${id}`,
     TEMPLATE: '/attendance/template',
     IMPORT: '/attendance/import',
+    MONTHLY: '/attendance/monthly',
+    MONTHLY_UPDATE: (empId: string) => `/attendance/monthly/${empId}`,
+    IMPORT_PREVIEW: '/attendance/import/preview',
+    IMPORT_APPLY: '/attendance/import/apply',
+    EXPORT: '/attendance/export',
   },
   PAYROLL: {
     CALCULATE: '/payroll/calculate',
@@ -73,6 +78,7 @@ export const API_ENDPOINTS = {
   REPORTS: {
     SALARY: '/reports/salary',
     DASHBOARD: '/reports/dashboard',
+    DASHBOARD_PYC: '/reports/dashboard-pyc',
     EXPORT: '/reports/export',
   },
 } as const

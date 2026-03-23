@@ -17,6 +17,7 @@ const EmployeeFormView = () => import('@/views/employees/EmployeeFormView.vue')
 const ContractListView = () => import('@/views/contracts/ContractListView.vue')
 const ContractFormView = () => import('@/views/contracts/ContractFormView.vue')
 const PayrollListView = () => import('@/views/payroll/PayrollListView.vue')
+const AttendanceManageView = () => import('@/views/attendance/AttendanceManageView.vue')
 const SalaryConfigView = () => import('@/views/config/SalaryConfigView.vue')
 const NotFoundView = () => import('@/views/NotFoundView.vue')
 
@@ -174,6 +175,19 @@ const routes: RouteRecordRaw[] = [
         name: ROUTE_NAMES.PAYROLL,
         component: PayrollListView,
         meta: { title: 'Bảng lương' },
+      },
+      {
+        path: 'payroll/payment',
+        name: ROUTE_NAMES.PAYROLL_PAYMENT,
+        component: NotFoundView,
+        meta: { title: 'Thanh toán' },
+      },
+      // #region Attendance
+      {
+        path: 'attendance/manage',
+        name: ROUTE_NAMES.ATTENDANCE_MANAGE,
+        component: AttendanceManageView,
+        meta: { title: 'Quản lý chấm công' },
       },
       // #region Salary Config
       {
