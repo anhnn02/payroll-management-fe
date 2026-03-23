@@ -3,7 +3,7 @@ import { useRouter } from 'vue-router'
 import { formatCurrency } from '@/utils/formatContent'
 import type { DashboardKpi } from '@/services/dashboard.service'
 
-const props = defineProps<{
+defineProps<{
   kpi?: DashboardKpi
   role: string
 }>()
