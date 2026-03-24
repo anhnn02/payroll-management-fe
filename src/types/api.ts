@@ -73,7 +73,7 @@ export interface User {
   username: string
   email?: string
   fullName?: string
-  role: string
+  roles: string[]
   employeeId?: string
   avatar?: string
 }

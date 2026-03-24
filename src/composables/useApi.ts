@@ -61,15 +61,27 @@ export function useApi() {
         authHeaders['Authorization'] = `Bearer ${authStore.token}`
       }
 
+      const isFormData = data instanceof FormData
+      const defaultHeaders: Record<string, string> = {
+        Accept: 'application/json',
+      }
+      // Don't set Content-Type for FormData — browser auto-sets multipart/form-data with boundary
+      if (!isFormData) {
+        defaultHeaders['Content-Type'] = 'application/json'
+      }
+
       const response = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
+          ...defaultHeaders,
           ...authHeaders,
           ...headers,
         },
-        body: data ? JSON.stringify(data) : undefined,
+        body: data
+          ? isFormData
+            ? data
+            : JSON.stringify(data)
+          : undefined,
         signal: options.signal || controller.signal,
       })
 

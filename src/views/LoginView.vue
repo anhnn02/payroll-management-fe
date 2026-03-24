@@ -28,14 +28,23 @@ async function handleLogin() {
     const response = await authService.login(form.value)
     const data = response.data
 
-    // Lưu token & user info theo BE response format
+    // Lưu token theo BE response format
     authStore.setToken(data.accessToken)
-    authStore.setUser({
-      id: data.employeeId || '',
-      username: data.username,
-      role: data.role,
-      fullName: data.username,
-    })
+
+    // Gọi API /auth/me ngay sau khi login thành công để lấy profile đầy đủ
+    try {
+      const userProfile = await authService.getMe()
+      authStore.setUser(userProfile.data)
+    } catch (err) {
+      console.error('Failed to fetch user profile:', err)
+      // Fallback nếu getMe lỗi nhưng login thành công
+      authStore.setUser({
+        id: data.employeeId || '',
+        username: data.username,
+        role: data.role,
+        fullName: data.username,
+      })
+    }
 
     ElMessage.success('Đăng nhập thành công!')
 

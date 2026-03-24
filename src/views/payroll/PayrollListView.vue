@@ -255,7 +255,7 @@ onMounted(() => {
 <template>
   <div class="space-y-3">
     <div class="flex justify-between">
-      <PageBreadcrumb :icon="Money" :items="[{ label: 'Bảng lương' }]" />
+      <PageBreadcrumb :icon="Money" :items="[{ label: 'Tính lương' }]" />
 
       <el-button v-if="isHrManager" type="primary" @click="openCalculateDialog">
         📊 Tính lương

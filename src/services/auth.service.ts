@@ -1,6 +1,6 @@
 import { useApi } from '@/composables'
 import { API_ENDPOINTS } from '@/constants'
-import type { LoginCredentials, AuthResponse } from '@/types'
+import type { LoginCredentials, AuthResponse, User } from '@/types'
 
 export function useAuthService() {
   const api = useApi()
@@ -17,9 +17,14 @@ export function useAuthService() {
     return api.post<AuthResponse>(API_ENDPOINTS.AUTH.REFRESH)
   }
 
+  async function getMe() {
+    return api.get<User>(API_ENDPOINTS.AUTH.ME)
+  }
+
   return {
     login,
     logout,
     refreshToken,
+    getMe,
   }
 }

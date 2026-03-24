@@ -99,9 +99,7 @@ onMounted(() => {
     </el-table>
 
     <div v-if="isHrManager" class="flex justify-end mt-4">
-      <el-button type="primary" :loading="isLoading" @click="handleSave">
-        💾 Lưu thay đổi
-      </el-button>
+      <el-button type="primary" :loading="isLoading" @click="handleSave"> Lưu thay đổi </el-button>
     </div>
   </div>
 </template>

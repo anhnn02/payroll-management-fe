@@ -13,11 +13,11 @@ import {
   GENDER_OPTIONS,
   GENDER_LABELS,
 } from './constants'
-import { MOCK_EMPLOYEES, MOCK_DEPARTMENT_OPTIONS, MOCK_POSITION_OPTIONS } from './mock'
 import { COLORS } from '@/constants/colors'
 import { employeeService } from '@/services/employee.service'
 import { departmentService } from '@/services/department.services'
 import { positionService } from '@/services/position.service'
+import { useToast } from '@/composables/useToast'
 import { usePagination } from '@/composables/usePagination'
 import { EmployeeStatus, UserRole } from '@/constants/enums'
 import { TABLE_EMPTY_TEXT } from '@/constants'
@@ -26,9 +26,10 @@ import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const toast = useToast()
 
 // Role-based visibility (BA: Accountant chỉ xem, không sửa/xóa/thêm)
-const isHrManager = computed(() => authStore.user?.role === UserRole.HR_MANAGER)
+const isHrManager = computed(() => authStore.user?.roles?.includes(UserRole.HR_MANAGER))
 
 // State
 const employees = ref<Employee[]>([])
@@ -62,34 +63,18 @@ const {
 async function fetchEmployees() {
   isLoading.value = true
   try {
-    let filtered = [...MOCK_EMPLOYEES]
-    if (searchKeyword.value) {
-      const kw = searchKeyword.value.toLowerCase()
-      filtered = filtered.filter(
-        e =>
-          e.code.toLowerCase().includes(kw) ||
-          e.name.toLowerCase().includes(kw) ||
-          e.email.toLowerCase().includes(kw)
-      )
-    }
-    if (filterStatus.value) {
-      filtered = filtered.filter(e => e.status === filterStatus.value)
-    }
-    if (filterDeptId.value) {
-      filtered = filtered.filter(e => e.deptId === filterDeptId.value)
-    }
-    if (filterPositionId.value) {
-      filtered = filtered.filter(e => e.positionId === filterPositionId.value)
-    }
-    if (filterGender.value) {
-      filtered = filtered.filter(e => e.gender === filterGender.value)
-    }
-    total.value = filtered.length
-    const start = pageForApi() * pageSize.value
-    employees.value = filtered.slice(start, start + pageSize.value)
-
-    // Bypass API call temporarily
-    // const response = await employeeService.search(...)
+    const response = await employeeService.search({
+      keyword: searchKeyword.value || undefined,
+      status: filterStatus.value || undefined,
+      deptId: filterDeptId.value || undefined,
+      positionId: filterPositionId.value || undefined,
+      page: pageForApi(),
+      size: pageSize.value,
+    })
+    employees.value = response.content
+    total.value = response.totalElements
+  } catch {
+    toast.loadError()
   } finally {
     isLoading.value = false
   }
@@ -104,7 +89,7 @@ const fetchDepartmentOptions = async () => {
       label: d.name,
     }))
   } catch {
-    departmentOptions.value = MOCK_DEPARTMENT_OPTIONS
+    // Fail silently or toast if critical
   }
 }
 
@@ -116,7 +101,7 @@ const fetchPositionOptions = async () => {
       label: p.name,
     }))
   } catch {
-    positionOptions.value = MOCK_POSITION_OPTIONS
+    // Fail silently
   }
 }
 
