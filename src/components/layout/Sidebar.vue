@@ -24,7 +24,7 @@ const menuItems: MenuItem[] = [
     name: ROUTE_NAMES.DASHBOARD,
   },
   {
-    title: 'QL Nhân sự & Phòng ban',
+    title: 'Quản lý Nhân sự',
     icon: markRaw(MENU_ICONS.employees),
     children: [
       {
@@ -42,7 +42,7 @@ const menuItems: MenuItem[] = [
         path: ROUTE_PATHS.EMPLOYEES,
         name: ROUTE_NAMES.EMPLOYEES,
       },
-    ]
+    ],
   },
   {
     title: 'Quản lý hợp đồng',
@@ -69,8 +69,8 @@ const menuItems: MenuItem[] = [
         title: 'Thanh toán',
         path: ROUTE_PATHS.PAYROLL_PAYMENT,
         name: ROUTE_NAMES.PAYROLL_PAYMENT,
-      }
-    ]
+      },
+    ],
   },
   {
     title: 'Quản lý cấu hình',
@@ -80,8 +80,8 @@ const menuItems: MenuItem[] = [
         title: 'Cấu hình lương',
         path: ROUTE_PATHS.SALARY_CONFIG,
         name: ROUTE_NAMES.SALARY_CONFIG,
-      }
-    ]
+      },
+    ],
   },
 ]
 
@@ -91,7 +91,9 @@ const openGroups = ref<string[]>([])
 onMounted(() => {
   menuItems.forEach(item => {
     if (item.children) {
-      const hasActiveChild = item.children.some(child => child.path && route.path.startsWith(child.path))
+      const hasActiveChild = item.children.some(
+        child => child.path && route.path.startsWith(child.path)
+      )
       if (hasActiveChild) {
         openGroups.value.push(item.title)
       }
@@ -147,7 +149,7 @@ const toggleGroup = (title: string) => {
               <span>{{ item.title }}</span>
             </button>
           </li>
-          
+
           <!-- Group with children -->
           <li v-else class="pt-1 pb-1">
             <div
@@ -158,11 +160,15 @@ const toggleGroup = (title: string) => {
                 <el-icon :size="20" v-if="item.icon"><component :is="item.icon" /></el-icon>
                 <span>{{ item.title }}</span>
               </div>
-              <el-icon :size="14" class="transition-transform duration-200 text-gray-400" :class="{ 'rotate-180': openGroups.includes(item.title) }">
+              <el-icon
+                :size="14"
+                class="transition-transform duration-200 text-gray-400"
+                :class="{ 'rotate-180': openGroups.includes(item.title) }"
+              >
                 <ArrowDown />
               </el-icon>
             </div>
-            
+
             <ul v-show="openGroups.includes(item.title)" class="mt-1 space-y-1 overflow-hidden">
               <li v-for="child in item.children" :key="child.name">
                 <button
@@ -174,7 +180,12 @@ const toggleGroup = (title: string) => {
                   ]"
                   @click="handleMenuClick(child)"
                 >
-                  <span class="w-1.5 h-1.5 rounded-full" :class="isActive(child.path) ? 'bg-primary' : 'bg-transparent border border-gray-300'"></span>
+                  <span
+                    class="w-1.5 h-1.5 rounded-full"
+                    :class="
+                      isActive(child.path) ? 'bg-primary' : 'bg-transparent border border-gray-300'
+                    "
+                  ></span>
                   <span>{{ child.title }}</span>
                 </button>
               </li>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/constants/routes'
 import { Plus, Edit, Delete, Refresh, View, Suitcase } from '@/constants/icons'
@@ -11,14 +11,20 @@ import {
   POSITION_STATUS_LABELS,
   POSITION_STATUS_TAG_TYPE,
 } from './constants'
-import { MOCK_POSITIONS } from './mock'
-import { COLORS } from '@/constants/colors'
 import { positionService } from '@/services/position.service'
+import { COLORS } from '@/constants/colors'
+import { useToast } from '@/composables/useToast'
 import { usePagination } from '@/composables/usePagination'
-import { Status } from '@/constants/enums'
+import { Status, UserRole } from '@/constants/enums'
 import { TABLE_EMPTY_TEXT } from '@/constants'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const authStore = useAuthStore()
+const toast = useToast()
+
+// Role-based visibility
+const isHrManager = computed(() => authStore.user?.roles?.includes(UserRole.HR_MANAGER))
 
 // State
 const positions = ref<Position[]>([])
@@ -41,26 +47,20 @@ const {
   pageForApi,
 } = usePagination(fetchPositions)
 
-// Fetch positions (Temp override to show MOCK_POSITIONS)
+// Fetch positions from API
 async function fetchPositions() {
   isLoading.value = true
   try {
-    let filtered = [...MOCK_POSITIONS]
-    if (searchKeyword.value) {
-      const kw = searchKeyword.value.toLowerCase()
-      filtered = filtered.filter(
-        p => p.code.toLowerCase().includes(kw) || p.name.toLowerCase().includes(kw)
-      )
-    }
-    if (filterStatus.value) {
-      filtered = filtered.filter(p => p.status === filterStatus.value)
-    }
-    total.value = filtered.length
-    const start = pageForApi() * pageSize.value
-    positions.value = filtered.slice(start, start + pageSize.value)
-
-    // Bypass API call temporarily
-    // const response = await positionService.search(...)
+    const response = await positionService.search({
+      keyword: searchKeyword.value || undefined,
+      status: filterStatus.value || undefined,
+      page: pageForApi(),
+      size: pageSize.value,
+    })
+    positions.value = response.content
+    total.value = response.totalElements
+  } catch {
+    toast.loadError()
   } finally {
     isLoading.value = false
   }
@@ -118,7 +118,7 @@ onMounted(fetchPositions)
     <div class="flex items-center justify-between">
       <PageBreadcrumb :icon="Suitcase" :items="[{ label: 'Vị trí' }]" />
 
-      <el-button type="primary" @click="handleCreate">
+      <el-button v-if="isHrManager" type="primary" @click="handleCreate">
         <el-icon class="mr-1"><Plus /></el-icon>
         Thêm mới
       </el-button>
@@ -197,12 +197,12 @@ onMounted(fetchPositions)
                 <el-icon :size="16"><View /></el-icon>
               </el-button>
             </el-tooltip>
-            <el-tooltip content="Sửa" placement="top">
+            <el-tooltip v-if="isHrManager" content="Sửa" placement="top">
               <el-button type="warning" link @click="handleEdit(row)">
                 <el-icon :size="16"><Edit /></el-icon>
               </el-button>
             </el-tooltip>
-            <el-tooltip content="Xóa" placement="top">
+            <el-tooltip v-if="isHrManager" content="Xóa" placement="top">
               <el-button type="danger" link @click="handleDelete(row)">
                 <el-icon :size="16"><Delete /></el-icon>
               </el-button>
