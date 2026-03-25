@@ -1,7 +1,8 @@
 import { ElMessage } from 'element-plus'
 import type { ApiResponse, ApiError, ApiRequestOptions } from '@/types'
-import { ERROR_CODES, getErrorMessage } from '@/constants'
+import { ERROR_CODES, getErrorMessage, API_ENDPOINTS } from '@/constants'
 import { useAuthStore } from '@/stores/auth'
+import { useAuthService } from '@/services/auth.service'
 import { useLoadingStore } from './useLoading'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
@@ -9,6 +10,9 @@ const DEFAULT_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT_MS) || 8000
 
 // Store for tracking pending requests to abort duplicates
 const pendingRequests = new Map<string, AbortController>()
+
+// Shared promise for token refresh to handle concurrent 401s
+let refreshPromise: Promise<string | null> | null = null
 
 function getRequestKey(method: string, url: string): string {
   return `${method}:${url}`
@@ -23,6 +27,45 @@ function abortPendingRequest(key: string): void {
 }
 
 export function useApi() {
+  const authStore = useAuthStore()
+
+  /**
+   * Handles token refresh and returns the new token
+   * Uses a shared promise to prevent multiple refresh calls if multiple requests fail at once
+   */
+  async function handleTokenRefresh(): Promise<string | null> {
+    if (refreshPromise) return refreshPromise
+
+    const authService = useAuthService()
+    
+    refreshPromise = (async () => {
+      try {
+        const refreshToken = authStore.refreshToken
+        if (!refreshToken) {
+          return null
+        }
+
+        const response = await authService.refreshToken()
+        
+        if (response.status === 'success' && response.data.accessToken) {
+          authStore.setToken(response.data.accessToken)
+          if (response.data.refreshToken) {
+            authStore.setRefreshToken(response.data.refreshToken)
+          }
+          return response.data.accessToken
+        }
+        
+        return null
+      } catch {
+        return null
+      } finally {
+        refreshPromise = null
+      }
+    })()
+
+    return refreshPromise
+  }
+
   async function request<T>(
     method: 'GET' | 'POST' | 'PUT' | 'DELETE',
     endpoint: string,
@@ -88,11 +131,36 @@ export function useApi() {
       clearTimeout(timeoutId)
       pendingRequests.delete(requestKey)
 
-      // Handle unauthorized or forbidden (token expired) - logout BEFORE parsing body
+      // Handle unauthorized or forbidden (token expired)
       if (
         response.status === ERROR_CODES.UNAUTHORIZED ||
         response.status === ERROR_CODES.FORBIDDEN
       ) {
+        // If it's already a refresh token request, don't try to refresh again
+        if (endpoint === '/api/v1' + API_ENDPOINTS.AUTH.REFRESH || endpoint === API_ENDPOINTS.AUTH.REFRESH) {
+          authStore.logout()
+          throw {
+            status: 'error',
+            code: Number(response.status),
+            message: getErrorMessage(response.status),
+          } as ApiError
+        }
+
+        // Attempt to refresh token
+        const newToken = await handleTokenRefresh()
+        
+        if (newToken) {
+          // Retry the original request with the new token
+          return await request<T>(method, endpoint, data, {
+            ...options,
+            headers: {
+              ...options.headers,
+              'Authorization': `Bearer ${newToken}`
+            }
+          })
+        }
+
+        // If we reach here, refresh failed or returned null
         authStore.logout()
         const error: ApiError = {
           status: 'error',
