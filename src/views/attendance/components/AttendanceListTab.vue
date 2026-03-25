@@ -6,7 +6,7 @@ import { departmentService } from '@/services/department.services'
 import { attendanceService } from '@/services/attendance.service'
 import { usePagination } from '@/composables/usePagination'
 import { ElMessage } from 'element-plus'
-import { Refresh, Edit, Check, Close, Download, Upload } from '@element-plus/icons-vue'
+import { Refresh, Edit, Check, Close, Upload } from '@element-plus/icons-vue'
 import { COLORS } from '@/constants/colors'
 import { UserRole } from '@/constants/enums'
 import { TABLE_EMPTY_TEXT } from '@/constants'
@@ -107,17 +107,6 @@ const handleReset = () => {
   resetPage()
 }
 
-const handleExport = async () => {
-  try {
-    await attendanceService.exportMonthly({
-      month: attendanceStore.currentMonth,
-      deptId: filterDeptId.value,
-    })
-    ElMessage.success('Đang tải file Excel...')
-  } catch (error: unknown) {
-    ElMessage.error('Lỗi xuất file: ' + (error as Error).message)
-  }
-}
 
 // Inline edit flow
 const startEdit = (row: AttendanceMonthlyRow) => {
