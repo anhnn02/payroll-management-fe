@@ -228,8 +228,7 @@ const getStatusType = (status?: string) => {
       </div>
 
       <div class="ml-auto flex gap-2">
-        <el-button type="success" :icon="Download" @click="handleExport">Xuất Excel</el-button>
-        <el-button 
+        <el-button
           v-if="!isAccountant && !attendanceStore.isLocked"
           type="primary" 
           :icon="Upload" 

@@ -13,14 +13,17 @@ export interface SalaryPaymentCreateRequest {
 }
 
 export interface SalaryPaymentCreateResponse {
-  paymentCount: number
-  createdIds: string[]
+  count: number
+  message: string
 }
 
 export interface SalaryPaymentSearchRequest {
+  keyword?: string
   monthNum?: number
   yearNum?: number
   approvedBy?: string
+  page?: number
+  size?: number
 }
 
 export interface SalaryPayment {

@@ -17,16 +17,15 @@ export interface SalaryFactor {
 
 export interface SalaryFactorUpdateRequest {
   code: string
-  name: string
   value: number
 }
 
 export interface TaxConfig {
   id: string
   code: string
+  taxRate: number
   personalDeduction: number
   dependentDeduction: number
-  taxRate: number
   createdBy?: string
   createdAt?: string
   updatedBy?: string
@@ -40,34 +39,11 @@ export interface InsuranceConfig {
   bhxhRate: number
   bhtnRate: number
   bhytRate: number
+  effectiveDate?: string
   createdBy?: string
   createdAt?: string
   updatedBy?: string
   updatedAt?: string
-}
-
-export interface AllowanceConfig {
-  id: string
-  code: string
-  name: string
-  description?: string
-  defaultAmount?: number
-  status: 'ACTIVE' | 'INACTIVE'
-}
-
-export interface AllowanceConfigCreateRequest {
-  code: string
-  name: string
-  description?: string
-  defaultAmount?: number
-  status: 'ACTIVE' | 'INACTIVE'
-}
-
-export interface AllowanceConfigUpdateRequest {
-  name: string
-  description?: string
-  defaultAmount?: number
-  status: 'ACTIVE' | 'INACTIVE'
 }
 
 export interface Holiday {
@@ -114,34 +90,6 @@ export const configService = {
   async getInsuranceConfig(options?: ApiRequestOptions): Promise<ApiResponse<InsuranceConfig[]>> {
     const api = useApi()
     return api.get<InsuranceConfig[]>(API_ENDPOINTS.CONFIG.INSURANCE, options)
-  },
-
-  // ===== Allowance Config =====
-  async getAllowances(options?: ApiRequestOptions): Promise<ApiResponse<AllowanceConfig[]>> {
-    const api = useApi()
-    return api.get<AllowanceConfig[]>(API_ENDPOINTS.CONFIG.ALLOWANCES, options)
-  },
-
-  async createAllowance(
-    data: AllowanceConfigCreateRequest,
-    options?: ApiRequestOptions
-  ): Promise<ApiResponse<AllowanceConfig>> {
-    const api = useApi()
-    return api.post<AllowanceConfig>(API_ENDPOINTS.CONFIG.ALLOWANCES, data, options)
-  },
-
-  async updateAllowance(
-    id: string,
-    data: AllowanceConfigUpdateRequest,
-    options?: ApiRequestOptions
-  ): Promise<ApiResponse<AllowanceConfig>> {
-    const api = useApi()
-    return api.put<AllowanceConfig>(API_ENDPOINTS.CONFIG.ALLOWANCE_DETAIL(id), data, options)
-  },
-
-  async deleteAllowance(id: string, options?: ApiRequestOptions): Promise<ApiResponse<null>> {
-    const api = useApi()
-    return api.del<null>(API_ENDPOINTS.CONFIG.ALLOWANCE_DETAIL(id), options)
   },
 
   // ===== Holidays =====

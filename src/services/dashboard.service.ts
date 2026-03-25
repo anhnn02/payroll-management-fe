@@ -3,59 +3,65 @@ import { API_ENDPOINTS } from '@/constants'
 import type { ApiResponse, ApiRequestOptions } from '@/types/api'
 import { useAuthStore } from '@/stores/auth'
 
+// ===== Dashboard PYC Types (GET /reports/dashboard-pyc) =====
+
 export interface DashboardAlert {
   type: string
+  severity: 'INFO' | 'WARN' | 'ERROR' | string
   message: string
-  severity: 'info' | 'warning' | 'error' | 'success' | string
-  navigateTo: string
+  link?: string
+  roles?: string[]
 }
 
-export interface DashboardKpi {
-  employeeActive: number
+export interface DashboardKpis {
+  activeEmployees: number
   payrollFund: number | null
-  totalOT: number | null
-  unpaidCount: number
+  totalOtHours: number | null
+  unpaidPayrollCount: number
 }
 
-export interface TrendChartData {
-  monthYear: string
-  totalFund: number
+export interface MonthlyPoint {
+  month: string
+  amount: number
 }
 
-export interface DeptPieChartData {
+export interface DeptAmount {
   deptId: string
   deptName: string
-  totalFund: number
-  percentage: number
+  amount: number
 }
 
-export interface DeptOTBarChartData {
+export interface DashboardCharts {
+  payrollTrend6m: MonthlyPoint[]
+  payrollByDept: DeptAmount[]
+  otByDept: DeptAmount[]
+}
+
+export interface DashboardQuickLink {
+  label: string
+  url: string
+  roles?: string[]
+}
+
+export interface DashboardDeptStatus {
   deptId: string
   deptName: string
-  totalOTHours: number
-}
-
-export interface DeptStatusTableData {
-  deptName: string
-  totalEmp: number
-  hasAttendance: number
-  noAttendance: number
-  totalOT: number
-  payrollStatus: 'PAID' | 'UNPAID' | 'NONE' | string
+  activeEmployeeCount: number
+  avgWorkDays: number
+  avgOtHours: number
+  status: 'OK' | 'THIEU_CHAM_CONG' | 'CHO_DUYET_LUONG' | string
 }
 
 export interface DashboardPycResponse {
-  kpi: DashboardKpi
+  month: string
   alerts: DashboardAlert[]
-  trendChart: TrendChartData[]
-  deptPieChart: DeptPieChartData[]
-  deptOTBarChart: DeptOTBarChartData[]
-  deptStatusTable: DeptStatusTableData[]
-  currentMonth: string
-  generatedAt: string
+  kpis: DashboardKpis
+  charts: DashboardCharts
+  quickLinks: DashboardQuickLink[]
+  deptStatus: DashboardDeptStatus[]
 }
 
-// ===== Report Types =====
+// ===== Dashboard Overview Types (GET /reports/dashboard) =====
 
 export interface DashboardOverviewResponse {
   totalEmployees: number
@@ -68,10 +74,12 @@ export interface DashboardOverviewResponse {
   totalOtCost: number
 }
 
+// ===== Report Types =====
+
 export interface ReportCreateRequest {
   monthNum: number
   yearNum: number
-  deptId?: number
+  deptId?: string
   format: 'EXCEL' | 'PDF'
 }
 
@@ -122,7 +130,6 @@ export const dashboardService = {
 
   /**
    * Export báo cáo trực tiếp (GET /reports/export)
-   * Response: File binary (Excel hoặc PDF)
    */
   async exportReport(params: {
     monthNum: number

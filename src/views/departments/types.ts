@@ -19,6 +19,7 @@ export type DepartmentStatus = 'ACTIVE' | 'INACTIVE'
 
 // Search request (POST /departments/search)
 export interface DepartmentSearchRequest {
+  keyword?: string
   code?: string
   name?: string
   status?: string

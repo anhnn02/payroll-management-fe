@@ -38,8 +38,11 @@ export const attendanceService = {
    */
   async getMonthly(params: AttendanceMonthlyRequest): Promise<ApiResponse<AttendanceMonthlyResponse>> {
     const api = useApi()
-    // Chuyển đối tượng params thành query string
-    const query = new URLSearchParams(params as unknown as Record<string, string>).toString()
+    const cleanParams: Record<string, string> = {}
+    if (params.month) cleanParams.month = params.month
+    if (params.keyword) cleanParams.keyword = params.keyword
+    if (params.deptId) cleanParams.deptId = params.deptId
+    const query = new URLSearchParams(cleanParams).toString()
     return api.get<AttendanceMonthlyResponse>(`${API_ENDPOINTS.ATTENDANCE.MONTHLY}?${query}`)
   },
 

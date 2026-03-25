@@ -5,15 +5,13 @@ import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import SalaryFactorTab from './tabs/SalaryFactorTab.vue'
 import TaxConfigTab from './tabs/TaxConfigTab.vue'
 import InsuranceConfigTab from './tabs/InsuranceConfigTab.vue'
-import AllowanceConfigTab from './tabs/AllowanceConfigTab.vue'
 import HolidayTab from './tabs/HolidayTab.vue'
+import { useAuthStore } from '@/stores/auth'
+import { UserRole } from '@/constants/enums'
 
-// TODO: Replace with real auth check from useAuthStore
-const userRole = ref<'HR_MANAGER' | 'ACCOUNTANT'>('HR_MANAGER')
+const authStore = useAuthStore()
+const isHrManager = computed(() => authStore.user?.roles?.includes(UserRole.HR_MANAGER))
 
-const isHrManager = computed(() => userRole.value === 'HR_MANAGER')
-
-// Default tab: HR_MANAGER sees salary-factors, ACCOUNTANT sees tax
 const activeTab = ref(isHrManager.value ? 'salary-factors' : 'tax')
 </script>
 
@@ -43,12 +41,7 @@ const activeTab = ref(isHrManager.value ? 'salary-factors' : 'tax')
           <InsuranceConfigTab />
         </el-tab-pane>
 
-        <!-- Tab 4: Phụ cấp — HR_MANAGER only -->
-        <el-tab-pane v-if="isHrManager" label="Phụ cấp" name="allowance">
-          <AllowanceConfigTab :is-hr-manager="isHrManager" />
-        </el-tab-pane>
-
-        <!-- Tab 5: Ngày lễ — HR_MANAGER only -->
+        <!-- Tab 4: Ngày lễ — HR_MANAGER only -->
         <el-tab-pane v-if="isHrManager" label="Ngày lễ" name="holidays">
           <HolidayTab :is-hr-manager="isHrManager" />
         </el-tab-pane>

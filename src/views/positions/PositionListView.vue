@@ -130,7 +130,7 @@ onMounted(fetchPositions)
 
         <div class="w-40">
           <label class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
-          <el-select v-model="filterStatus" placeholder="Tất cả" clearable class="w-full">
+          <el-select v-model="filterStatus" placeholder="Tất cả" clearable class="w-full" @change="handleSearch">
             <el-option
               v-for="option in POSITION_STATUS_OPTIONS"
               :key="option.value"

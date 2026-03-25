@@ -149,14 +149,43 @@ const handleRemoveEmployee = (emp: Employee) => {
 
 const onConfirmRemoveEmployee = async () => {
   if (!removingEmployee.value) return
-  await employeeService.update(removingEmployee.value.id, { positionId: '' })
+  const emp = removingEmployee.value
+  await employeeService.update(emp.id, {
+    code: emp.code,
+    name: emp.name,
+    dob: emp.dob,
+    gender: emp.gender,
+    idCard: emp.idCard,
+    email: emp.email,
+    phone: emp.phone,
+    address: emp.address,
+    deptId: emp.deptId,
+    positionId: '',
+    hireDate: emp.hireDate,
+    status: emp.status,
+  })
   await fetchEmployees()
 }
 
 const handleEmployeesAdded = async (addedEmployees: Employee[]) => {
   try {
     await Promise.all(
-      addedEmployees.map(emp => employeeService.update(emp.id, { positionId: positionId.value }))
+      addedEmployees.map(emp =>
+        employeeService.update(emp.id, {
+          code: emp.code,
+          name: emp.name,
+          dob: emp.dob,
+          gender: emp.gender,
+          idCard: emp.idCard,
+          email: emp.email,
+          phone: emp.phone,
+          address: emp.address,
+          deptId: emp.deptId,
+          positionId: positionId.value,
+          hireDate: emp.hireDate,
+          status: emp.status,
+        })
+      )
     )
     toast.updateSuccess()
     await fetchEmployees()

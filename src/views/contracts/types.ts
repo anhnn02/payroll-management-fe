@@ -1,4 +1,4 @@
-// Contract types - aligned with BE API v2
+// Contract types - aligned with BE API v3
 
 export type ContractTypeValue = 'PROBATION' | 'OFFICIAL' | 'SEASONAL'
 export type ContractStatusType = 'ACTIVE' | 'EXPIRED'
@@ -13,7 +13,6 @@ export interface Contract {
   salaryType: SalaryTypeValue
   baseSalary: number
   offerSalary: number
-  factorId?: string
   contractType: ContractTypeValue
   status: ContractStatusType
   fileUrl?: string
@@ -29,8 +28,10 @@ export interface Contract {
 
 // Search request (POST /contracts/search)
 export interface ContractSearchRequest {
+  keyword?: string
   contractNumber?: string
   empId?: string
+  contractType?: string
   status?: string
   startDateFrom?: string
   startDateTo?: string
@@ -48,7 +49,6 @@ export interface ContractFormData {
   salaryType: string
   baseSalary: number
   offerSalary: number
-  factorId?: string
   contractType: string
   status: string
   terms?: string

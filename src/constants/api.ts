@@ -74,8 +74,6 @@ export const API_ENDPOINTS = {
     SALARY_FACTORS: '/config/salary-factors',
     TAX: '/config/tax',
     INSURANCE: '/config/insurance',
-    ALLOWANCES: '/config/allowances',
-    ALLOWANCE_DETAIL: (id: string) => `/config/allowances/${id}`,
     HOLIDAYS: '/config/holidays',
     HOLIDAY_DETAIL: (id: string) => `/config/holidays/${id}`,
   },

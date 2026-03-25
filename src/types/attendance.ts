@@ -10,7 +10,6 @@ export interface AttendanceCreateRequest {
   attendanceDate: string // format YYYY-MM-DD
   startTime: string // format HH:mm
   endTime: string // format HH:mm
-  lunchBreakHours: number
   workHours: number
   normalHours: number
   otHours: number
@@ -50,7 +49,6 @@ export interface AttendanceResponse {
   attendanceDate: string
   startTime: string | null
   endTime: string | null
-  lunchBreakHours: number
   workHours: number
   normalHours: number
   otHours: number

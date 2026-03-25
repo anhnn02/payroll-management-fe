@@ -20,7 +20,6 @@ import { UserRole } from '@/constants/enums'
 import { COLORS } from '@/constants/colors'
 import { payrollService } from '@/services/payroll.service'
 import { employeeService } from '@/services/employee.service'
-import { departmentService } from '@/services/department.services'
 import { usePagination } from '@/composables/usePagination'
 import { useAuthStore } from '@/stores/auth'
 import { TABLE_EMPTY_TEXT } from '@/constants'
@@ -37,13 +36,9 @@ const isLoading = ref(false)
 const searchKeyword = ref('')
 const filterMonth = ref<number | undefined>(undefined)
 const filterYear = ref<number | undefined>(2026)
-const filterDeptId = ref('')
 const filterStatus = ref('')
 const showDeleteDialog = ref(false)
 const deletingPayroll = ref<Payroll | null>(null)
-
-// Department options for filter dropdown
-const departmentOptions = ref<{ value: string; label: string }[]>([])
 
 // ========== Calculate Dialog State ==========
 const showCalculateDialog = ref(false)
@@ -81,18 +76,6 @@ const {
 // ========== Fetch Functions ==========
 
 // Fetch departments for filter dropdown
-async function fetchDepartments() {
-  try {
-    const response = await departmentService.search({ page: 0, size: 200 })
-    departmentOptions.value = (response.content || []).map((d: { id: string; name: string }) => ({
-      value: d.id,
-      label: d.name,
-    }))
-  } catch {
-    departmentOptions.value = []
-  }
-}
-
 // Fetch employee options for calculate dialog
 async function fetchEmployeeOptions() {
   try {
@@ -110,6 +93,7 @@ async function fetchPayrolls() {
   isLoading.value = true
   try {
     const response = await payrollService.search({
+      keyword: searchKeyword.value || undefined,
       monthNum: filterMonth.value,
       yearNum: filterYear.value,
       status: filterStatus.value || undefined,
@@ -155,7 +139,6 @@ const handleReset = () => {
   searchKeyword.value = ''
   filterMonth.value = undefined
   filterYear.value = 2026
-  filterDeptId.value = ''
   filterStatus.value = ''
   resetPage()
   fetchPayrolls()
@@ -187,8 +170,8 @@ const handleCalculate = async () => {
       ElMessage.success('Tính lương thành công!')
       fetchPayrolls()
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } }
-      ElMessage.error(err.response?.data?.message || 'Lỗi khi tính lương')
+      const err = error as { message?: string }
+      ElMessage.error(err.message || 'Lỗi khi tính lương')
     } finally {
       isCalculating.value = false
     }
@@ -197,7 +180,6 @@ const handleCalculate = async () => {
 
 // ========== Lifecycle ==========
 onMounted(() => {
-  fetchDepartments()
   fetchEmployeeOptions()
   fetchPayrolls()
 })
@@ -247,24 +229,6 @@ onMounted(() => {
             :controls="false"
             class="w-full"
           />
-        </div>
-
-        <div class="w-40">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Phòng ban</label>
-          <el-select
-            v-model="filterDeptId"
-            placeholder="Tất cả"
-            clearable
-            filterable
-            class="w-full"
-          >
-            <el-option
-              v-for="option in departmentOptions"
-              :key="option.value"
-              :label="option.label"
-              :value="option.value"
-            />
-          </el-select>
         </div>
 
         <div class="w-40">

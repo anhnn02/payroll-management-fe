@@ -1,4 +1,4 @@
-// Employee types - aligned with BE API v2
+// Employee types - aligned with BE API v3
 
 export type EmployeeStatus = 'ACTIVE' | 'INACTIVE'
 export type Gender = 'MALE' | 'FEMALE' | 'OTHER'
@@ -9,6 +9,10 @@ export interface Employee {
   name: string
   dob: string // Format: YYYY-MM-DD
   gender: Gender
+  idCard: string // CCCD/CMND
+  email: string
+  phone?: string
+  address?: string
   deptId: string
   positionId: string
   hireDate: string // Format: YYYY-MM-DD
@@ -17,17 +21,21 @@ export interface Employee {
   createdAt?: string
   updatedBy?: string
   updatedAt?: string
-  // Joined fields (BE may populate)
+  // Joined fields — chỉ có trong POST /employees/search
   deptName?: string
   positionName?: string
 }
 
-// Form data type for create/update (EmployeeRequest)
+// Create/Update request (EmployeeRequest)
 export interface EmployeeFormData {
   code?: string
   name: string
   dob: string
   gender: Gender | string
+  idCard: string
+  email: string
+  phone?: string
+  address?: string
   deptId: string
   positionId: string
   hireDate: string

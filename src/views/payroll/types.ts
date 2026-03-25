@@ -9,6 +9,7 @@ export interface Payroll {
   offerSalary: number
   workingDays: number
   standardDays: number
+  workingSalary: number
   allowance: number
   rewardAmount: number
   penaltyAmount: number
@@ -31,6 +32,7 @@ export interface Payroll {
 
 // Search request (POST /payroll/search)
 export interface PayrollSearchRequest {
+  keyword?: string
   empId?: string
   status?: string
   monthNum?: number
