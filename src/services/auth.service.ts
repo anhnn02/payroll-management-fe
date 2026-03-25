@@ -1,6 +1,7 @@
 import { useApi } from '@/composables'
 import { API_ENDPOINTS } from '@/constants'
-import type { LoginCredentials, AuthResponse, User } from '@/types'
+import type { LoginCredentials, AuthResponse, UserInfoResponse } from '@/types'
+import { useAuthStore } from '@/stores/auth'
 
 export function useAuthService() {
   const api = useApi()
@@ -14,11 +15,14 @@ export function useAuthService() {
   }
 
   async function refreshToken() {
-    return api.post<AuthResponse>(API_ENDPOINTS.AUTH.REFRESH)
+    const authStore = useAuthStore()
+    return api.post<AuthResponse>(API_ENDPOINTS.AUTH.REFRESH, {
+      refreshToken: authStore.refreshToken,
+    })
   }
 
   async function getMe() {
-    return api.get<User>(API_ENDPOINTS.AUTH.ME)
+    return api.get<UserInfoResponse>(API_ENDPOINTS.AUTH.ME)
   }
 
   return {

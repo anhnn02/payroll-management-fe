@@ -8,7 +8,6 @@ import { useToast } from '@/composables'
 import { formatDate } from '@/utils/formatContent'
 import {
   configService,
-  MOCK_HOLIDAYS,
   type Holiday,
   type HolidayCreateRequest,
 } from '@/services/config.service'
@@ -48,18 +47,25 @@ const formRules: FormRules = {
 
 // ===== CRUD =====
 
+const allHolidays = ref<Holiday[]>([])
+
 async function fetchData() {
   isLoading.value = true
   try {
-    const res = await configService.getHolidays(selectedYear.value)
-    holidays.value = res.data as Holiday[]
-  } catch {
-    // Filter mock by year
-    holidays.value = MOCK_HOLIDAYS.filter(h => h.holidayDate.startsWith(String(selectedYear.value)))
-    toast.warning('Không thể tải dữ liệu từ server, đang dùng dữ liệu mẫu')
+    const res = await configService.getHolidays()
+    allHolidays.value = res.data as Holiday[]
+    filterByYear()
+  } catch (err) {
+    toast.handleApiError(err, 'Không thể tải dữ liệu ngày lễ')
   } finally {
     isLoading.value = false
   }
+}
+
+function filterByYear() {
+  holidays.value = allHolidays.value.filter(h =>
+    h.holidayDate.startsWith(String(selectedYear.value))
+  )
 }
 
 function handleCreate() {
@@ -99,9 +105,9 @@ async function handleSubmit() {
   }
 }
 
-// Watch year change → reload
+// Watch year change → filter client-side
 watch(selectedYear, () => {
-  fetchData()
+  filterByYear()
 })
 
 onMounted(() => {

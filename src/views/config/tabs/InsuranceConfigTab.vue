@@ -6,7 +6,6 @@ import { ContractTypeLabel, ContractType } from '@/constants/enums'
 import { useToast } from '@/composables'
 import {
   configService,
-  MOCK_INSURANCE_CONFIG,
   type InsuranceConfig,
 } from '@/services/config.service'
 
@@ -19,9 +18,8 @@ async function fetchData() {
   try {
     const res = await configService.getInsuranceConfig()
     insuranceConfig.value = res.data as InsuranceConfig[]
-  } catch {
-    insuranceConfig.value = [...MOCK_INSURANCE_CONFIG]
-    toast.warning('Không thể tải dữ liệu từ server, đang dùng dữ liệu mẫu')
+  } catch (err) {
+    toast.handleApiError(err, 'Không thể tải dữ liệu bảo hiểm')
   } finally {
     isLoading.value = false
   }

@@ -9,7 +9,6 @@ import { useToast } from '@/composables'
 import { formatCurrency } from '@/utils/formatContent'
 import {
   configService,
-  MOCK_ALLOWANCES,
   type AllowanceConfig,
   type AllowanceConfigCreateRequest,
   type AllowanceConfigUpdateRequest,
@@ -87,9 +86,8 @@ async function fetchData() {
   try {
     const res = await configService.getAllowances()
     allAllowances.value = res.data as AllowanceConfig[]
-  } catch {
-    allAllowances.value = [...MOCK_ALLOWANCES]
-    toast.warning('Không thể tải dữ liệu từ server, đang dùng dữ liệu mẫu')
+  } catch (err) {
+    toast.handleApiError(err, 'Không thể tải dữ liệu phụ cấp')
   } finally {
     isLoading.value = false
   }

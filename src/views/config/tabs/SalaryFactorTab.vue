@@ -5,7 +5,6 @@ import { TABLE_EMPTY_TEXT } from '@/constants'
 import { useToast } from '@/composables'
 import {
   configService,
-  MOCK_SALARY_FACTORS,
   type SalaryFactor,
   type SalaryFactorUpdateRequest,
 } from '@/services/config.service'
@@ -23,9 +22,8 @@ async function fetchData() {
   try {
     const res = await configService.getSalaryFactors()
     salaryFactors.value = res.data as SalaryFactor[]
-  } catch {
-    salaryFactors.value = [...MOCK_SALARY_FACTORS]
-    toast.warning('Không thể tải dữ liệu từ server, đang dùng dữ liệu mẫu')
+  } catch (err) {
+    toast.handleApiError(err, 'Không thể tải dữ liệu hệ số lương')
   } finally {
     isLoading.value = false
   }

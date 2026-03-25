@@ -1,60 +1,71 @@
-// Payroll types - aligned with BE API (FE-PAYROLL-GUIDE.md Section 2)
+// Payroll types - aligned with BE API v2
 
 export interface Payroll {
   id: string
   empId: string
-  employeeName?: string // BE trả thêm (join employee)
-  employeeCode?: string // BE trả thêm (join employee)
-  departmentName?: string // BE trả thêm (join department)
-  monthNum: number // 1-12
+  monthNum: number
   yearNum: number
-  basicSalary: number // Lương cơ bản (tính BHXH)
-  offerSalary: number // Lương thỏa thuận (từ HĐ)
-  workingDays: number // Số ngày làm thực tế
-  standardDays: number // Số công chuẩn (26)
-  workingSalary: number // Lương theo công = offer * (actual/standard)
-  allowance: number // Tổng phụ cấp
-  rewardAmount: number // Tổng thưởng
-  penaltyAmount: number // Tổng phạt
-  otHours: number // Tổng giờ tăng ca
-  otSalary: number // Lương tăng ca
-  bhxhAmount: number // BHXH (10%)
-  bhtnAmount: number // BHTN (5%)
-  bhytAmount: number // BHYT (5%)
-  taxAmount: number // Thuế TNCN
-  totalSalary: number // Lương thực nhận
+  basicSalary: number
+  offerSalary: number
+  workingDays: number
+  standardDays: number
+  allowance: number
+  rewardAmount: number
+  penaltyAmount: number
+  otHours: number
+  otSalary: number
+  bhxhAmount: number
+  bhtnAmount: number
+  bhytAmount: number
+  taxAmount: number
+  totalSalary: number
   grossNet: 'GROSS' | 'NET'
   status: 'UNPAID' | 'PAID'
   calculatedAt: string
   calculatedBy: string
-  createdAt: string
-  updatedAt: string
+  // Joined fields (FE may use)
+  employeeName?: string
+  employeeCode?: string
+  departmentName?: string
 }
 
 // Search request (POST /payroll/search)
 export interface PayrollSearchRequest {
-  keyword?: string // Tìm theo mã NV, tên NV
-  monthNum?: number // Filter theo tháng (1-12)
-  yearNum?: number // Filter theo năm
-  deptId?: string // Filter theo phòng ban
-  status?: string // UNPAID | PAID
-  page: number // 0-indexed
-  size: number // Default: 10
-  sort?: string // VD: "totalSalary,desc"
+  empId?: string
+  status?: string
+  monthNum?: number
+  yearNum?: number
+  page: number
+  size: number
+  sort?: string
 }
 
-// Calculate request (POST /payroll/calculate)
+// Calculate request (POST /payroll/calculate) — returns Void
+// Also used for PUT /payroll/{id} update
 export interface PayrollCalculateRequest {
-  employeeCode: string // Mã nhân viên (VD: "NV20260101001")
-  monthYear: string // Format: "YYYY-MM" (VD: "2026-01")
+  employeeCode: string
+  monthYear: string // Format: "YYYY-MM"
 }
 
-// Update request — manual adjustment (PUT /payroll/{id})
-export interface PayrollUpdateRequest {
-  workingDays?: number // Điều chỉnh ngày công
-  allowance?: number // Điều chỉnh phụ cấp
-  rewardAmount?: number // Điều chỉnh thưởng
-  penaltyAmount?: number // Điều chỉnh phạt
-  otHours?: number // Điều chỉnh giờ OT
-  note?: string // Lý do điều chỉnh
+// Breakdown request (POST /payroll/breakdown) — uses PayrollCalculateRequest
+export type PayrollBreakdownRequest = PayrollCalculateRequest
+
+// Breakdown response
+export interface PayrollBreakdown {
+  employeeCode: string
+  monthYear: string
+  workingSalary: number
+  allowance: number
+  reward: number
+  penalty: number
+  otHours: number
+  otSalary: number
+  bhxh: number
+  bhtn: number
+  bhyt: number
+  tax: number
+  totalSalary: number
 }
+
+// Update request — same as PayrollCalculateRequest per v2
+export type PayrollUpdateRequest = PayrollCalculateRequest

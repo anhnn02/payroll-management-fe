@@ -12,7 +12,7 @@ import DashboardQuickLinks from './components/DashboardQuickLinks.vue'
 import { Refresh } from '@element-plus/icons-vue'
 
 const authStore = useAuthStore()
-const userRole = computed(() => authStore.user?.role || '')
+const userRole = computed(() => authStore.user?.roles?.[0] || '')
 
 const loading = ref(true)
 const dashboardData = ref<DashboardPycResponse | null>(null)

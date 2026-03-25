@@ -4,7 +4,7 @@ import { COLORS } from '@/constants/colors'
 import { TABLE_EMPTY_TEXT } from '@/constants'
 import { useToast } from '@/composables'
 import { formatCurrency } from '@/utils/formatContent'
-import { configService, MOCK_TAX_CONFIG, type TaxConfig } from '@/services/config.service'
+import { configService, type TaxConfig } from '@/services/config.service'
 
 const toast = useToast()
 const isLoading = ref(false)
@@ -15,9 +15,8 @@ async function fetchData() {
   try {
     const res = await configService.getTaxConfig()
     taxConfig.value = res.data as TaxConfig[]
-  } catch {
-    taxConfig.value = [...MOCK_TAX_CONFIG]
-    toast.warning('Không thể tải dữ liệu từ server, đang dùng dữ liệu mẫu')
+  } catch (err) {
+    toast.handleApiError(err, 'Không thể tải dữ liệu thuế TNCN')
   } finally {
     isLoading.value = false
   }
@@ -59,14 +58,14 @@ onMounted(() => {
           <span class="font-bold text-red-600">{{ row.taxRate }}%</span>
         </template>
       </el-table-column>
-      <el-table-column label="Thu nhập tối thiểu" min-width="160" align="right">
+      <el-table-column label="Giảm trừ bản thân" min-width="160" align="right">
         <template #default="{ row }">
-          {{ formatIncome(row.minIncome) }}
+          {{ formatIncome(row.personalDeduction) }}
         </template>
       </el-table-column>
-      <el-table-column label="Thu nhập tối đa" min-width="160" align="right">
+      <el-table-column label="Giảm trừ người phụ thuộc" min-width="160" align="right">
         <template #default="{ row }">
-          {{ formatIncome(row.maxIncome) }}
+          {{ formatIncome(row.dependentDeduction) }}
         </template>
       </el-table-column>
     </el-table>

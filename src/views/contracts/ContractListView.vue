@@ -52,8 +52,7 @@ async function fetchContracts() {
   isLoading.value = true
   try {
     const response = await contractService.search({
-      keyword: searchKeyword.value || undefined,
-      contractType: filterContractType.value || undefined,
+      contractNumber: searchKeyword.value || undefined,
       status: filterStatus.value || undefined,
       page: pageForApi(),
       size: pageSize.value,

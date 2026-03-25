@@ -59,15 +59,15 @@ const {
   pageForApi,
 } = usePagination(fetchEmployees)
 
-// Fetch employees (Temp override to show MOCK_EMPLOYEES)
+// Fetch employees
 async function fetchEmployees() {
   isLoading.value = true
   try {
     const response = await employeeService.search({
       keyword: searchKeyword.value || undefined,
       status: filterStatus.value || undefined,
-      deptId: filterDeptId.value || undefined,
-      positionId: filterPositionId.value || undefined,
+      deptIds: filterDeptId.value ? [filterDeptId.value] : undefined,
+      positionIds: filterPositionId.value ? [filterPositionId.value] : undefined,
       page: pageForApi(),
       size: pageSize.value,
     })

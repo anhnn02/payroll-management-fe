@@ -10,7 +10,7 @@ import { UserRole } from '@/constants/enums'
 
 const attendanceStore = useAttendanceStore()
 const authStore = useAuthStore()
-const isAccountant = computed(() => authStore.user?.role === UserRole.ACCOUNTANT)
+const isAccountant = computed(() => authStore.user?.roles?.includes(UserRole.ACCOUNTANT))
 const activeTab = ref('manage')
 
 const currentMonth = computed({

@@ -2,16 +2,25 @@ import { useApi } from '@/composables/useApi'
 import { API_ENDPOINTS } from '@/constants'
 import type { ApiResponse, PaginatedResponse } from '@/types/api'
 import { useAuthStore } from '@/stores/auth'
-import type { 
-  AttendanceSearchRequest, 
+import type {
+  AttendanceCreateRequest,
+  AttendanceSearchRequest,
   AttendanceResponse,
   AttendanceMonthlyRequest,
   AttendanceMonthlyResponse,
   AttendanceMonthlyUpdateRequest,
-  AttendanceImportResultResponse
+  AttendanceImportResultResponse,
 } from '@/types/attendance'
 
 export const attendanceService = {
+  /**
+   * Tạo bản ghi chấm công (POST /attendance)
+   */
+  async create(data: AttendanceCreateRequest): Promise<ApiResponse<AttendanceResponse>> {
+    const api = useApi()
+    return api.post<AttendanceResponse>(API_ENDPOINTS.ATTENDANCE.CREATE, data)
+  },
+
   /**
    * Tìm kiếm chấm công cơ bản (POST /attendance/search)
    */
@@ -35,15 +44,39 @@ export const attendanceService = {
   },
 
   /**
-   * Cập nhật chấm công tháng cho 1 NV (PUT /attendance/monthly/:empId?month=...)
+   * Cập nhật chấm công tháng cho 1 NV (PUT /attendance/monthly/:empId?month=YYYY-MM)
    */
   async updateMonthly(
-    empId: string, 
-    month: string, 
+    empId: string,
+    month: string,
     data: AttendanceMonthlyUpdateRequest
   ): Promise<ApiResponse<void>> {
     const api = useApi()
     return api.put<void>(`${API_ENDPOINTS.ATTENDANCE.MONTHLY_UPDATE(empId)}?month=${month}`, data)
+  },
+
+  /**
+   * Chi tiết 1 bản ghi chấm công (GET /attendance/:id)
+   */
+  async getById(id: string): Promise<ApiResponse<AttendanceResponse>> {
+    const api = useApi()
+    return api.get<AttendanceResponse>(API_ENDPOINTS.ATTENDANCE.DETAIL(id))
+  },
+
+  /**
+   * Cập nhật bản ghi chấm công (PUT /attendance/:id)
+   */
+  async update(id: string, data: AttendanceCreateRequest): Promise<ApiResponse<AttendanceResponse>> {
+    const api = useApi()
+    return api.put<AttendanceResponse>(API_ENDPOINTS.ATTENDANCE.UPDATE(id), data)
+  },
+
+  /**
+   * Xóa bản ghi chấm công (DELETE /attendance/:id)
+   */
+  async delete(id: string): Promise<ApiResponse<null>> {
+    const api = useApi()
+    return api.del<null>(API_ENDPOINTS.ATTENDANCE.DELETE(id))
   },
 
   /**

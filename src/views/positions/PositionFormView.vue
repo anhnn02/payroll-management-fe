@@ -16,9 +16,7 @@ import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import AddEmployeeDialog from './components/AddEmployeeDialog.vue'
 import type { Position, PositionFormData } from './types'
 import type { Employee } from '@/views/employees/types'
-import { formatCurrency, handleCurrencyInput, parseCurrency } from '@/utils/formatContent'
 import { generateCode } from '@/utils'
-import { createCurrencyRules, currencyGreaterThan } from '@/utils/validation'
 
 const router = useRouter()
 const toast = useToast()
@@ -47,14 +45,9 @@ const form = ref<PositionFormData>({
   code: '',
   name: '',
   description: '',
-  minSalary: 0,
-  maxSalary: 0,
+  level: '',
   status: Status.ACTIVE,
 })
-
-// Display fields (string formatted: "25,000,000")
-const minSalaryDisplay = ref('')
-const maxSalaryDisplay = ref('')
 
 const detailData = ref<Position | null>(null)
 const employees = ref<Employee[]>([])
@@ -65,29 +58,20 @@ const rules = {
     { required: true, message: 'Vui lòng nhập tên vị trí', trigger: 'blur' },
     { max: 100, message: 'Tên vị trí tối đa 100 ký tự', trigger: 'blur' },
   ],
-  minSalary: createCurrencyRules('Lương tối thiểu'),
-  maxSalary: [
-    ...createCurrencyRules('Lương tối đa'),
-    currencyGreaterThan(() => minSalaryDisplay.value, 'Lương tối đa phải lớn hơn lương tối thiểu'),
-  ],
   status: [{ required: true, message: 'Vui lòng chọn trạng thái', trigger: 'change' }],
 }
 
-const onMinSalaryInput = (val: string) => {
-  minSalaryDisplay.value = handleCurrencyInput(val)
-  form.value.minSalary = parseCurrency(val)
-}
-
-const onMaxSalaryInput = (val: string) => {
-  maxSalaryDisplay.value = handleCurrencyInput(val)
-  form.value.maxSalary = parseCurrency(val)
-}
+const levelOptions = [
+  { value: 'JUNIOR', label: 'Junior' },
+  { value: 'MIDDLE', label: 'Middle' },
+  { value: 'SENIOR', label: 'Senior' },
+]
 
 const fetchEmployees = async () => {
   if (isCreateMode.value || !positionId.value) return
   try {
     const response = await employeeService.search({
-      positionId: positionId.value,
+      positionIds: [positionId.value],
       page: 0,
       size: 100,
     })
@@ -110,12 +94,9 @@ const fetchPosition = async () => {
       code: data.code,
       name: data.name,
       description: data.description || '',
-      minSalary: data.minSalary || 0,
-      maxSalary: data.maxSalary || 0,
+      level: data.level || '',
       status: data.status,
     }
-    minSalaryDisplay.value = formatCurrency(data.minSalary || 0)
-    maxSalaryDisplay.value = formatCurrency(data.maxSalary || 0)
   } catch {
     toast.loadError()
   } finally {
@@ -220,22 +201,16 @@ onMounted(() => {
             <el-input v-model="form.name" maxlength="100" show-word-limit />
           </el-form-item>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-1">
-            <el-form-item label="Lương tối thiểu (VNĐ)" prop="minSalary">
-              <el-input
-                :model-value="minSalaryDisplay"
-                placeholder="VD: 10,000,000"
-                @input="onMinSalaryInput"
+          <el-form-item label="Cấp bậc" prop="level">
+            <el-select v-model="form.level" placeholder="Chọn cấp bậc" clearable class="w-full">
+              <el-option
+                v-for="opt in levelOptions"
+                :key="opt.value"
+                :label="opt.label"
+                :value="opt.value"
               />
-            </el-form-item>
-            <el-form-item label="Lương tối đa (VNĐ)" prop="maxSalary">
-              <el-input
-                :model-value="maxSalaryDisplay"
-                placeholder="VD: 30,000,000"
-                @input="onMaxSalaryInput"
-              />
-            </el-form-item>
-          </div>
+            </el-select>
+          </el-form-item>
 
           <el-form-item label="Trạng thái" prop="status">
             <el-radio-group v-model="form.status" :disabled="false">

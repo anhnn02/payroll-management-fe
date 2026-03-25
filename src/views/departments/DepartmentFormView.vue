@@ -92,7 +92,7 @@ const fetchEmployees = async () => {
   if (isCreateMode.value || !departmentId.value) return
   try {
     const response = await employeeService.search({
-      deptId: departmentId.value,
+      deptIds: [departmentId.value],
       page: 0,
       size: 100,
     })

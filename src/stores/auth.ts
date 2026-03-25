@@ -5,11 +5,13 @@ import router from '@/router'
 import { ROUTE_NAMES } from '@/constants/routes'
 
 const TOKEN_KEY = 'auth_token'
+const REFRESH_TOKEN_KEY = 'auth_refresh_token'
 const USER_KEY = 'auth_user'
 
 export const useAuthStore = defineStore('auth', () => {
   // State
   const token = ref<string | null>(null)
+  const refreshToken = ref<string | null>(null)
   const user = ref<User | null>(null)
 
   // Computed
@@ -25,6 +27,15 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  function setRefreshToken(newRefreshToken: string | null) {
+    refreshToken.value = newRefreshToken
+    if (newRefreshToken) {
+      localStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken)
+    } else {
+      localStorage.removeItem(REFRESH_TOKEN_KEY)
+    }
+  }
+
   function setUser(newUser: User | null) {
     user.value = newUser
     if (newUser) {
@@ -36,18 +47,25 @@ export const useAuthStore = defineStore('auth', () => {
 
   function logout() {
     token.value = null
+    refreshToken.value = null
     user.value = null
     localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(REFRESH_TOKEN_KEY)
     localStorage.removeItem(USER_KEY)
     router.push({ name: ROUTE_NAMES.LOGIN })
   }
 
   function initFromStorage() {
     const storedToken = localStorage.getItem(TOKEN_KEY)
+    const storedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
     const storedUser = localStorage.getItem(USER_KEY)
 
     if (storedToken) {
       token.value = storedToken
+    }
+
+    if (storedRefreshToken) {
+      refreshToken.value = storedRefreshToken
     }
 
     if (storedUser) {
@@ -62,6 +80,7 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     // State
     token,
+    refreshToken,
     user,
 
     // Computed
@@ -69,6 +88,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     // Actions
     setToken,
+    setRefreshToken,
     setUser,
     logout,
     initFromStorage,

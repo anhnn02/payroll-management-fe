@@ -19,11 +19,12 @@ export type DepartmentStatus = 'ACTIVE' | 'INACTIVE'
 
 // Search request (POST /departments/search)
 export interface DepartmentSearchRequest {
-  keyword?: string // Tìm kiếm theo mã hoặc tên (LIKE search)
-  status?: string // Filter trạng thái
-  page: number // Số trang (bắt đầu từ 0)
-  size: number // Số bản ghi mỗi trang (default: 50)
-  sort?: string // Sắp xếp (VD: "name,asc")
+  code?: string
+  name?: string
+  status?: string
+  page: number
+  size: number
+  sort?: string
 }
 
 // Create/Update request

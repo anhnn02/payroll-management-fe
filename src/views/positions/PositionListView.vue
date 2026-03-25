@@ -52,7 +52,7 @@ async function fetchPositions() {
   isLoading.value = true
   try {
     const response = await positionService.search({
-      keyword: searchKeyword.value || undefined,
+      name: searchKeyword.value || undefined,
       status: filterStatus.value || undefined,
       page: pageForApi(),
       size: pageSize.value,
@@ -99,15 +99,6 @@ const handleReset = () => {
   filterStatus.value = Status.ACTIVE
   resetPage()
   fetchPositions()
-}
-
-/**
- * Format khung lương: "25,000,000 - 45,000,000 VNĐ"
- */
-const formatSalaryRange = (min?: number, max?: number): string => {
-  if (!min && !max) return '-'
-  const fmt = (n: number) => n.toLocaleString('vi-VN')
-  return `${fmt(min || 0)} - ${fmt(max || 0)}`
 }
 
 onMounted(fetchPositions)
@@ -177,9 +168,10 @@ onMounted(fetchPositions)
           </template>
         </el-table-column>
         <el-table-column prop="name" label="Tên vị trí" min-width="180" show-overflow-tooltip />
-        <el-table-column label="Khung lương" width="220">
+        <el-table-column prop="level" label="Cấp bậc" width="120" align="center">
           <template #default="{ row }">
-            {{ formatSalaryRange(row.minSalary, row.maxSalary) }}
+            <el-tag v-if="row.level" size="small">{{ row.level }}</el-tag>
+            <span v-else class="text-gray-400">-</span>
           </template>
         </el-table-column>
         <el-table-column prop="description" label="Mô tả" min-width="180" show-overflow-tooltip />

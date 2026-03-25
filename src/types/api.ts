@@ -63,17 +63,18 @@ export interface LoginCredentials {
 export interface AuthResponse {
   accessToken: string
   refreshToken: string
-  role: 'HR_MANAGER' | 'ACCOUNTANT'
+}
+
+export interface UserInfoResponse {
   username: string
-  employeeId?: string
+  roles: string[]
 }
 
 export interface User {
-  id: number | string
+  id?: number | string
   username: string
-  email?: string
-  fullName?: string
   roles: string[]
+  fullName?: string
   employeeId?: string
-  avatar?: string
+  role?: string
 }

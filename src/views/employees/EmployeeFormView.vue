@@ -24,7 +24,7 @@ const toast = useToast()
 const authStore = useAuthStore()
 
 // Role-based visibility (BA: Accountant chỉ xem chi tiết, không sửa)
-const isHrManager = computed(() => authStore.user?.role === UserRole.HR_MANAGER)
+const isHrManager = computed(() => authStore.user?.roles?.includes(UserRole.HR_MANAGER))
 
 const {
   isCreateMode,
