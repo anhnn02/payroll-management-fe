@@ -47,7 +47,7 @@ async function fetchDepartments() {
   isLoading.value = true
   try {
     const response = await departmentService.search({
-      keyword: searchKeyword.value || undefined,
+      name: searchKeyword.value || undefined,
       status: filterStatus.value || undefined,
       page: pageForApi(),
       size: pageSize.value,

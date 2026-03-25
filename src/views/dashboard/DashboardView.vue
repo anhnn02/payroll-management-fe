@@ -12,12 +12,11 @@ import DashboardQuickLinks from './components/DashboardQuickLinks.vue'
 import { Refresh } from '@element-plus/icons-vue'
 
 const authStore = useAuthStore()
-const userRole = computed(() => authStore.user?.role || '')
+const userRole = computed(() => authStore.user?.roles?.[0] || '')
 
 const loading = ref(true)
 const dashboardData = ref<DashboardPycResponse | null>(null)
 
-// For month selector
 const currentDate = new Date()
 const selectedMonth = ref(
   `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`
@@ -27,11 +26,7 @@ const fetchDashboardData = async () => {
   loading.value = true
   try {
     const res = await dashboardService.getDashboardPyc(selectedMonth.value)
-    if (res.data) {
-      dashboardData.value = res.data
-    } else {
-      dashboardData.value = null
-    }
+    dashboardData.value = res.data ?? null
   } catch (error) {
     console.error('Failed to load dashboard data', error)
     ElMessage.error('Không thể tải dữ liệu Dashboard. Vui lòng thử lại.')
@@ -45,9 +40,7 @@ onMounted(() => {
 })
 
 const handleMonthChange = (val: string) => {
-  if (val) {
-    fetchDashboardData()
-  }
+  if (val) fetchDashboardData()
 }
 </script>
 
@@ -56,15 +49,7 @@ const handleMonthChange = (val: string) => {
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
       <div>
         <h1 class="text-2xl font-bold text-gray-800">Dashboard Tổng Hợp</h1>
-        <p class="text-gray-500 text-sm mt-1" v-if="dashboardData?.generatedAt">
-          Cập nhật lúc
-          {{
-            new Date(dashboardData.generatedAt).toLocaleTimeString('vi-VN', {
-              hour: '2-digit',
-              minute: '2-digit',
-            })
-          }}
-        </p>
+        <p class="text-gray-500 text-sm mt-1">Tháng {{ dashboardData?.month || selectedMonth }}</p>
       </div>
 
       <div class="flex items-center gap-4">
@@ -105,21 +90,15 @@ const handleMonthChange = (val: string) => {
     <template v-else-if="dashboardData">
       <DashboardAlerts :alerts="dashboardData.alerts" />
 
-      <DashboardKpis :kpi="dashboardData.kpi" :role="userRole" />
+      <DashboardKpis :kpis="dashboardData.kpis" :role="userRole" />
 
-      <DashboardCharts
-        :trend-chart="dashboardData.trendChart"
-        :dept-pie-chart="dashboardData.deptPieChart"
-        :dept-o-t-bar-chart="dashboardData.deptOTBarChart"
-        :current-month="dashboardData.currentMonth"
-      />
+      <DashboardCharts :charts="dashboardData.charts" :current-month="dashboardData.month" />
 
-      <DashboardTable :table-data="dashboardData.deptStatusTable" :role="userRole" />
+      <DashboardTable :dept-status="dashboardData.deptStatus" :role="userRole" />
 
       <DashboardQuickLinks :role="userRole" />
     </template>
 
-    <!-- Empty State / Error State -->
     <div v-else class="py-20 text-center">
       <el-empty description="Không có dữ liệu" />
       <el-button type="primary" class="mt-4" @click="fetchDashboardData">Thử lại</el-button>

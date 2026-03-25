@@ -92,7 +92,7 @@ const fetchEmployees = async () => {
   if (isCreateMode.value || !departmentId.value) return
   try {
     const response = await employeeService.search({
-      deptId: departmentId.value,
+      deptIds: [departmentId.value],
       page: 0,
       size: 100,
     })
@@ -170,14 +170,43 @@ const handleRemoveEmployee = (emp: Employee) => {
 
 const onConfirmRemoveEmployee = async () => {
   if (!removingEmployee.value) return
-  await employeeService.update(removingEmployee.value.id, { deptId: '' })
+  const emp = removingEmployee.value
+  await employeeService.update(emp.id, {
+    code: emp.code,
+    name: emp.name,
+    dob: emp.dob,
+    gender: emp.gender,
+    idCard: emp.idCard,
+    email: emp.email,
+    phone: emp.phone,
+    address: emp.address,
+    deptId: '',
+    positionId: emp.positionId,
+    hireDate: emp.hireDate,
+    status: emp.status,
+  })
   await fetchEmployees()
 }
 
 const handleEmployeesAdded = async (addedEmployees: Employee[]) => {
   try {
     await Promise.all(
-      addedEmployees.map(emp => employeeService.update(emp.id, { deptId: departmentId.value }))
+      addedEmployees.map(emp =>
+        employeeService.update(emp.id, {
+          code: emp.code,
+          name: emp.name,
+          dob: emp.dob,
+          gender: emp.gender,
+          idCard: emp.idCard,
+          email: emp.email,
+          phone: emp.phone,
+          address: emp.address,
+          deptId: departmentId.value,
+          positionId: emp.positionId,
+          hireDate: emp.hireDate,
+          status: emp.status,
+        })
+      )
     )
     toast.updateSuccess()
     await fetchEmployees()

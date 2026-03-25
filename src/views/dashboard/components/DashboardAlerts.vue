@@ -9,8 +9,8 @@ defineProps<{
 const router = useRouter()
 
 const getElAlertType = (severity: string) => {
-  if (severity === 'warning') return 'warning'
-  if (severity === 'error') return 'error'
+  if (severity === 'WARN' || severity === 'warning') return 'warning'
+  if (severity === 'ERROR' || severity === 'error') return 'error'
   if (severity === 'success') return 'success'
   return 'info'
 }
@@ -32,11 +32,11 @@ const navigate = (path?: string) => {
       <template #title>
         <div
           class="flex items-center justify-between w-full cursor-pointer"
-          :class="{ 'hover:underline': !!alert.navigateTo }"
-          @click="navigate(alert.navigateTo)"
+          :class="{ 'hover:underline': !!alert.link }"
+          @click="navigate(alert.link)"
         >
           <span>{{ alert.message }}</span>
-          <span v-if="alert.navigateTo" class="text-xs opacity-75 ml-4">Xem chi tiết →</span>
+          <span v-if="alert.link" class="text-xs opacity-75 ml-4">Xem chi tiết →</span>
         </div>
       </template>
     </el-alert>

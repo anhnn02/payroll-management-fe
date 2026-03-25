@@ -52,7 +52,7 @@ async function fetchContracts() {
   isLoading.value = true
   try {
     const response = await contractService.search({
-      keyword: searchKeyword.value || undefined,
+      contractNumber: searchKeyword.value || undefined,
       contractType: filterContractType.value || undefined,
       status: filterStatus.value || undefined,
       page: pageForApi(),
@@ -135,7 +135,7 @@ onMounted(() => {
 
         <div class="w-40">
           <label class="block text-sm font-medium text-gray-700 mb-1">Loại HĐ</label>
-          <el-select v-model="filterContractType" placeholder="Tất cả" clearable class="w-full">
+          <el-select v-model="filterContractType" placeholder="Tất cả" clearable class="w-full" @change="handleSearch">
             <el-option
               v-for="option in CONTRACT_TYPE_OPTIONS"
               :key="option.value"

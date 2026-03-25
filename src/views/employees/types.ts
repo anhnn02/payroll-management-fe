@@ -1,40 +1,57 @@
-// Employee types - aligned with BE API (FE-API-CONFIG.md Section 4.4)
-
-export interface Employee {
-  id: string
-  code: string // Format: NVYYMMDD### (auto-generated)
-  name: string
-  dob: string // Format: YYYY-MM-DD
-  gender: Gender
-  idCard: string // CMND/CCCD (12 ký tự)
-  email: string
-  phone?: string
-  address?: string
-  deptId: string // FK → Department
-  positionId: string // FK → Position
-  hireDate: string // Format: YYYY-MM-DD
-  status: EmployeeStatus
-  createdAt?: string
-  updatedAt?: string
-  // Joined fields (BE may populate)
-  deptName?: string
-  positionName?: string
-}
+// Employee types - aligned with BE API v3
 
 export type EmployeeStatus = 'ACTIVE' | 'INACTIVE'
 export type Gender = 'MALE' | 'FEMALE' | 'OTHER'
 
-// Form data type for create/update
-export type EmployeeFormData = Omit<Employee, 'id' | 'code' | 'createdAt' | 'updatedAt'>
+export interface Employee {
+  id: string
+  code: string
+  name: string
+  dob: string // Format: YYYY-MM-DD
+  gender: Gender
+  idCard: string // CCCD/CMND
+  email: string
+  phone?: string
+  address?: string
+  deptId: string
+  positionId: string
+  hireDate: string // Format: YYYY-MM-DD
+  status: EmployeeStatus
+  createdBy?: string
+  createdAt?: string
+  updatedBy?: string
+  updatedAt?: string
+  // Joined fields — chỉ có trong POST /employees/search
+  deptName?: string
+  positionName?: string
+}
+
+// Create/Update request (EmployeeRequest)
+export interface EmployeeFormData {
+  code?: string
+  name: string
+  dob: string
+  gender: Gender | string
+  idCard: string
+  email: string
+  phone?: string
+  address?: string
+  deptId: string
+  positionId: string
+  hireDate: string
+  status: string
+}
 
 // Search request (POST /employees/search)
 export interface EmployeeSearchRequest {
-  keyword?: string // Tìm theo code, name, email
+  keyword?: string
+  code?: string
+  name?: string
+  deptIds?: string[]
+  positionIds?: string[]
   status?: string
-  deptId?: string // Filter theo phòng ban
-  positionId?: string // Filter theo chức vụ
+  gender?: string
   page: number
   size: number
-  sortBy?: string
-  sortDirection?: 'ASC' | 'DESC'
+  sort?: string
 }

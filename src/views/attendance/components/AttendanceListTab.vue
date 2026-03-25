@@ -30,7 +30,7 @@ const editData = ref({
 })
 
 // Permissions
-const isAccountant = computed(() => authStore.user?.role === UserRole.ACCOUNTANT)
+const isAccountant = computed(() => authStore.user?.roles?.includes(UserRole.ACCOUNTANT))
 
 // Filter State
 const searchKeyword = ref('')
@@ -56,7 +56,7 @@ const filteredRecords = computed(() => {
   if (searchKeyword.value) {
     const kw = searchKeyword.value.toLowerCase()
     filtered = filtered.filter(
-      r => r.empCode.toLowerCase().includes(kw) || r.empName.toLowerCase().includes(kw)
+      r => r.employeeCode.toLowerCase().includes(kw) || r.employeeName.toLowerCase().includes(kw)
     )
   }
   if (filterDeptId.value) {
@@ -155,7 +155,7 @@ const saveEdit = async (row: AttendanceMonthlyRow) => {
       leaveApproved: editData.value.leaveApproved,
       leaveUnauthorized: editData.value.leaveUnauthorized,
     })
-    ElMessage.success(`Đã lưu chấm công nhân viên ${row.empName}`)
+    ElMessage.success(`Đã lưu chấm công nhân viên ${row.employeeName}`)
     editingRowId.value = null
     await attendanceStore.fetchMonthlyData()
   } catch (error: unknown) {
@@ -228,8 +228,7 @@ const getStatusType = (status?: string) => {
       </div>
 
       <div class="ml-auto flex gap-2">
-        <el-button type="success" :icon="Download" @click="handleExport">Xuất Excel</el-button>
-        <el-button 
+        <el-button
           v-if="!isAccountant && !attendanceStore.isLocked"
           type="primary" 
           :icon="Upload" 
@@ -257,8 +256,8 @@ const getStatusType = (status?: string) => {
 
       <el-table-column label="Nhân viên" min-width="180">
         <template #default="{ row }">
-          <div class="font-bold">{{ row.empName }}</div>
-          <div class="text-gray-500 text-xs">{{ row.empCode }}</div>
+          <div class="font-bold">{{ row.employeeName }}</div>
+          <div class="text-gray-500 text-xs">{{ row.employeeCode }}</div>
         </template>
       </el-table-column>
 
@@ -272,10 +271,10 @@ const getStatusType = (status?: string) => {
         <template #default="{ row }">
           <el-progress
             type="circle"
-            :percentage="Math.round((row.workDays / (row.stdDays || 26)) * 100)"
+            :percentage="Math.round((row.workDays / (row.standardDays || 26)) * 100)"
             :width="48"
             :stroke-width="4"
-            :color="getProgressColor(Math.round((row.workDays / (row.stdDays || 26)) * 100))"
+            :color="getProgressColor(Math.round((row.workDays / (row.standardDays || 26)) * 100))"
           />
         </template>
       </el-table-column>
@@ -295,7 +294,7 @@ const getStatusType = (status?: string) => {
           </div>
           <div v-else>
             <span class="font-medium">{{ row.workDays }}</span>
-            <span class="text-gray-400 text-xs"> / {{ row.stdDays || 26 }}</span>
+            <span class="text-gray-400 text-xs"> / {{ row.standardDays || 26 }}</span>
           </div>
         </template>
       </el-table-column>

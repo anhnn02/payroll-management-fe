@@ -50,4 +50,36 @@ export const employeeService = {
     const api = useApi()
     return api.del<null>(API_ENDPOINTS.EMPLOYEES.DELETE(id))
   },
+
+  /**
+   * Export danh sách nhân viên ra Excel (POST /employees/export)
+   * Response: File binary (application/octet-stream)
+   */
+  async exportExcel(data: EmployeeSearchRequest): Promise<void> {
+    const { useAuthStore } = await import('@/stores/auth')
+    const authStore = useAuthStore()
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || ''
+    const response = await fetch(`${baseUrl}${API_ENDPOINTS.EMPLOYEES.EXPORT}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authStore.token ? { Authorization: `Bearer ${authStore.token}` } : {}),
+      },
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      throw new Error('Export thất bại')
+    }
+
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'danh_sach_nhan_vien.xlsx'
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+  },
 }

@@ -33,6 +33,7 @@ export const API_ENDPOINTS = {
     CREATE: '/employees',
     UPDATE: (id: string) => `/employees/${id}`,
     DELETE: (id: string) => `/employees/${id}`,
+    EXPORT: '/employees/export',
   },
   CONTRACTS: {
     SEARCH: '/contracts/search',
@@ -43,9 +44,11 @@ export const API_ENDPOINTS = {
     UPLOAD: (id: string) => `/contracts/${id}/upload`,
   },
   ATTENDANCE: {
+    CREATE: '/attendance',
     SEARCH: '/attendance/search',
     DETAIL: (id: string) => `/attendance/${id}`,
     UPDATE: (id: string) => `/attendance/${id}`,
+    DELETE: (id: string) => `/attendance/${id}`,
     TEMPLATE: '/attendance/template',
     IMPORT: '/attendance/import',
     MONTHLY: '/attendance/monthly',
@@ -56,6 +59,7 @@ export const API_ENDPOINTS = {
   },
   PAYROLL: {
     CALCULATE: '/payroll/calculate',
+    BREAKDOWN: '/payroll/breakdown',
     SEARCH: '/payroll/search',
     DETAIL: (id: string) => `/payroll/${id}`,
     UPDATE: (id: string) => `/payroll/${id}`,
@@ -70,8 +74,6 @@ export const API_ENDPOINTS = {
     SALARY_FACTORS: '/config/salary-factors',
     TAX: '/config/tax',
     INSURANCE: '/config/insurance',
-    ALLOWANCES: '/config/allowances',
-    ALLOWANCE_DETAIL: (id: string) => `/config/allowances/${id}`,
     HOLIDAYS: '/config/holidays',
     HOLIDAY_DETAIL: (id: string) => `/config/holidays/${id}`,
   },

@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-import { Check, Timer } from '@element-plus/icons-vue'
+import type { DashboardDeptStatus } from '@/services/dashboard.service'
 
 defineProps<{
-  tableData: any[]
+  deptStatus: DashboardDeptStatus[]
   role: string
 }>()
 
-const router = useRouter()
+const statusMap: Record<string, { label: string; type: string }> = {
+  OK: { label: 'Bình thường', type: 'success' },
+  THIEU_CHAM_CONG: { label: 'Thiếu chấm công', type: 'warning' },
+  CHO_DUYET_LUONG: { label: 'Chờ duyệt lương', type: 'info' },
+}
 </script>
 
 <template>
@@ -15,60 +18,34 @@ const router = useRouter()
     <template #header>
       <div class="font-semibold text-gray-700">Trạng Thái Theo Phòng Ban</div>
     </template>
-    <el-table :data="tableData" style="width: 100%" border>
+    <el-table :data="deptStatus" style="width: 100%" border>
       <el-table-column prop="deptName" label="Phòng Ban">
         <template #default="scope">
           <span class="font-medium">{{ scope.row.deptName }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="totalEmp" label="Số NV" width="100" align="center" />
-
-      <el-table-column v-if="role === 'HR_MANAGER'" label="Đã Chấm Công" width="150" align="center">
+      <el-table-column prop="activeEmployeeCount" label="Số NV active" width="120" align="center" />
+      <el-table-column label="TB ngày công" width="130" align="center">
         <template #default="scope">
-          {{ scope.row.hasAttendance }}
+          {{ scope.row.avgWorkDays?.toFixed(1) ?? '—' }}
         </template>
       </el-table-column>
-
-      <el-table-column v-if="role === 'HR_MANAGER'" label="Chưa CC" width="120" align="center">
+      <el-table-column label="TB giờ OT" width="120" align="center">
         <template #default="scope">
-          <el-tag
-            v-if="scope.row.noAttendance > 0"
-            type="danger"
-            class="cursor-pointer"
-            @click="
-              router.push(`/attendance/manage?dept=${scope.row.deptId || scope.row.deptName}`)
-            "
-          >
-            {{ scope.row.noAttendance }} NV
+          <el-tag type="warning" effect="plain" v-if="scope.row.avgOtHours">
+            {{ scope.row.avgOtHours?.toFixed(1) }}h
           </el-tag>
-          <el-tag v-else type="success">0</el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column prop="totalOT" label="Tổng OT (h)" width="150" align="center">
-        <template #default="scope">
-          <el-tag type="warning" effect="dark" v-if="scope.row.totalOT"
-            >{{ scope.row.totalOT }}h</el-tag
-          >
           <span v-else class="text-gray-400">0</span>
         </template>
       </el-table-column>
-
-      <el-table-column label="Trạng Thái Lương" align="center" width="180">
+      <el-table-column label="Trạng thái" align="center" width="180">
         <template #default="scope">
-          <div
-            v-if="scope.row.payrollStatus === 'PAID'"
-            class="text-green-600 flex items-center justify-center gap-1 font-semibold"
+          <el-tag
+            :type="(statusMap[scope.row.status]?.type as any) || 'info'"
+            size="small"
           >
-            <el-icon><Check /></el-icon> PAID
-          </div>
-          <div
-            v-else-if="scope.row.payrollStatus === 'UNPAID'"
-            class="text-yellow-600 flex items-center justify-center gap-1 font-semibold"
-          >
-            <el-icon><Timer /></el-icon> UNPAID
-          </div>
-          <div v-else class="text-gray-400">—</div>
+            {{ statusMap[scope.row.status]?.label || scope.row.status }}
+          </el-tag>
         </template>
       </el-table-column>
     </el-table>

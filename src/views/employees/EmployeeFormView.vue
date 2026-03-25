@@ -16,6 +16,7 @@ import { positionService } from '@/services/position.service'
 import { useToast } from '@/composables/useToast'
 import { usePageMode } from '@/composables/usePageMode'
 import { useAuthStore } from '@/stores/auth'
+import { generateCode } from '@/utils'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import type { Employee, EmployeeFormData } from './types'
 
@@ -24,7 +25,7 @@ const toast = useToast()
 const authStore = useAuthStore()
 
 // Role-based visibility (BA: Accountant chỉ xem chi tiết, không sửa)
-const isHrManager = computed(() => authStore.user?.role === UserRole.HR_MANAGER)
+const isHrManager = computed(() => authStore.user?.roles?.includes(UserRole.HR_MANAGER))
 
 const {
   isCreateMode,
@@ -43,8 +44,8 @@ const formRef = ref()
 const isLoading = ref(false)
 const isSubmitting = ref(false)
 
-// Form data (đúng 12 fields theo HLD bảng employee)
 const form = ref<EmployeeFormData>({
+  code: '',
   name: '',
   dob: '',
   gender: 'MALE',
@@ -75,6 +76,9 @@ const rules = {
   gender: [{ required: true, message: 'Vui lòng chọn giới tính', trigger: 'change' }],
   dob: [{ required: true, message: 'Vui lòng chọn ngày sinh', trigger: 'change' }],
   idCard: [{ required: true, message: 'Vui lòng nhập số CCCD/CMND', trigger: 'blur' }],
+  phone: [
+    { pattern: /^[0-9]{10,11}$/, message: 'Số điện thoại phải là 10-11 chữ số', trigger: 'blur' },
+  ],
   email: [
     { required: true, message: 'Vui lòng nhập email', trigger: 'blur' },
     { type: 'email' as const, message: 'Email không hợp lệ', trigger: 'blur' },
@@ -116,6 +120,7 @@ const fetchEmployee = async () => {
     detailData.value = data
 
     form.value = {
+      code: data.code,
       name: data.name,
       dob: data.dob,
       gender: data.gender,
@@ -147,6 +152,7 @@ const handleSubmit = async () => {
   try {
     const submitData: EmployeeFormData = {
       ...form.value,
+      code: isCreateMode.value ? generateCode('EMPLOYEE') : form.value.code,
       phone: form.value.phone || undefined,
       address: form.value.address || undefined,
     }
@@ -202,15 +208,15 @@ onMounted(() => {
         label-position="top"
         :disabled="isReadonly"
       >
-        <!-- Mã nhân viên (chỉ hiện khi edit/detail) -->
-        <div v-if="!isCreateMode" class="mb-4">
-          <span class="text-sm text-gray-500">Mã nhân viên: </span>
-          <span class="font-bold uppercase">{{ detailData?.code }}</span>
-        </div>
-
         <!-- ===== Nhóm 1: Thông tin định danh ===== -->
         <h3 class="text-base font-semibold text-gray-800 mb-3">Thông tin định danh</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-1">
+          <!-- Mã nhân viên: chỉ hiển thị khi edit/detail -->
+          <div v-if="!isCreateMode" class="mb-4 flex flex-col gap-1">
+            <span class="text-sm text-gray-500">Mã nhân viên</span>
+            <span class="font-semibold uppercase">{{ detailData?.code }}</span>
+          </div>
+
           <el-form-item label="Họ và tên" prop="name">
             <el-input
               v-model="form.name"
@@ -253,7 +259,7 @@ onMounted(() => {
             </el-form-item>
 
             <el-form-item label="Số điện thoại" prop="phone">
-              <el-input v-model="form.phone" placeholder="0123456789" />
+              <el-input v-model="form.phone" maxlength="11" placeholder="0123456789" />
             </el-form-item>
           </div>
 

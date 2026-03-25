@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, type Ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '@/constants/routes'
 import { Edit, Delete, Refresh, View } from '@/constants/icons'
@@ -9,7 +9,6 @@ import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import type { Payroll } from './types'
 import { formatCurrency } from '@/utils/formatContent'
-import { MOCK_PAYROLLS, MOCK_DEPARTMENTS, MOCK_EMPLOYEES } from './mock'
 import {
   PAYROLL_STATUS_OPTIONS,
   PAYROLL_STATUS_LABELS,
@@ -21,7 +20,6 @@ import { UserRole } from '@/constants/enums'
 import { COLORS } from '@/constants/colors'
 import { payrollService } from '@/services/payroll.service'
 import { employeeService } from '@/services/employee.service'
-import { departmentService } from '@/services/department.services'
 import { usePagination } from '@/composables/usePagination'
 import { useAuthStore } from '@/stores/auth'
 import { TABLE_EMPTY_TEXT } from '@/constants'
@@ -30,7 +28,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 // Role-based visibility
-const isHrManager = computed(() => authStore.user?.role === UserRole.HR_MANAGER)
+const isHrManager = computed(() => authStore.user?.roles?.includes(UserRole.HR_MANAGER))
 
 // ========== List State ==========
 const payrolls = ref<Payroll[]>([])
@@ -38,13 +36,9 @@ const isLoading = ref(false)
 const searchKeyword = ref('')
 const filterMonth = ref<number | undefined>(undefined)
 const filterYear = ref<number | undefined>(2026)
-const filterDeptId = ref('')
 const filterStatus = ref('')
 const showDeleteDialog = ref(false)
 const deletingPayroll = ref<Payroll | null>(null)
-
-// Department options for filter dropdown
-const departmentOptions = ref<{ value: string; label: string }[]>([])
 
 // ========== Calculate Dialog State ==========
 const showCalculateDialog = ref(false)
@@ -53,9 +47,7 @@ const calculateFormRef = ref<FormInstance>()
 const calculateForm = ref({ employeeCode: '', monthYear: '' })
 const employeeOptions = ref<{ value: string; label: string }[]>([])
 
-// ========== Result Dialog State ==========
-const showResultDialog = ref(false)
-const calculateResult: Ref<Payroll | null> = ref(null)
+// ========== Result State ==========
 
 // ========== Validation Rules ==========
 const calculateRules: FormRules = {
@@ -84,21 +76,6 @@ const {
 // ========== Fetch Functions ==========
 
 // Fetch departments for filter dropdown
-async function fetchDepartments() {
-  try {
-    const response = await departmentService.search({ page: 0, size: 200 })
-    departmentOptions.value = (response.content || []).map((d: { id: string; name: string }) => ({
-      value: d.id,
-      label: d.name,
-    }))
-  } catch {
-    departmentOptions.value = MOCK_DEPARTMENTS.map(d => ({
-      value: d.id,
-      label: d.name,
-    }))
-  }
-}
-
 // Fetch employee options for calculate dialog
 async function fetchEmployeeOptions() {
   try {
@@ -108,46 +85,26 @@ async function fetchEmployeeOptions() {
       label: `${e.code} - ${e.name}`,
     }))
   } catch {
-    employeeOptions.value = MOCK_EMPLOYEES.map(e => ({
-      value: e.code,
-      label: `${e.code} - ${e.name}`,
-    }))
+    employeeOptions.value = []
   }
 }
 
-// Fetch payrolls (Temp override to show MOCK_PAYROLLS)
 async function fetchPayrolls() {
   isLoading.value = true
   try {
-    let filtered = [...MOCK_PAYROLLS]
-    if (searchKeyword.value) {
-      const kw = searchKeyword.value.toLowerCase()
-      filtered = filtered.filter(
-        p =>
-          p.employeeCode?.toLowerCase().includes(kw) || p.employeeName?.toLowerCase().includes(kw)
-      )
-    }
-    if (filterMonth.value) {
-      filtered = filtered.filter(p => p.monthNum === filterMonth.value)
-    }
-    if (filterYear.value) {
-      filtered = filtered.filter(p => p.yearNum === filterYear.value)
-    }
-    if (filterDeptId.value) {
-      const dept = departmentOptions.value.find(d => d.value === filterDeptId.value)
-      if (dept) {
-        filtered = filtered.filter(p => p.departmentName === dept.label)
-      }
-    }
-    if (filterStatus.value) {
-      filtered = filtered.filter(p => p.status === filterStatus.value)
-    }
-    total.value = filtered.length
-    const start = pageForApi() * pageSize.value
-    payrolls.value = filtered.slice(start, start + pageSize.value)
-
-    // Bypass API call temporarily
-    // const response = await payrollService.search(...)
+    const response = await payrollService.search({
+      keyword: searchKeyword.value || undefined,
+      monthNum: filterMonth.value,
+      yearNum: filterYear.value,
+      status: filterStatus.value || undefined,
+      page: pageForApi(),
+      size: pageSize.value,
+    })
+    payrolls.value = response.content || []
+    total.value = response.totalElements || 0
+  } catch {
+    payrolls.value = []
+    total.value = 0
   } finally {
     isLoading.value = false
   }
@@ -182,7 +139,6 @@ const handleReset = () => {
   searchKeyword.value = ''
   filterMonth.value = undefined
   filterYear.value = 2026
-  filterDeptId.value = ''
   filterStatus.value = ''
   resetPage()
   fetchPayrolls()
@@ -206,47 +162,24 @@ const handleCalculate = async () => {
     if (!valid) return
     isCalculating.value = true
     try {
-      const response = await payrollService.calculate({
+      await payrollService.calculate({
         employeeCode: calculateForm.value.employeeCode,
         monthYear: calculateForm.value.monthYear,
       })
-      calculateResult.value = response.data as Payroll
       showCalculateDialog.value = false
-      showResultDialog.value = true
+      ElMessage.success('Tính lương thành công!')
+      fetchPayrolls()
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } }
-      ElMessage.error(err.response?.data?.message || 'Lỗi khi tính lương')
+      const err = error as { message?: string }
+      ElMessage.error(err.message || 'Lỗi khi tính lương')
     } finally {
       isCalculating.value = false
     }
   })
 }
 
-// ========== Result Dialog Handlers ==========
-const totalInsurance = computed(() => {
-  if (!calculateResult.value) return 0
-  return (
-    (calculateResult.value.bhxhAmount || 0) +
-    (calculateResult.value.bhtnAmount || 0) +
-    (calculateResult.value.bhytAmount || 0)
-  )
-})
-
-const closeResultDialog = () => {
-  showResultDialog.value = false
-  calculateResult.value = null
-  fetchPayrolls()
-}
-
-const viewResultDetail = () => {
-  if (!calculateResult.value) return
-  router.push({ name: ROUTE_NAMES.PAYROLL_DETAIL, params: { id: calculateResult.value.id } })
-  showResultDialog.value = false
-}
-
 // ========== Lifecycle ==========
 onMounted(() => {
-  fetchDepartments()
   fetchEmployeeOptions()
   fetchPayrolls()
 })
@@ -296,24 +229,6 @@ onMounted(() => {
             :controls="false"
             class="w-full"
           />
-        </div>
-
-        <div class="w-40">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Phòng ban</label>
-          <el-select
-            v-model="filterDeptId"
-            placeholder="Tất cả"
-            clearable
-            filterable
-            class="w-full"
-          >
-            <el-option
-              v-for="option in departmentOptions"
-              :key="option.value"
-              :label="option.label"
-              :value="option.value"
-            />
-          </el-select>
         </div>
 
         <div class="w-40">
@@ -376,9 +291,6 @@ onMounted(() => {
               Công: {{ row.workingDays }}/{{ row.standardDays }}
             </div>
           </template>
-        </el-table-column>
-        <el-table-column label="Lương TC" width="150" align="right">
-          <template #default="{ row }"> {{ formatCurrency(row.workingSalary) }} VNĐ </template>
         </el-table-column>
         <el-table-column label="Thực nhận" width="150" align="right">
           <template #default="{ row }">
@@ -489,66 +401,4 @@ onMounted(() => {
     </template>
   </el-dialog>
 
-  <!-- ========== Dialog Kết quả tính lương ========== -->
-  <el-dialog
-    v-model="showResultDialog"
-    title="✅ Tính lương thành công!"
-    width="500px"
-    :close-on-click-modal="false"
-  >
-    <div v-if="calculateResult" class="space-y-3">
-      <div class="flex justify-between">
-        <span class="text-gray-600">Nhân viên</span>
-        <span class="font-medium">
-          {{ calculateResult.employeeCode }} - {{ calculateResult.employeeName }}
-        </span>
-      </div>
-      <div class="flex justify-between">
-        <span class="text-gray-600">Kỳ lương</span>
-        <span>
-          Tháng {{ String(calculateResult.monthNum).padStart(2, '0') }}/{{
-            calculateResult.yearNum
-          }}
-        </span>
-      </div>
-      <div class="flex justify-between">
-        <span class="text-gray-600">Ngày công</span>
-        <span>{{ calculateResult.workingDays }}/{{ calculateResult.standardDays }}</span>
-      </div>
-      <div class="flex justify-between">
-        <span class="text-gray-600">Lương TC</span>
-        <span>{{ formatCurrency(calculateResult.workingSalary) }} VNĐ</span>
-      </div>
-      <div class="flex justify-between">
-        <span class="text-gray-600">Lương OT</span>
-        <span>{{ formatCurrency(calculateResult.otSalary) }} VNĐ</span>
-      </div>
-      <div class="flex justify-between">
-        <span class="text-gray-600">Phụ cấp</span>
-        <span>{{ formatCurrency(calculateResult.allowance) }} VNĐ</span>
-      </div>
-      <div class="flex justify-between">
-        <span class="text-gray-600">Bảo hiểm</span>
-        <span>{{ formatCurrency(totalInsurance) }} VNĐ</span>
-      </div>
-      <div class="flex justify-between">
-        <span class="text-gray-600">Thuế TNCN</span>
-        <span>{{ formatCurrency(calculateResult.taxAmount) }} VNĐ</span>
-      </div>
-
-      <el-divider />
-
-      <div class="flex justify-between items-center">
-        <span class="text-lg font-bold">★ Thực nhận</span>
-        <span class="text-xl font-bold text-primary">
-          {{ formatCurrency(calculateResult.totalSalary) }} VNĐ
-        </span>
-      </div>
-    </div>
-
-    <template #footer>
-      <el-button @click="closeResultDialog">Đóng</el-button>
-      <el-button type="primary" @click="viewResultDetail">Xem chi tiết</el-button>
-    </template>
-  </el-dialog>
 </template>

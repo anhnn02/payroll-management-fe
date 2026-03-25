@@ -5,10 +5,10 @@ import type {
   Payroll,
   PayrollSearchRequest,
   PayrollCalculateRequest,
-  PayrollUpdateRequest,
+  PayrollBreakdown,
 } from '@/views/payroll/types'
 
-export type { Payroll, PayrollSearchRequest, PayrollCalculateRequest, PayrollUpdateRequest }
+export type { Payroll, PayrollSearchRequest, PayrollCalculateRequest, PayrollBreakdown }
 
 export const payrollService = {
   /** Tìm kiếm bảng lương (POST /payroll/search) */
@@ -31,19 +31,28 @@ export const payrollService = {
     return api.get<Payroll>(API_ENDPOINTS.PAYROLL.DETAIL(id), options)
   },
 
-  /** Tính lương (POST /payroll/calculate) — Core */
+  /** Xem chi tiết phân tích lương (POST /payroll/breakdown) */
+  async breakdown(
+    data: PayrollCalculateRequest,
+    options?: ApiRequestOptions
+  ): Promise<ApiResponse<PayrollBreakdown>> {
+    const api = useApi()
+    return api.post<PayrollBreakdown>(API_ENDPOINTS.PAYROLL.BREAKDOWN, data, options)
+  },
+
+  /** Tính lương (POST /payroll/calculate) — returns Void */
   async calculate(
     data: PayrollCalculateRequest,
     options?: ApiRequestOptions
-  ): Promise<ApiResponse<Payroll>> {
+  ): Promise<ApiResponse<void>> {
     const api = useApi()
-    return api.post<Payroll>(API_ENDPOINTS.PAYROLL.CALCULATE, data, options)
+    return api.post<void>(API_ENDPOINTS.PAYROLL.CALCULATE, data, options)
   },
 
-  /** Cập nhật bảng lương — manual adjustment (PUT /payroll/{id}) */
+  /** Cập nhật bảng lương (PUT /payroll/{id}) — uses PayrollCalculateRequest */
   async update(
     id: string,
-    data: PayrollUpdateRequest,
+    data: PayrollCalculateRequest,
     options?: ApiRequestOptions
   ): Promise<ApiResponse<Payroll>> {
     const api = useApi()

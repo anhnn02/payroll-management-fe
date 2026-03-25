@@ -1,11 +1,30 @@
 import type { SearchRequest } from './api'
 
+// --- OT Type ---
+export type OtType = 'WEEKDAY' | 'SATURDAY' | 'SUNDAY' | 'HOLIDAY'
+
 // --- Requests ---
+
+export interface AttendanceCreateRequest {
+  empId: number | string
+  attendanceDate: string // format YYYY-MM-DD
+  startTime: string // format HH:mm
+  endTime: string // format HH:mm
+  workHours: number
+  normalHours: number
+  otHours: number
+  isWorkingDay: boolean
+  otType?: OtType
+  note?: string
+}
 
 export interface AttendanceSearchRequest extends SearchRequest {
   month?: string // format YYYY-MM
   keyword?: string
   deptId?: string
+  empId?: number | string
+  dateFrom?: string
+  dateTo?: string
 }
 
 export interface AttendanceMonthlyRequest {
@@ -14,6 +33,7 @@ export interface AttendanceMonthlyRequest {
   deptId?: string
 }
 
+// Body only — `month` is sent as query param
 export interface AttendanceMonthlyUpdateRequest {
   workDays: number
   otHours: number
@@ -26,39 +46,36 @@ export interface AttendanceMonthlyUpdateRequest {
 export interface AttendanceResponse {
   id: string
   empId: string
-  empCode: string
-  empName: string
   attendanceDate: string
   startTime: string | null
   endTime: string | null
   workHours: number
   normalHours: number
   otHours: number
-  otType: string | null
   isWorkingDay: boolean
+  otType: OtType | string | null
   note: string | null
-  createdAt?: string
   createdBy?: string
-  updatedAt?: string
+  createdAt?: string
   updatedBy?: string
+  updatedAt?: string
 }
 
 export interface AttendanceMonthlyRow {
-  id: string
   empId: string
-  empCode: string
-  empName: string
+  employeeCode: string
+  employeeName: string
   deptId: string
   deptName: string
   workDays: number
-  stdDays: number
+  standardDays: number
   otHours: number
   leaveApproved: number
   leaveUnauthorized: number
-  status?: string 
 }
 
 export interface AttendanceMonthlyResponse {
+  month: string
   locked: boolean
   employeeCount: number
   totalOtHours: number
@@ -69,27 +86,12 @@ export interface AttendanceMonthlyResponse {
 export interface AttendanceImportError {
   row: number
   employeeCode: string
-  employeeName?: string
-  workDays?: number | string
-  otHours?: number | string
-  leaveDays?: number | string
   error: string
-}
-
-export interface AttendanceImportRecord {
-  row: number
-  employeeCode: string
-  employeeName?: string
-  workDays?: number | string
-  otHours?: number | string
-  leaveDays?: number | string
-  error?: string
 }
 
 export interface AttendanceImportResultResponse {
   totalRows: number
   successCount: number
   failedCount: number
-  errors?: AttendanceImportRecord[]
-  records?: AttendanceImportRecord[]
+  errors?: AttendanceImportError[]
 }

@@ -72,83 +72,7 @@ const handlePreview = async () => {
     previewResult.value = res.data
     currentStep.value = 1
   } catch (error: unknown) {
-    ElMessage.warning('API không phản hồi, tự động dùng Mock Data để hiển thị UI Step 2!')
-    previewResult.value = {
-      totalRows: 15,
-      successCount: 11,
-      failedCount: 4,
-      records: [
-        {
-          row: 1,
-          employeeCode: 'EMP001',
-          employeeName: 'Đinh Tuấn Tài',
-          workDays: 22,
-          otHours: 10,
-          leaveDays: 0,
-        },
-        {
-          row: 2,
-          employeeCode: 'EMP002',
-          employeeName: 'Nguyễn Văn A',
-          workDays: undefined,
-          otHours: 12,
-          leaveDays: 0,
-          error: 'Thiếu số ngày công',
-        },
-        {
-          row: 3,
-          employeeCode: 'EMP003',
-          employeeName: 'Hoàng Trung Hiếu',
-          workDays: 20,
-          otHours: 5,
-          leaveDays: 2,
-        },
-        {
-          row: 4,
-          employeeCode: 'EMP004',
-          employeeName: 'Lý Quốc Bảo',
-          workDays: 21,
-          otHours: 0,
-          leaveDays: 1,
-        },
-        {
-          row: 5,
-          employeeCode: 'EMP005',
-          employeeName: 'Trần Thị B',
-          workDays: 20,
-          otHours: 5,
-          leaveDays: 1,
-          error: 'Mã nhân viên không tồn tại trong hệ thống',
-        },
-        {
-          row: 12,
-          employeeCode: 'EMP012',
-          employeeName: 'Lê Hoàng C',
-          workDays: 22,
-          otHours: -2,
-          leaveDays: 0,
-          error: 'Số giờ OT bị âm',
-        },
-        {
-          row: 13,
-          employeeCode: 'EMP013',
-          employeeName: 'Đỗ Thị Lan',
-          workDays: 22,
-          otHours: 2,
-          leaveDays: 0,
-        },
-        {
-          row: 15,
-          employeeCode: 'EMP015',
-          employeeName: 'Phạm Thị D',
-          workDays: 35,
-          otHours: 0,
-          leaveDays: 0,
-          error: 'Số ngày công vượt quá giới hạn',
-        },
-      ],
-    }
-    currentStep.value = 1
+    ElMessage.error('Lỗi xem trước file: ' + (error as Error).message)
   } finally {
     loading.close()
   }
@@ -190,9 +114,7 @@ const executeImport = async (overwrite: boolean) => {
     showOverwriteDialog.value = false
     currentStep.value = 2
   } catch (error: unknown) {
-    ElMessage.warning('API không phản hồi, tự động Mock thành công để qua Step 3!')
-    showOverwriteDialog.value = false
-    currentStep.value = 2
+    ElMessage.error('Lỗi import chấm công: ' + (error as Error).message)
   } finally {
     isSubmitting.value = false
     loading.close()
@@ -298,47 +220,16 @@ const handleReturnToList = () => {
         </div>
 
         <el-table
-          :data="previewResult.records || previewResult.errors"
+          :data="previewResult.errors || []"
           style="width: 100%"
           max-height="400"
-          :row-class-name="({ row }) => (row.error ? 'bg-[#FFF8F7] !text-red-800' : '')"
+          :row-class-name="() => 'bg-[#FFF8F7] !text-red-800'"
         >
           <el-table-column prop="row" label="Dòng #" width="80" align="center" />
-          <el-table-column prop="employeeCode" label="Mã NV" width="120" />
-          <el-table-column label="Họ tên" min-width="150">
+          <el-table-column prop="employeeCode" label="Mã NV" width="150" />
+          <el-table-column prop="error" label="Lý do lỗi" min-width="250">
             <template #default="{ row }">
-              <span v-if="row.employeeName">{{ row.employeeName }}</span>
-              <span v-else class="text-gray-400">—</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="Ngày CC" width="90" align="center">
-            <template #default="{ row }">
-              <span v-if="row.workDays !== undefined">{{ row.workDays }}</span>
-              <span v-else class="text-gray-400">—</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="OT" width="70" align="center">
-            <template #default="{ row }">
-              <span v-if="row.otHours !== undefined">{{ row.otHours }}</span>
-              <span v-else class="text-gray-400">—</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="Nghỉ phép" width="100" align="center">
-            <template #default="{ row }">
-              <span v-if="row.leaveDays !== undefined">{{ row.leaveDays }}</span>
-              <span v-else class="text-gray-400">—</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="Kết quả" width="100" align="center">
-            <template #default="{ row }">
-              <el-tag v-if="row.error" type="danger" size="small" effect="dark">Lỗi</el-tag>
-              <el-tag v-else type="success" size="small" effect="dark">Hợp lệ</el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="error" label="Lý do lỗi/Ghi chú" min-width="180">
-            <template #default="{ row }">
-              <span v-if="row.error" class="text-red-600 font-medium">{{ row.error }}</span>
-              <span v-else class="text-green-600 font-medium">Sẵn sàng Import</span>
+              <span class="text-red-600 font-medium">{{ row.error }}</span>
             </template>
           </el-table-column>
         </el-table>

@@ -59,15 +59,16 @@ const {
   pageForApi,
 } = usePagination(fetchEmployees)
 
-// Fetch employees (Temp override to show MOCK_EMPLOYEES)
+// Fetch employees
 async function fetchEmployees() {
   isLoading.value = true
   try {
     const response = await employeeService.search({
       keyword: searchKeyword.value || undefined,
       status: filterStatus.value || undefined,
-      deptId: filterDeptId.value || undefined,
-      positionId: filterPositionId.value || undefined,
+      deptIds: filterDeptId.value ? [filterDeptId.value] : undefined,
+      positionIds: filterPositionId.value ? [filterPositionId.value] : undefined,
+      gender: filterGender.value || undefined,
       page: pageForApi(),
       size: pageSize.value,
     })
@@ -223,7 +224,7 @@ onMounted(() => {
 
         <div class="w-28">
           <label class="block text-sm font-medium text-gray-700 mb-1">Giới tính</label>
-          <el-select v-model="filterGender" placeholder="Tất cả" clearable class="w-full">
+          <el-select v-model="filterGender" placeholder="Tất cả" clearable class="w-full" @change="handleSearch">
             <el-option
               v-for="option in GENDER_OPTIONS"
               :key="option.value"

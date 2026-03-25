@@ -30,20 +30,17 @@ async function handleLogin() {
 
     // Lưu token theo BE response format
     authStore.setToken(data.accessToken)
+    authStore.setRefreshToken(data.refreshToken)
 
     // Gọi API /auth/me ngay sau khi login thành công để lấy profile đầy đủ
     try {
       const userProfile = await authService.getMe()
-      authStore.setUser(userProfile.data)
+      authStore.setUser({
+        username: userProfile.data.username,
+        roles: userProfile.data.roles,
+      })
     } catch (err) {
       console.error('Failed to fetch user profile:', err)
-      // Fallback nếu getMe lỗi nhưng login thành công
-      authStore.setUser({
-        id: data.employeeId || '',
-        username: data.username,
-        role: data.role,
-        fullName: data.username,
-      })
     }
 
     ElMessage.success('Đăng nhập thành công!')
