@@ -17,10 +17,10 @@ const authStore = useAuthStore()
 
     <!-- Right: User info -->
     <div class="flex items-center gap-4">
-      <span class="text-gray-600">{{ authStore.user?.fullName || 'Guest' }}</span>
+      <span class="text-gray-600">{{ authStore.user?.username || 'Guest' }}</span>
       <el-dropdown>
         <el-avatar :size="36" class="cursor-pointer bg-primary">
-          {{ authStore.user?.fullName?.charAt(0) || 'U' }}
+          {{ authStore.user?.username?.charAt(0) || 'U' }}
         </el-avatar>
         <template #dropdown>
           <el-dropdown-menu>
