@@ -3,6 +3,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { markRaw, ref, onMounted, type Component } from 'vue'
 import { MENU_ICONS } from '@/constants/icons'
 import { ROUTE_NAMES, ROUTE_PATHS } from '@/constants/routes'
+import { ASSETS } from '@/constants'
 import { ArrowDown } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -125,7 +126,10 @@ const toggleGroup = (title: string) => {
   <aside class="w-64 bg-white border-r border-gray-200 flex flex-col min-h-screen">
     <!-- Logo -->
     <div class="h-16 flex items-center justify-center border-b border-gray-200">
-      <span class="text-xl font-bold text-primary">💼 Payroll</span>
+      <div class="flex items-center gap-2">
+        <img :src="ASSETS.LOGO" alt="Logo" class="h-8 w-8 object-contain" />
+        <span class="text-xl font-bold text-primary">Payroll</span>
+      </div>
     </div>
 
     <!-- Menu -->
@@ -157,7 +161,7 @@ const toggleGroup = (title: string) => {
               @click="toggleGroup(item.title)"
             >
               <div class="flex items-center gap-3">
-                <el-icon :size="20" v-if="item.icon"><component :is="item.icon" /></el-icon>
+                <el-icon v-if="item.icon" :size="20"><component :is="item.icon" /></el-icon>
                 <span>{{ item.title }}</span>
               </div>
               <el-icon

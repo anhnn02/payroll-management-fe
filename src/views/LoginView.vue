@@ -4,6 +4,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores'
 import { useAuthService } from '@/services/auth.service'
 import { ElMessage } from 'element-plus'
+import { ASSETS } from '@/constants'
 
 const router = useRouter()
 const route = useRoute()
@@ -59,7 +60,10 @@ async function handleLogin() {
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-100">
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-      <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Đăng nhập</h1>
+      <div class="flex flex-col items-center mb-6">
+        <img :src="ASSETS.LOGO" alt="Logo" class="w-20 h-20 mb-4" />
+        <h1 class="text-2xl font-bold text-center text-gray-800">Đăng nhập</h1>
+      </div>
 
       <el-form :model="form" label-position="top" @submit.prevent="handleLogin">
         <el-form-item label="Tên đăng nhập">
@@ -86,10 +90,6 @@ async function handleLogin() {
           Đăng nhập
         </el-button>
       </el-form>
-
-      <div class="mt-4 text-center">
-        <router-link to="/" class="text-blue-500 hover:underline"> ← Về trang chủ </router-link>
-      </div>
     </div>
   </div>
 </template>
