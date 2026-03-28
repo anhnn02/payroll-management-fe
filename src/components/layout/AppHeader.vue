@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth'
+import { ASSETS } from '@/constants'
 
 const authStore = useAuthStore()
 </script>
@@ -10,6 +11,7 @@ const authStore = useAuthStore()
   >
     <!-- Left: Logo / Title -->
     <div class="flex items-center gap-4">
+      <img :src="ASSETS.LOGO" alt="Logo" class="h-8 w-8 object-contain" />
       <h1 class="text-xl font-semibold text-primary">Payroll Management</h1>
     </div>
 

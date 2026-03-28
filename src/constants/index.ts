@@ -1,4 +1,5 @@
 export * from './api'
+export * from './assets'
 export * from './enums'
 export * from './error'
 export * from './pagination'
